@@ -1,0 +1,446 @@
+/* Next.js CSS Modules for Hadamard Test Demo */
+/* SPDX-License-Identifier: MIT */
+/* SPDX-FileCopyrightText: Copyright 2025 OpenQL Project */
+
+.main {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 100%);
+  color: #ffffff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  margin: 0 0 10px 0;
+  background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7D1, #96CEB4);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 30px rgba(255, 107, 107, 0.3);
+}
+
+.header p {
+  font-size: 1.2rem;
+  margin: 0 0 15px 0;
+  opacity: 0.9;
+}
+
+.framework {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+}
+
+.framework span {
+  padding: 6px 14px;
+  background: rgba(255, 107, 107, 0.15);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  backdrop-filter: blur(5px);
+}
+
+.hadamardContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(15px);
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card h3 {
+  margin: 0 0 20px 0;
+  font-size: 1.4rem;
+  color: #4ECDC4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 25px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .controls {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+.controlGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.controlGroup label {
+  font-weight: 600;
+  color: #E0E0E0;
+}
+
+.sliderContainer {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.sliderContainer input[type="range"] {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  outline: none;
+  appearance: none;
+}
+
+.sliderContainer input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: linear-gradient(135deg, #4ECDC4, #45B7D1);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(78, 205, 196, 0.3);
+}
+
+.sliderContainer input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: linear-gradient(135deg, #4ECDC4, #45B7D1);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 6px rgba(78, 205, 196, 0.3);
+}
+
+.phaseDisplay {
+  min-width: 60px;
+  padding: 8px 12px;
+  background: rgba(78, 205, 196, 0.1);
+  border-radius: 8px;
+  text-align: center;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  color: #4ECDC4;
+  border: 1px solid rgba(78, 205, 196, 0.3);
+}
+
+.controlGroup select {
+  padding: 10px 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 0.95rem;
+}
+
+.controlGroup select:focus {
+  outline: none;
+  border-color: #4ECDC4;
+  box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
+}
+
+.measureButton {
+  background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.measureButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.measureButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: rgba(255, 107, 107, 0.3);
+}
+
+.resultsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+}
+
+@media (max-width: 968px) {
+  .resultsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.measurementResults {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.resultBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bar {
+  height: 30px;
+  background: linear-gradient(135deg, #4ECDC4, #45B7D1);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: bold;
+  transition: width 0.5s ease;
+  box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3);
+  position: relative;
+}
+
+.bar::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, rgba(78, 205, 196, 0.5), rgba(69, 183, 209, 0.5));
+  border-radius: 6px;
+  z-index: -1;
+}
+
+.phaseResults {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(78, 205, 196, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid #4ECDC4;
+}
+
+.phaseResults > div {
+  margin: 5px 0;
+  font-family: 'Courier New', monospace;
+}
+
+.circuitDisplay {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.qubitLine {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  height: 50px;
+  position: relative;
+}
+
+.gate {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #ffffff;
+}
+
+.controlledGate {
+  background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+  border-color: #FF6B6B;
+  color: #ffffff;
+}
+
+.measurement {
+  background: linear-gradient(135deg, #F39C12, #E67E22);
+  border-color: #F39C12;
+  color: #ffffff;
+}
+
+.connectionLine {
+  position: absolute;
+  left: 175px;
+  top: 25px;
+  width: 2px;
+  height: 50px;
+  background: rgba(255, 107, 107, 0.6);
+  z-index: -1;
+}
+
+.phaseInfo {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.infoItem {
+  text-align: center;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  flex: 1;
+  min-width: 120px;
+}
+
+.eigenvalue {
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  color: #FFD54F;
+  margin-top: 5px;
+}
+
+.algorithmInfo {
+  line-height: 1.6;
+}
+
+.algorithmInfo p {
+  margin-bottom: 15px;
+}
+
+.steps {
+  margin: 20px 0;
+  padding: 15px;
+  background: rgba(69, 183, 209, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid #45B7D1;
+}
+
+.steps h4 {
+  margin: 0 0 10px 0;
+  color: #45B7D1;
+}
+
+.steps ol {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.steps li {
+  margin: 8px 0;
+}
+
+.currentGate {
+  margin: 20px 0;
+  padding: 15px;
+  background: rgba(78, 205, 196, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid #4ECDC4;
+}
+
+.currentGate h4 {
+  margin: 0 0 10px 0;
+  color: #4ECDC4;
+}
+
+.theory {
+  margin: 20px 0;
+  padding: 15px;
+  background: rgba(255, 107, 107, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid #FF6B6B;
+}
+
+.convergenceDisplay {
+  text-align: center;
+}
+
+.historyGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.historyPoint {
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+}
+
+.historyPoint > div {
+  margin: 3px 0;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 20px;
+}
+
+.loadingSpinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(78, 205, 196, 0.3);
+  border-top: 3px solid #4ECDC4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loadingSteps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: center;
+  opacity: 0.8;
+  font-size: 0.9rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.footer {
+  text-align: center;
+  margin-top: 40px;
+  padding: 20px;
+  opacity: 0.7;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q5M.js + Vue: Quantum Entanglement</title>
+<!-- SPDX-License-Identifier: MIT -->
+<!-- SPDX-FileCopyrightText: Copyright 2025 OpenQL Project -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="../../../../../dist/q5m.min.js"></script>
+    <script>
+        // Fallback to CDN if local file fails to load
+        if (typeof Q5M === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/q5m@latest/dist/q5m.min.js';
+            document.head.appendChild(script);
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        button.active {
+            background: linear-gradient(45deg, #ff6b6b, #ff5252);
+        }
+        .state-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .probabilities {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 10px;
+        }
+        .probability-bar {
+            text-align: center;
+        }
+        .bar {
+            background: linear-gradient(to top, #4CAF50, #81C784);
+            border-radius: 4px;
+            transition: height 0.5s ease;
+            margin: 5px 0;
+            position: relative;
+        }
+        .state-info {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .amplitude-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .amplitude {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 12px;
+        }
+        .complex-num {
+            color: #81C784;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="header">
+                <h1>🔗 Quantum Entanglement with Vue.js</h1>
+                <p>Explore Bell states and GHZ states using Q5M.js</p>
+            </div>
+
+            <div class="card">
+                <h3>🎯 Create Entangled States</h3>
+                <div class="controls">
+                    <button @click="createBellState" :class="{active: currentState === 'bell'}">
+                        Bell State |Φ⁺⟩
+                    </button>
+                    <button @click="createBellStateMinus" :class="{active: currentState === 'bell-'}">
+                        Bell State |Φ⁻⟩
+                    </button>
+                    <button @click="createGHZState" :class="{active: currentState === 'ghz'}">
+                        GHZ State (3 qubits)
+                    </button>
+                    <button @click="createWState" :class="{active: currentState === 'w'}">
+                        W State (3 qubits)
+                    </button>
+                    <button @click="resetState" :class="{active: currentState === 'reset'}">
+                        Reset |000⟩
+                    </button>
+                </div>
+            </div>
+
+            <div class="state-display">
+                <div class="card">
+                    <h3>📊 Measurement Probabilities</h3>
+                    <div class="probabilities">
+                        <div v-for="(prob, index) in probabilities" :key="index" class="probability-bar">
+                            <div class="bar" :style="{height: (prob * 200) + 'px', minHeight: '5px'}"></div>
+                            <div>|{{ index.toString(2).padStart(numQubits, '0') }}⟩</div>
+                            <div>{{ (prob * 100).toFixed(1) }}%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🌊 Quantum Amplitudes</h3>
+                    <div class="amplitude-display">
+                        <div v-for="(amp, index) in amplitudes" :key="index" class="amplitude">
+                            <div>|{{ index.toString(2).padStart(numQubits, '0') }}⟩</div>
+                            <div class="complex-num">
+                                {{ formatComplex(amp) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>ℹ️ State Information</h3>
+                <div class="state-info">
+                    <div><strong>Current State:</strong> {{ stateDescription }}</div>
+                    <div><strong>Number of Qubits:</strong> {{ numQubits }}</div>
+                    <div><strong>Entanglement:</strong> {{ entanglementInfo }}</div>
+                    <div><strong>Schmidt Rank:</strong> {{ schmidtRank }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dynamic path resolution for both file:// and http://
+        const scriptPath = window.location.protocol === 'file:' 
+            ? './entanglement.js'
+            : '01-entanglement/entanglement.js';
+        const script = document.createElement('script');
+        script.src = scriptPath;
+        document.body.appendChild(script);
+    </script>
+</body>
+</html>

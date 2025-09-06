@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q5M.js + Vue: Hadamard Test</title>
+<!-- SPDX-License-Identifier: MIT -->
+<!-- SPDX-FileCopyrightText: Copyright 2025 OpenQL Project -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="../../../../../dist/q5m.min.js"></script>
+    <script>
+        // Fallback to CDN if local file fails to load
+        if (typeof Q5M === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/q5m@latest/dist/q5m.min.js';
+            document.head.appendChild(script);
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #2C3E50 0%, #34495E 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.3);
+            outline: none;
+        }
+        .phase-display {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-family: monospace;
+            min-width: 80px;
+            text-align: center;
+        }
+        button {
+            background: linear-gradient(45deg, #3498DB, #2980B9);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        button.active {
+            background: linear-gradient(45deg, #E74C3C, #C0392B);
+        }
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .measurement-results {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+        }
+        .result-bar {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            gap: 10px;
+        }
+        .bar {
+            background: linear-gradient(to right, #3498DB, #5DADE2);
+            height: 20px;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            min-width: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        .circuit-display {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .qubit-line {
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .gate {
+            background: #3498DB;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+        }
+        .controlled-gate {
+            background: #E74C3C;
+        }
+        .phase-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .info-item {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .eigenvalue {
+            font-size: 18px;
+            font-weight: bold;
+            color: #F39C12;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="header">
+                <h1>🧪 Hadamard Test with Vue.js</h1>
+                <p>Explore phase estimation and phase kickback phenomena</p>
+            </div>
+
+            <div class="card">
+                <h3>⚙️ Test Parameters</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label><strong>Phase (φ):</strong></label>
+                        <div class="slider-container">
+                            <input 
+                                type="range" 
+                                v-model="phase" 
+                                min="0" 
+                                max="6.28318" 
+                                step="0.1"
+                                @input="runHadamardTest"
+                            >
+                            <div class="phase-display">{{ phaseDisplay }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label><strong>Gate Type:</strong></label>
+                        <select v-model="gateType" @change="runHadamardTest" style="padding: 10px; border-radius: 5px; border: none; background: rgba(255,255,255,0.1); color: white;">
+                            <option value="z">Z Gate (Phase flip)</option>
+                            <option value="s">S Gate (π/2 phase)</option>
+                            <option value="t">T Gate (π/4 phase)</option>
+                            <option value="phase">Phase Gate (custom φ)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label><strong>Measurements:</strong></label>
+                        <button @click="runMultipleMeasurements" :disabled="isRunning">
+                            {{ isRunning ? 'Running...' : 'Run 1000 Tests' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-grid">
+                <div class="card">
+                    <h3>📊 Measurement Results</h3>
+                    <div class="measurement-results">
+                        <div><strong>Ancilla Qubit (Control) Measurements:</strong></div>
+                        <div class="result-bar">
+                            <span style="width: 60px;">|0⟩:</span>
+                            <div class="bar" :style="{width: (prob0 * 300) + 'px'}">
+                                {{ (prob0 * 100).toFixed(1) }}%
+                            </div>
+                        </div>
+                        <div class="result-bar">
+                            <span style="width: 60px;">|1⟩:</span>
+                            <div class="bar" :style="{width: (prob1 * 300) + 'px'}">
+                                {{ (prob1 * 100).toFixed(1) }}%
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 20px;">
+                            <strong>Estimated Phase:</strong> {{ estimatedPhase }}
+                            <br>
+                            <strong>Actual Phase:</strong> {{ actualPhase }}
+                            <br>
+                            <strong>Error:</strong> {{ phaseError }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔄 Circuit Diagram</h3>
+                    <div class="circuit-display">
+                        <div class="qubit-line">
+                            <span style="width: 80px;">Ancilla |+⟩:</span>
+                            <div class="gate">H</div>
+                            <div class="gate controlled-gate">●</div>
+                            <div class="gate">H</div>
+                            <div class="gate" style="background: #F39C12;">M</div>
+                        </div>
+                        <div class="qubit-line">
+                            <span style="width: 80px;">Target |ψ⟩:</span>
+                            <div style="width: 40px;"></div>
+                            <div class="gate">{{ gateSymbol }}</div>
+                            <div style="width: 40px;"></div>
+                            <div style="width: 40px;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="phase-info">
+                        <div class="info-item">
+                            <div>Expected P(|0⟩)</div>
+                            <div class="eigenvalue">{{ expectedProb0 }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div>Eigenvalue</div>
+                            <div class="eigenvalue">e^(iφ)</div>
+                        </div>
+                        <div class="info-item">
+                            <div>Phase Kickback</div>
+                            <div class="eigenvalue">{{ phaseKickback }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📚 Algorithm Explanation</h3>
+                <div class="measurement-results">
+                    <p><strong>Hadamard Test:</strong> A quantum algorithm to estimate the real part of ⟨ψ|U|ψ⟩ where U is a unitary operator.</p>
+                    
+                    <p><strong>Steps:</strong></p>
+                    <ol>
+                        <li>Prepare ancilla qubit in |+⟩ = (|0⟩ + |1⟩)/√2 using Hadamard gate</li>
+                        <li>Apply controlled-U operation with ancilla as control</li>
+                        <li>Apply Hadamard to ancilla again</li>
+                        <li>Measure ancilla: P(|0⟩) = (1 + Re(⟨ψ|U|ψ⟩))/2</li>
+                    </ol>
+                    
+                    <p><strong>Phase Kickback:</strong> When the controlled gate acts on an eigenstate, the phase is "kicked back" to the control qubit, enabling phase estimation.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dynamic path resolution for both file:// and http://
+        const scriptPath = window.location.protocol === 'file:' 
+            ? './hadamard-test.js'
+            : '02-hadamard-test/hadamard-test.js';
+        const script = document.createElement('script');
+        script.src = scriptPath;
+        document.body.appendChild(script);
+    </script>
+</body>
+</html>

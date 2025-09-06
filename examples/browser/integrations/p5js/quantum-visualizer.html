@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q5M.js + p5.js Quantum Visualizer</title>
+<!-- SPDX-License-Identifier: MIT -->
+<!-- SPDX-FileCopyrightText: Copyright 2025 OpenQL Project -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="../../../../dist/q5m.min.js"></script>
+    <script>
+        // Fallback to CDN if local file fails to load
+        if (typeof Q5M === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/q5m@latest/dist/q5m.min.js';
+            document.head.appendChild(script);
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .controls {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 5px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: inherit;
+            margin: 2px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button.active {
+            background: #ff6b6b;
+        }
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .info {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌟 Q5M.js + p5.js Quantum Visualizer</h1>
+            <p>Interactive quantum circuit builder and state visualizer</p>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label>Gates:</label>
+                <button onclick="addGate('H', 0)">H(q0)</button>
+                <button onclick="addGate('H', 1)">H(q1)</button>
+                <button onclick="addGate('H', 2)">H(q2)</button>
+            </div>
+            <div class="control-group">
+                <label>Pauli:</label>
+                <button onclick="addGate('X', 0)">X(q0)</button>
+                <button onclick="addGate('X', 1)">X(q1)</button>
+                <button onclick="addGate('X', 2)">X(q2)</button>
+            </div>
+            <div class="control-group">
+                <label>Entanglement:</label>
+                <button onclick="addCNOT(0, 1)">CNOT(0→1)</button>
+                <button onclick="addCNOT(1, 2)">CNOT(1→2)</button>
+                <button onclick="addCNOT(0, 2)">CNOT(0→2)</button>
+            </div>
+            <div class="control-group">
+                <label>Control:</label>
+                <button onclick="resetCircuit()">Reset</button>
+                <button onclick="toggleAnimation()" id="animBtn">Pause</button>
+                <button onclick="exportCircuit()">Export</button>
+            </div>
+            <div class="control-group">
+                <label>Presets:</label>
+                <button onclick="loadBellState()">Bell State</button>
+                <button onclick="loadGHZ()">GHZ State</button>
+                <button onclick="loadSuperposition()">Superposition</button>
+            </div>
+        </div>
+        
+        <div class="canvas-container" id="canvas-container">
+            <!-- p5.js canvas will be inserted here -->
+        </div>
+        
+        <div class="info">
+            <h3>📊 Quantum State Information</h3>
+            <p id="state-info">Create a quantum circuit using the buttons above to see the state visualization.</p>
+            <h3>🔗 Current Circuit</h3>
+            <p id="circuit-info">No gates added yet.</p>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let quantumCircuit;
+        let currentState;
+        let animating = true;
+        let frameCount = 0;
+        let particles = [];
+
+        // Initialize quantum circuit
+        function initCircuit() {
+            quantumCircuit = new Q5M.Circuit(3);
+            updateQuantumState();
+        }
+
+        // p5.js sketch
+        function setup() {
+            let canvas = createCanvas(800, 500);
+            canvas.parent('canvas-container');
+            colorMode(HSB, 360, 100, 100);
+            
+            initCircuit();
+            
+            // Initialize particles for animation
+            for (let i = 0; i < 50; i++) {
+                particles.push({
+                    x: random(width),
+                    y: random(height),
+                    vx: random(-2, 2),
+                    vy: random(-2, 2),
+                    size: random(2, 6),
+                    hue: random(360)
+                });
+            }
+        }
+
+        function draw() {
+            background(220, 30, 15, 0.1);
+            
+            if (animating) {
+                frameCount++;
+            }
+            
+            // Draw animated background particles
+            drawBackgroundParticles();
+            
+            // Draw quantum state visualization
+            if (currentState) {
+                drawQuantumStates();
+                drawStateVector();
+                drawProbabilityBars();
+            }
+            
+            // Draw circuit diagram
+            drawCircuitDiagram();
+            
+            // Draw title and info
+            drawInterface();
+        }
+
+        function drawBackgroundParticles() {
+            for (let particle of particles) {
+                fill(particle.hue, 60, 80, 0.6);
+                noStroke();
+                circle(particle.x, particle.y, particle.size);
+                
+                if (animating) {
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    
+                    if (particle.x < 0 || particle.x > width) particle.vx *= -1;
+                    if (particle.y < 0 || particle.y > height) particle.vy *= -1;
+                }
+            }
+        }
+
+        function drawQuantumStates() {
+            if (!currentState) return;
+            
+            const probabilities = currentState.probabilities();
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = 120;
+            
+            for (let i = 0; i < probabilities.length; i++) {
+                const prob = probabilities[i];
+                if (prob > 0.001) {
+                    const angle = (i / probabilities.length) * TWO_PI;
+                    const x = centerX + cos(angle) * radius;
+                    const y = centerY + sin(angle) * radius;
+                    
+                    // Draw probability circle
+                    const size = prob * 150 + 10;
+                    const hue = (i * 45 + frameCount * 0.5) % 360;
+                    
+                    fill(hue, 80, 90, 0.8);
+                    stroke(hue, 100, 100);
+                    strokeWeight(2);
+                    circle(x, y, size);
+                    
+                    // Draw basis state label
+                    fill(0, 0, 100);
+                    noStroke();
+                    textAlign(CENTER);
+                    textSize(12);
+                    const basis = i.toString(2).padStart(3, '0');
+                    text(`|${basis}⟩`, x, y + 4);
+                    
+                    // Draw probability percentage
+                    textSize(10);
+                    text(`${(prob * 100).toFixed(1)}%`, x, y + 20);
+                }
+            }
+        }
+
+        function drawStateVector() {
+            if (!currentState) return;
+            
+            const amplitudes = currentState.amplitudes();
+            const startX = 50;
+            const startY = height - 150;
+            
+            stroke(0, 0, 100);
+            strokeWeight(1);
+            line(startX, startY, startX + 200, startY); // Real axis
+            line(startX, startY, startX, startY - 100);   // Imaginary axis
+            
+            fill(0, 0, 100);
+            noStroke();
+            textAlign(LEFT);
+            textSize(10);
+            text('State Vector (Complex Plane)', startX, startY + 20);
+            text('Real →', startX + 160, startY + 15);
+            text('↑ Imag', startX - 30, startY - 80);
+            
+            for (let i = 0; i < amplitudes.length; i++) {
+                const amp = amplitudes[i];
+                if (amp && (Math.abs(amp.re) > 0.01 || Math.abs(amp.im) > 0.01)) {
+                    const x = startX + amp.re * 80;
+                    const y = startY - amp.im * 80;
+                    
+                    const hue = (i * 45) % 360;
+                    fill(hue, 80, 90);
+                    stroke(hue, 100, 100);
+                    strokeWeight(1);
+                    
+                    circle(x, y, 6);
+                    line(startX, startY, x, y);
+                    
+                    // Label
+                    fill(0, 0, 100);
+                    noStroke();
+                    textSize(8);
+                    const basis = i.toString(2).padStart(3, '0');
+                    text(`|${basis}⟩`, x + 5, y - 5);
+                }
+            }
+        }
+
+        function drawProbabilityBars() {
+            if (!currentState) return;
+            
+            const probabilities = currentState.probabilities();
+            const barWidth = 60;
+            const barSpacing = 70;
+            const startX = 50;
+            const startY = 100;
+            const maxHeight = 60;
+            
+            fill(0, 0, 100);
+            noStroke();
+            textAlign(LEFT);
+            textSize(12);
+            text('Measurement Probabilities', startX, startY - 10);
+            
+            for (let i = 0; i < probabilities.length && i < 8; i++) {
+                const prob = probabilities[i];
+                const x = startX + i * barSpacing;
+                const barHeight = prob * maxHeight;
+                
+                // Draw bar
+                const hue = (i * 45) % 360;
+                fill(hue, 70, 85);
+                stroke(hue, 90, 95);
+                strokeWeight(1);
+                rect(x, startY + maxHeight - barHeight, barWidth - 10, barHeight);
+                
+                // Draw labels
+                fill(0, 0, 100);
+                noStroke();
+                textAlign(CENTER);
+                textSize(10);
+                const basis = i.toString(2).padStart(3, '0');
+                text(`|${basis}⟩`, x + barWidth/2 - 5, startY + maxHeight + 15);
+                text(`${(prob * 100).toFixed(1)}%`, x + barWidth/2 - 5, startY + maxHeight + 30);
+            }
+        }
+
+        function drawCircuitDiagram() {
+            // Simple circuit diagram representation without toJSON
+            const numQubits = quantumCircuit.numQubits || 3;
+            const qubitY = [200, 250, 300];
+            const startX = width - 250;
+            
+            // Draw title
+            fill(0, 0, 100);
+            noStroke();
+            textAlign(LEFT);
+            textSize(14);
+            text('Quantum Circuit:', startX, 180);
+            
+            // Draw qubit lines
+            stroke(0, 0, 80);
+            strokeWeight(2);
+            for (let q = 0; q < 3; q++) {
+                line(startX, qubitY[q], startX + 200, qubitY[q]);
+                
+                // Qubit labels
+                fill(0, 0, 100);
+                noStroke();
+                textAlign(RIGHT);
+                textSize(12);
+                text(`q${q}:`, startX - 10, qubitY[q] + 4);
+            }
+            
+            // Draw simple gate representation
+            fill(0, 0, 100);
+            noStroke();
+            textAlign(LEFT);
+            textSize(10);
+            text('Gates will be displayed here when circuit structure is available', startX + 20, qubitY[0] + 50);
+        }
+
+        function drawGate(instruction, x, qubitY) {
+            const gate = instruction.gate;
+            const targets = instruction.targets;
+            
+            if (gate === 'CNOT') {
+                // Control qubit
+                fill(0, 0, 100);
+                noStroke();
+                circle(x, qubitY[targets[0]], 8);
+                
+                // Target qubit
+                stroke(0, 0, 100);
+                strokeWeight(2);
+                fill(0, 0, 20);
+                circle(x, qubitY[targets[1]], 15);
+                line(x - 10, qubitY[targets[1]], x + 10, qubitY[targets[1]]);
+                line(x, qubitY[targets[1]] - 10, x, qubitY[targets[1]] + 10);
+                
+                // Connection line
+                line(x, qubitY[targets[0]], x, qubitY[targets[1]]);
+            } else {
+                // Single qubit gate
+                const y = qubitY[targets[0]];
+                
+                fill(180, 80, 90);
+                stroke(180, 100, 100);
+                strokeWeight(2);
+                rect(x - 12, y - 12, 24, 24);
+                
+                fill(0, 0, 100);
+                noStroke();
+                textAlign(CENTER);
+                textSize(12);
+                text(gate, x, y + 4);
+            }
+        }
+
+        function drawInterface() {
+            // Draw FPS and frame count
+            fill(0, 0, 100, 0.8);
+            noStroke();
+            textAlign(LEFT);
+            textSize(10);
+            text(`FPS: ${Math.round(frameRate())}`, 10, 20);
+            if (animating) {
+                text(`Frame: ${frameCount}`, 10, 35);
+            } else {
+                text('Paused', 10, 35);
+            }
+        }
+
+        // Circuit manipulation functions
+        function addGate(gate, qubit) {
+            quantumCircuit[gate.toLowerCase()](qubit);
+            updateQuantumState();
+            updateUI();
+        }
+
+        function addCNOT(control, target) {
+            quantumCircuit.cnot(control, target);
+            updateQuantumState();
+            updateUI();
+        }
+
+        function resetCircuit() {
+            quantumCircuit = new Q5M.Circuit(3);
+            updateQuantumState();
+            updateUI();
+        }
+
+        function updateQuantumState() {
+            try {
+                const result = quantumCircuit.execute();
+                currentState = result.state;
+            } catch (error) {
+                console.error('Error executing circuit:', error);
+            }
+        }
+
+        function updateUI() {
+            // Update state info
+            if (currentState) {
+                const probabilities = currentState.probabilities();
+                const significant = probabilities.filter(p => p > 0.001);
+                document.getElementById('state-info').textContent = 
+                    `${significant.length} significant basis states with non-zero probabilities. ` +
+                    `Max probability: ${(Math.max(...probabilities) * 100).toFixed(1)}%`;
+            }
+            
+            // Update circuit info (simplified without toJSON)
+            document.getElementById('circuit-info').textContent = 'Circuit structure visualization available in interactive mode.';
+        }
+
+        function toggleAnimation() {
+            animating = !animating;
+            document.getElementById('animBtn').textContent = animating ? 'Pause' : 'Play';
+        }
+
+        function exportCircuit() {
+            const json = JSON.stringify(quantumCircuit.toJSON(), null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'quantum-circuit.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Preset circuits
+        function loadBellState() {
+            resetCircuit();
+            quantumCircuit.h(0).cnot(0, 1);
+            updateQuantumState();
+            updateUI();
+        }
+
+        function loadGHZ() {
+            resetCircuit();
+            quantumCircuit.h(0).cnot(0, 1).cnot(1, 2);
+            updateQuantumState();
+            updateUI();
+        }
+
+        function loadSuperposition() {
+            resetCircuit();
+            quantumCircuit.h(0).h(1).h(2);
+            updateQuantumState();
+            updateUI();
+        }
+
+        // Initialize UI on load
+        window.addEventListener('load', () => {
+            updateUI();
+        });
+    </script>
+</body>
+</html>

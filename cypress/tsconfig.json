@@ -1,0 +1,28 @@
+// SPDX-License-Identifier: MIT
+// SPDX-FileCopyrightText: Copyright 2025 OpenQL Project
+
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM"],
+    "types": ["cypress", "node"],
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    // Allow 'any' type in Cypress test files as it's often necessary for browser interactions
+    "noImplicitAny": false
+  },
+  "include": [
+    "**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

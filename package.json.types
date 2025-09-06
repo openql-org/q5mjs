@@ -1,0 +1,136 @@
+{
+  "name": "q5m",
+  "version": "1.0.0",
+  "description": "Quantum computing library with stable Internal APIs and Plugin System",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs", 
+  "types": "types/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "plugins": ["types/plugins.d.ts"],
+      "internal": ["types/internal.d.ts"],
+      "core": ["types/index.d.ts"],
+      "math": ["types/index.d.ts"],
+      "algorithms": ["types/index.d.ts"],
+      "visualization": ["types/index.d.ts"],
+      "converters": ["types/index.d.ts"],
+      "testing": ["types/index.d.ts"]
+    }
+  },
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./plugins": {
+      "types": "./types/plugins.d.ts",
+      "import": "./dist/plugins.mjs",
+      "require": "./dist/plugins.js"
+    },
+    "./internal": {
+      "types": "./types/internal.d.ts", 
+      "import": "./dist/internal.mjs",
+      "require": "./dist/internal.js"
+    },
+    "./core": {
+      "types": "./types/index.d.ts",
+      "import": "./dist/core.mjs",
+      "require": "./dist/core.js"
+    },
+    "./math": {
+      "types": "./types/index.d.ts",
+      "import": "./dist/math.mjs",
+      "require": "./dist/math.js"
+    },
+    "./algorithms": {
+      "types": "./types/index.d.ts",
+      "import": "./dist/algorithms.mjs",
+      "require": "./dist/algorithms.js"
+    },
+    "./visualization": {
+      "types": "./types/index.d.ts",
+      "import": "./dist/visualization.mjs",
+      "require": "./dist/visualization.js"
+    },
+    "./converters": {
+      "types": "./types/index.d.ts",
+      "import": "./dist/converters.mjs",
+      "require": "./dist/converters.js"
+    },
+    "./testing": {
+      "types": "./types/index.d.ts",
+      "import": "./dist/testing.mjs",
+      "require": "./dist/testing.js"
+    }
+  },
+  "files": [
+    "dist/",
+    "types/",
+    "src/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "npm run build:types && npm run build:js",
+    "build:types": "tsc --emitDeclarationOnly --declaration --declarationMap",
+    "build:js": "esbuild src/index.ts --bundle --outfile=dist/index.js --format=cjs --target=node16",
+    "build:esm": "esbuild src/index.ts --bundle --outfile=dist/index.mjs --format=esm --target=node16",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "test:types": "tsc --noEmit",
+    "lint": "eslint src/**/*.ts types/**/*.ts",
+    "format": "prettier --write src/**/*.ts types/**/*.ts"
+  },
+  "keywords": [
+    "quantum",
+    "quantum-computing", 
+    "qubits",
+    "quantum-circuits",
+    "quantum-algorithms",
+    "grover",
+    "shor",
+    "qft",
+    "typescript",
+    "javascript",
+    "extensible",
+    "plugins",
+    "api"
+  ],
+  "author": "OpenQL Project",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/openql-org/q5mjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/openql-org/q5mjs/issues"
+  },
+  "homepage": "https://github.com/openql-org/q5mjs#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
+  },
+  "peerDependencies": {},
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@types/node": "^18.15.0",
+    "@typescript-eslint/eslint-plugin": "^5.57.0",
+    "@typescript-eslint/parser": "^5.57.0",
+    "esbuild": "^0.17.15",
+    "eslint": "^8.37.0",
+    "jest": "^29.5.0",
+    "prettier": "^2.8.7",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.2"
+  },
+  "dependencies": {},
+  "browserslist": [
+    "defaults",
+    "not IE 11"
+  ]
+}

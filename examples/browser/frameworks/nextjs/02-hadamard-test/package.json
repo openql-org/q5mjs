@@ -1,0 +1,51 @@
+{
+  "name": "q5m-nextjs-hadamard-test-demo",
+  "version": "1.0.0",
+  "description": "Hadamard test demonstration for quantum phase estimation using Next.js and Q5M.js",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "export": "next export",
+    "analyze": "cross-env ANALYZE=true next build",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@next/bundle-analyzer": "^14.0.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "^14.0.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "quantum-computing",
+    "hadamard-test",
+    "phase-estimation",
+    "next.js",
+    "react",
+    "q5m.js",
+    "quantum-algorithms",
+    "phase-kickback",
+    "eigenvalue-estimation"
+  ],
+  "author": "Q5M.js Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-repo/q5mjs-poc"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}

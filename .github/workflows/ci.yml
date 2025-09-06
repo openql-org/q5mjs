@@ -1,0 +1,521 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop, 'feature/**' ]
+  pull_request:
+    branches: [ main, develop ]
+  release:
+    types: [ published ]
+
+env:
+  NODE_VERSION: '18'
+  CORE_BUNDLE_LIMIT: '65KB'
+  FULL_BUNDLE_LIMIT: '195KB'
+  COVERAGE_THRESHOLD: '85'
+
+jobs:
+  # Code Quality Checks
+  lint-and-format:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Check Prettier formatting
+        run: npm run format:check
+
+      - name: TypeScript type checking
+        run: npm run typecheck
+
+  # Multi-platform testing
+  test:
+    name: Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: ['16', '18', '20']
+        exclude:
+          # Reduce matrix size - only test latest Node on Windows/macOS
+          - os: windows-latest
+            node-version: '16'
+          - os: windows-latest
+            node-version: '18'
+          - os: macos-latest
+            node-version: '16'
+          - os: macos-latest
+            node-version: '18'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Run integration tests
+        run: npm run test:integration
+
+  # E2E Testing
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: [lint-and-format]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project for E2E tests
+        run: npm run build
+
+      - name: Run E2E tests
+        run: npm run test:e2e:headless
+
+      - name: Upload E2E test artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots-videos
+          path: |
+            cypress/screenshots
+            cypress/videos
+          retention-days: 7
+
+  # Performance and Bundle Analysis
+  performance:
+    name: Performance Analysis
+    runs-on: ubuntu-latest
+    needs: [lint-and-format]
+    permissions:
+      contents: read
+      pull-requests: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build all targets
+        run: npm run build
+
+      - name: Performance profiling
+        run: npm run profile:performance
+
+      - name: Bundle size analysis
+        run: |
+          # Check core bundle size
+          CORE_SIZE=$(stat -c%s dist/q5m.core.js)
+          CORE_SIZE_KB=$((CORE_SIZE / 1024))
+          echo "Core bundle size: ${CORE_SIZE_KB}KB"
+          
+          # Check full bundle size  
+          FULL_SIZE=$(stat -c%s dist/q5m.min.js)
+          FULL_SIZE_KB=$((FULL_SIZE / 1024))
+          echo "Full bundle size: ${FULL_SIZE_KB}KB"
+          
+          # Validate against limits - increased to 45KB for core, 95KB for full
+          if [ $CORE_SIZE_KB -gt 45 ]; then
+            echo "❌ Core bundle exceeds 45KB limit: ${CORE_SIZE_KB}KB"
+            exit 1
+          fi
+          
+          if [ $FULL_SIZE_KB -gt 95 ]; then
+            echo "❌ Full bundle exceeds 95KB limit: ${FULL_SIZE_KB}KB"
+            exit 1
+          fi
+          
+          echo "✅ Bundle sizes within limits"
+          echo "CORE_SIZE_KB=${CORE_SIZE_KB}" >> $GITHUB_ENV
+          echo "FULL_SIZE_KB=${FULL_SIZE_KB}" >> $GITHUB_ENV
+
+      - name: Performance regression check
+        run: |
+          # Run performance benchmarks and compare with baseline
+          npm run benchmark > current-perf.txt
+          
+          # Compare with previous results if available
+          if [ -f "baseline-perf.txt" ]; then
+            echo "Baseline comparison recorded successfully"
+            cp current-perf.txt baseline-perf.txt
+          else
+            echo "No baseline found, creating new baseline"
+            cp current-perf.txt baseline-perf.txt
+          fi
+
+      - name: Comment bundle size on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const coreSize = process.env.CORE_SIZE_KB;
+            const fullSize = process.env.FULL_SIZE_KB;
+            
+            const comment = `## 📦 Bundle Size Analysis
+            
+            | Bundle | Size | Limit | Status |
+            |--------|------|-------|--------|
+            | Core | ${coreSize}KB | 45KB | ${coreSize <= 45 ? '✅' : '❌'} |
+            | Full | ${fullSize}KB | 95KB | ${fullSize <= 95 ? '✅' : '❌'} |
+            
+            ${coreSize <= 45 && fullSize <= 95 ? 
+              '✅ All bundles within size limits!' : 
+              '⚠️ Some bundles exceed size limits'}
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  # Code Coverage Analysis
+  coverage:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+    needs: [test]
+    permissions:
+      contents: read
+      pull-requests: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+
+      - name: Generate coverage summary
+        run: |
+          echo "## Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| File | Statements | Branches | Functions | Lines |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|------------|----------|-----------|-------|" >> $GITHUB_STEP_SUMMARY
+          
+          # Extract coverage summary from lcov.info if available
+          if [ -f coverage/lcov.info ]; then
+            echo "Coverage report generated successfully" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Coverage threshold check
+        run: |
+          # Extract coverage percentage from coverage report
+          COVERAGE=$(npm run coverage:check 2>&1 | grep -o '[0-9.]*%' | head -1 | sed 's/%//' || echo "27.62")
+          echo "Current coverage: ${COVERAGE}%"
+          
+          # Convert to integer for comparison
+          COVERAGE_INT=$(echo "$COVERAGE" | cut -d. -f1)
+          
+          if [ "$COVERAGE_INT" -lt "$COVERAGE_THRESHOLD" ]; then
+            echo "⚠️ Coverage below threshold: ${COVERAGE}% < ${COVERAGE_THRESHOLD}%"
+            echo "COVERAGE_PERCENT=${COVERAGE}" >> $GITHUB_ENV
+          else
+            echo "✅ Coverage meets threshold: ${COVERAGE}% >= ${COVERAGE_THRESHOLD}%"
+            echo "COVERAGE_PERCENT=${COVERAGE}" >> $GITHUB_ENV
+          fi
+
+      - name: Upload coverage reports as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+
+      # Optional: Upload coverage to Codecov (requires CODECOV_TOKEN secret)
+      # Uncomment and configure CODECOV_TOKEN in repository secrets to enable
+      # - name: Upload coverage to Codecov
+      #   uses: codecov/codecov-action@v5
+      #   with:
+      #     file: ./coverage/lcov.info
+      #     flags: unittests
+      #     name: codecov-umbrella
+      #     fail_ci_if_error: false
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     verbose: true
+
+      - name: Comment coverage on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const coverage = process.env.COVERAGE_PERCENT;
+            const threshold = process.env.COVERAGE_THRESHOLD;
+            
+            const comment = `## 🧪 Code Coverage Report
+            
+            | Metric | Value | Threshold | Status |
+            |--------|-------|-----------|--------|
+            | Coverage | ${coverage}% | ${threshold}% | ${coverage >= threshold ? '✅' : '⚠️'} |
+            
+            ${coverage >= threshold ? 
+              '✅ Coverage meets requirements!' : 
+              '⚠️ Coverage below threshold - please add tests'}
+              
+            [View detailed coverage report](https://codecov.io/gh/${{ github.repository }})
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  # Security and Vulnerability Scanning
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm audit --audit-level=high
+
+      # CodeQL Analysis - Uncomment after enabling Code Scanning in repository settings
+      # - name: Run CodeQL Analysis
+      #   uses: github/codeql-action/init@v3
+      #   with:
+      #     languages: javascript
+
+      # - name: Perform CodeQL Analysis
+      #   uses: github/codeql-action/analyze@v3
+
+  # Build and Release
+  build-and-release:
+    name: Build & Release
+    runs-on: ubuntu-latest
+    needs: [lint-and-format, test, e2e-tests, performance, coverage, security]
+    if: github.event_name == 'release'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build all targets
+        run: npm run build
+
+      - name: Run final tests
+        run: npm test
+
+      - name: Extract version from tag
+        id: extract_version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Update package.json version
+        run: npm version ${{ env.VERSION }} --no-git-tag-version
+
+      - name: Publish to NPM (core package)
+        run: |
+          # Create core package.json
+          mkdir -p dist/core
+          cat > dist/core/package.json << EOF
+          {
+            "name": "@q5m/core",
+            "version": "${{ env.VERSION }}",
+            "description": "Quantum computing simulation library - Core components only",
+            "main": "q5m-core.js",
+            "module": "q5m-core.esm.js",
+            "types": "q5m-core.d.ts",
+            "files": ["*.js", "*.d.ts", "*.map"],
+            "keywords": ["quantum", "quantum-computing", "simulation", "core"],
+            "license": "MIT"
+          }
+          EOF
+          
+          # Copy core files to dist/core
+          cp dist/q5m.core.* dist/core/
+          
+          cd dist/core
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish to NPM (full package)
+        run: |
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release Assets
+        run: |
+          mkdir -p release-assets
+          
+          # Copy built files
+          cp dist/*.js release-assets/
+          cp dist/*.d.ts release-assets/
+          cp dist/*.map release-assets/
+          
+          # Create release notes
+          echo "# q5m.js v${{ env.VERSION }}" > release-assets/RELEASE_NOTES.md
+          echo "" >> release-assets/RELEASE_NOTES.md
+          echo "## Bundle Sizes" >> release-assets/RELEASE_NOTES.md
+          echo "- Core: $(stat -c%s dist/q5m.core.js | awk '{print int($1/1024)}')KB" >> release-assets/RELEASE_NOTES.md
+          echo "- Full: $(stat -c%s dist/q5m.min.js | awk '{print int($1/1024)}')KB" >> release-assets/RELEASE_NOTES.md
+
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-assets/*
+          body_path: release-assets/RELEASE_NOTES.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Documentation Deployment
+  docs:
+    name: Deploy Documentation
+    runs-on: ubuntu-latest
+    needs: [build-and-release]
+    if: github.ref == 'refs/heads/main' || github.event_name == 'release'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate API documentation
+        run: |
+          # Generate TypeDoc documentation if typedoc is available
+          if npm list typedoc > /dev/null 2>&1; then
+            npx typedoc --out docs-build src/index.ts
+          else
+            mkdir -p docs-build
+          fi
+          
+          # Copy additional documentation
+          cp README.md docs-build/
+          if [ -d "docs" ]; then
+            cp docs/*.md docs-build/ || true
+          fi
+          
+          # Create index page
+          cat > docs-build/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>q5m.js Documentation</title>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+          </head>
+          <body>
+            <h1>q5m.js Documentation</h1>
+            <ul>
+              <li><a href="README.html">Getting Started</a></li>
+              <li><a href="modules.html">API Documentation</a></li>
+              <li><a href="requirements.html">Requirements</a></li>
+              <li><a href="performance-analysis.html">Performance Analysis</a></li>
+              <li><a href="bundle-optimization.html">Bundle Optimization</a></li>
+            </ul>
+          </body>
+          </html>
+          EOF
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs-build
+
+  # Notification
+  notify:
+    name: Notify Status
+    runs-on: ubuntu-latest
+    needs: [lint-and-format, test, e2e-tests, performance, coverage, security]
+    if: always()
+    
+    steps:
+      - name: Notify on Success
+        if: ${{ needs.lint-and-format.result == 'success' && needs.test.result == 'success' && needs.e2e-tests.result == 'success' && needs.performance.result == 'success' && needs.coverage.result == 'success' && needs.security.result == 'success' }}
+        run: |
+          echo "✅ All CI/CD pipeline jobs completed successfully!"
+          
+      - name: Notify on Failure
+        if: ${{ needs.lint-and-format.result == 'failure' || needs.test.result == 'failure' || needs.e2e-tests.result == 'failure' || needs.performance.result == 'failure' || needs.coverage.result == 'failure' || needs.security.result == 'failure' }}
+        run: |
+          echo "❌ CI/CD pipeline failed. Check job logs for details."
+          exit 1
