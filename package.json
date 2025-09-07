@@ -50,7 +50,7 @@
     "test:memory:fast": "node scripts/test-memory.mjs",
     "setup:e2e": "node scripts/setup-e2e.js",
     "test:e2e": "npm run setup:e2e && cypress run --env framework=none",
-    "test:e2e:headless": "npm run setup:e2e && cypress run --env framework=none",
+    "test:e2e:headless": "npm run setup:e2e && NODE_OPTIONS='--no-warnings' cypress run --env framework=none",
     "test:e2e:vanilla": "npm run setup:e2e && cypress run --env framework=vanilla",
     "test:e2e:react": "npm run setup:e2e && cypress run --env framework=react",
     "test:e2e:vue": "npm run setup:e2e && cypress run --env framework=vue",

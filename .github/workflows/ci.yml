@@ -9,7 +9,7 @@ on:
     types: [ published ]
 
 env:
-  NODE_VERSION: '18'
+  NODE_VERSION: '20'
   CORE_BUNDLE_LIMIT: '65KB'
   FULL_BUNDLE_LIMIT: '195KB'
   COVERAGE_THRESHOLD: '85'
@@ -103,6 +103,9 @@ jobs:
 
       - name: Run E2E tests
         run: npm run test:e2e:headless
+        env:
+          NODE_OPTIONS: '--no-warnings --disable-warning=ExperimentalWarning'
+          NODE_NO_WARNINGS: 1
 
       - name: Upload E2E test artifacts
         if: failure()
