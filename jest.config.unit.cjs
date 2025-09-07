@@ -11,7 +11,7 @@ module.exports = {
     '!src/**/index.ts',
     '!src/**/*.types.ts',
   ],
-  coverageDirectory: 'coverage/new',
+  coverageDirectory: 'coverage/unit',
   coverageReporters: ['text', 'lcov', 'html'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
