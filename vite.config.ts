@@ -8,11 +8,12 @@ import { fileURLToPath, URL } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  root: 'examples',
-  publicDir: path.resolve(__dirname, 'dist'),
+  root: '.',
+  publicDir: path.resolve(__dirname, 'public'),
   resolve: {
     alias: {
       'q5mjs': path.resolve(__dirname, 'src/index.ts'),
+      '@': path.resolve(__dirname, 'src'),
     },
   },
   build: {

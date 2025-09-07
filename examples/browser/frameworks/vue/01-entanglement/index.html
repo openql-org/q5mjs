@@ -182,9 +182,7 @@
 
     <script>
         // Dynamic path resolution for both file:// and http://
-        const scriptPath = window.location.protocol === 'file:' 
-            ? './entanglement.js'
-            : '01-entanglement/entanglement.js';
+        const scriptPath = './entanglement.js';
         const script = document.createElement('script');
         script.src = scriptPath;
         document.body.appendChild(script);

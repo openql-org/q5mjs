@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>q5m.js - Quantum Computing Examples</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px;
+      text-align: center;
+    }
+    
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+    
+    .subtitle {
+      font-size: 1.2em;
+      opacity: 0.95;
+    }
+    
+    .content {
+      padding: 40px;
+    }
+    
+    .section {
+      margin-bottom: 40px;
+    }
+    
+    h2 {
+      color: #667eea;
+      margin-bottom: 20px;
+      font-size: 1.8em;
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 10px;
+    }
+    
+    .examples-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .example-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      transition: all 0.3s ease;
+      background: #fafafa;
+    }
+    
+    .example-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+      background: white;
+    }
+    
+    .example-card h3 {
+      color: #764ba2;
+      margin-bottom: 10px;
+    }
+    
+    .example-card p {
+      color: #666;
+      margin-bottom: 15px;
+      font-size: 0.95em;
+    }
+    
+    .example-link {
+      display: inline-block;
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      font-size: 0.9em;
+    }
+    
+    .example-link:hover {
+      transform: scale(1.05);
+      box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+    }
+    
+    .code-example {
+      background: #f4f4f4;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+    }
+    
+    pre {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    
+    .tab {
+      padding: 10px 20px;
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      font-size: 1em;
+      transition: all 0.3s ease;
+    }
+    
+    .tab.active {
+      color: #667eea;
+      border-bottom: 2px solid #667eea;
+      margin-bottom: -2px;
+    }
+    
+    .tab:hover {
+      color: #764ba2;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>q5m.js Examples</h1>
+      <p class="subtitle">Quantum Computing Simulations in TypeScript</p>
+    </header>
+    
+    <div class="content">
+      <div class="section">
+        <h2>Quick Start</h2>
+        <div class="code-example">
+          <pre><code>import { Circuit } from 'q5mjs';
+
+// Create a 2-qubit circuit
+const circuit = new Circuit(2);
+
+// Create Bell state
+circuit
+  .h(0)           // Hadamard on qubit 0
+  .cnot(0, 1);    // CNOT with control=0, target=1
+
+// Execute and get results
+const result = circuit.execute();
+console.log('Bell state created:', result.state.toString());</code></pre>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Browser Examples</h2>
+        <div class="examples-grid">
+          <div class="example-card">
+            <h3>API Test Suite</h3>
+            <p>Comprehensive testing of q5m.js API including gates, circuits, and measurements.</p>
+            <a href="examples/browser/api-test.html" class="example-link">Open Example →</a>
+          </div>
+          
+          <div class="example-card">
+            <h3>Browser Tests</h3>
+            <p>Unit tests running directly in the browser environment.</p>
+            <a href="examples/browser/browser-tests.html" class="example-link">Open Tests →</a>
+          </div>
+          
+          <div class="example-card">
+            <h3>Notebook Interface</h3>
+            <p>Interactive notebook-style interface for quantum experiments.</p>
+            <a href="examples/browser/notebook/index.html" class="example-link">Open Notebook →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Framework Integrations</h2>
+        <div class="tabs">
+          <button class="tab active" onclick="showTab('react')">React</button>
+          <button class="tab" onclick="showTab('vue')">Vue</button>
+          <button class="tab" onclick="showTab('angular')">Angular</button>
+          <button class="tab" onclick="showTab('nextjs')">Next.js</button>
+          <button class="tab" onclick="showTab('nuxtjs')">Nuxt.js</button>
+        </div>
+        
+        <div id="react" class="tab-content active">
+          <div class="examples-grid">
+            <div class="example-card">
+              <h3>Entanglement Demo</h3>
+              <p>Create and visualize quantum entanglement in React.</p>
+              <a href="examples/browser/frameworks/react/01-entanglement/index.html" class="example-link">Open →</a>
+            </div>
+            <div class="example-card">
+              <h3>Hadamard Test</h3>
+              <p>Interactive Hadamard gate demonstration.</p>
+              <a href="examples/browser/frameworks/react/02-hadamard-test/index.html" class="example-link">Open →</a>
+            </div>
+            <div class="example-card">
+              <h3>Interference Visualization</h3>
+              <p>Visualize quantum interference patterns.</p>
+              <a href="examples/browser/frameworks/react/03-interference-visualization/index.html" class="example-link">Open →</a>
+            </div>
+          </div>
+        </div>
+        
+        <div id="vue" class="tab-content">
+          <div class="examples-grid">
+            <div class="example-card">
+              <h3>Entanglement Demo</h3>
+              <p>Create and visualize quantum entanglement in Vue.</p>
+              <a href="examples/browser/frameworks/vue/01-entanglement/index.html" class="example-link">Open →</a>
+            </div>
+            <div class="example-card">
+              <h3>Hadamard Test</h3>
+              <p>Interactive Hadamard gate demonstration.</p>
+              <a href="examples/browser/frameworks/vue/02-hadamard-test/index.html" class="example-link">Open →</a>
+            </div>
+            <div class="example-card">
+              <h3>Interference Visualization</h3>
+              <p>Visualize quantum interference patterns.</p>
+              <a href="examples/browser/frameworks/vue/03-interference-visualization/index.html" class="example-link">Open →</a>
+            </div>
+          </div>
+        </div>
+        
+        <div id="angular" class="tab-content">
+          <div class="examples-grid">
+            <div class="example-card">
+              <h3>Entanglement Demo</h3>
+              <p>Create and visualize quantum entanglement in Angular.</p>
+              <a href="examples/browser/frameworks/angular/01-entanglement/index.html" class="example-link">Open →</a>
+            </div>
+            <div class="example-card">
+              <h3>Hadamard Test</h3>
+              <p>Interactive Hadamard gate demonstration.</p>
+              <a href="examples/browser/frameworks/angular/02-hadamard-test/index.html" class="example-link">Open →</a>
+            </div>
+            <div class="example-card">
+              <h3>Interference Visualization</h3>
+              <p>Visualize quantum interference patterns.</p>
+              <a href="examples/browser/frameworks/angular/03-interference-visualization/index.html" class="example-link">Open →</a>
+            </div>
+          </div>
+        </div>
+        
+        <div id="nextjs" class="tab-content">
+          <div class="examples-grid">
+            <div class="example-card">
+              <h3>Entanglement Demo</h3>
+              <p>Create and visualize quantum entanglement in Next.js.</p>
+              <a href="examples/browser/frameworks/nextjs/01-entanglement/index.html" class="example-link">Open →</a>
+            </div>
+            <div class="example-card">
+              <h3>Hadamard Test</h3>
+              <p>Interactive Hadamard gate demonstration.</p>
+              <a href="examples/browser/frameworks/nextjs/02-hadamard-test/index.html" class="example-link">Open →</a>
+            </div>
+            <div class="example-card">
+              <h3>Interference Visualization</h3>
+              <p>Visualize quantum interference patterns.</p>
+              <a href="examples/browser/frameworks/nextjs/03-interference-visualization/index.html" class="example-link">Open →</a>
+            </div>
+          </div>
+        </div>
+        
+        <div id="nuxtjs" class="tab-content">
+          <div class="examples-grid">
+            <div class="example-card">
+              <h3>Entanglement Demo</h3>
+              <p>Create and visualize quantum entanglement in Nuxt.js.</p>
+              <a href="examples/browser/frameworks/nuxtjs/01-entanglement/index.html" class="example-link">Open →</a>
+            </div>
+            <div class="example-card">
+              <h3>Hadamard Test</h3>
+              <p>Interactive Hadamard gate demonstration.</p>
+              <a href="examples/browser/frameworks/nuxtjs/02-hadamard-test/index.html" class="example-link">Open →</a>
+            </div>
+            <div class="example-card">
+              <h3>Interference Visualization</h3>
+              <p>Visualize quantum interference patterns.</p>
+              <a href="examples/browser/frameworks/nuxtjs/03-interference-visualization/index.html" class="example-link">Open →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Visualization Integrations</h2>
+        <div class="examples-grid">
+          <div class="example-card">
+            <h3>D3.js - State Evolution</h3>
+            <p>Visualize quantum state evolution over time with D3.js.</p>
+            <a href="examples/browser/integrations/d3js/state-evolution.html" class="example-link">Open →</a>
+          </div>
+          
+          <div class="example-card">
+            <h3>D3.js - Probability Distribution</h3>
+            <p>Interactive probability distribution charts.</p>
+            <a href="examples/browser/integrations/d3js/probability-distribution.html" class="example-link">Open →</a>
+          </div>
+          
+          <div class="example-card">
+            <h3>Three.js - 3D Circuit</h3>
+            <p>3D visualization of quantum circuits.</p>
+            <a href="examples/browser/integrations/threejs/circuit-3d.html" class="example-link">Open →</a>
+          </div>
+          
+          <div class="example-card">
+            <h3>Three.js - Bloch Sphere</h3>
+            <p>Interactive Bloch sphere visualization.</p>
+            <a href="examples/browser/integrations/threejs/bloch-sphere.html" class="example-link">Open →</a>
+          </div>
+          
+          <div class="example-card">
+            <h3>Chart.js - Measurement Stats</h3>
+            <p>Statistical analysis of measurement results.</p>
+            <a href="examples/browser/integrations/chartjs/measurement-stats.html" class="example-link">Open →</a>
+          </div>
+          
+          <div class="example-card">
+            <h3>p5.js - Quantum Visualizer</h3>
+            <p>Creative coding with quantum states.</p>
+            <a href="examples/browser/integrations/p5js/quantum-visualizer.html" class="example-link">Open →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Getting Started</h2>
+        <div class="code-example">
+          <pre><code># Install q5m.js
+npm install q5m
+
+# Run examples
+npm run examples
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showTab(tabName) {
+      // Hide all tab contents
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabContents.forEach(content => content.classList.remove('active'));
+      
+      // Remove active class from all tabs
+      const tabs = document.querySelectorAll('.tab');
+      tabs.forEach(tab => tab.classList.remove('active'));
+      
+      // Show selected tab content
+      document.getElementById(tabName).classList.add('active');
+      
+      // Add active class to clicked tab
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+</html>

@@ -46,6 +46,8 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --config jest.config.unit.cjs --coverage",
     "test:coverage:all": "jest --coverage",
+    "test:memory": "npm run build && node scripts/test-memory.mjs",
+    "test:memory:fast": "node scripts/test-memory.mjs",
     "setup:e2e": "node scripts/setup-e2e.js",
     "test:e2e": "npm run setup:e2e && cypress run --env framework=none",
     "test:e2e:headless": "npm run setup:e2e && cypress run --env framework=none",

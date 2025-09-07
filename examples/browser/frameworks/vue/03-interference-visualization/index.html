@@ -335,9 +335,7 @@
 
     <script>
         // Dynamic path resolution for both file:// and http://
-        const scriptPath = window.location.protocol === 'file:' 
-            ? './interference.js'
-            : '03-interference-visualization/interference.js';
+        const scriptPath = './interference.js';
         const script = document.createElement('script');
         script.src = scriptPath;
         document.body.appendChild(script);

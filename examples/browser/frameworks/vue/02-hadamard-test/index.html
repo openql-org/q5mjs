@@ -293,9 +293,7 @@
 
     <script>
         // Dynamic path resolution for both file:// and http://
-        const scriptPath = window.location.protocol === 'file:' 
-            ? './hadamard-test.js'
-            : '02-hadamard-test/hadamard-test.js';
+        const scriptPath = './hadamard-test.js';
         const script = document.createElement('script');
         script.src = scriptPath;
         document.body.appendChild(script);
