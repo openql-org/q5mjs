@@ -1,6 +1,9 @@
 {
-  "name": "q5m",
+  "name": "@q5m/q5m",
   "version": "0.1.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "description": "A modern TypeScript library for quantum computing simulations",
   "main": "./dist/index.js",
@@ -28,7 +31,7 @@
   },
   "files": [
     "dist",
-    "src"
+    "README.md"
   ],
   "scripts": {
     "dev": "vite",
