@@ -1,0 +1,145 @@
+/* q5m.js Documentation Custom Styles */
+
+:root {
+  --quantum-blue: #0066cc;
+  --quantum-purple: #6b46c1;
+  --quantum-gradient: linear-gradient(135deg, var(--quantum-blue), var(--quantum-purple));
+  --code-bg: #f8f9fa;
+  --border-light: #e9ecef;
+}
+
+/* Header customization */
+.tsd-page-title {
+  background: var(--quantum-gradient);
+  color: white;
+  padding: 2rem;
+  margin: -2rem -2rem 2rem -2rem;
+  border-radius: 8px;
+}
+
+.tsd-page-title h1 {
+  color: white !important;
+  font-size: 2.5rem;
+  font-weight: 300;
+  margin: 0;
+}
+
+/* Navigation improvements */
+.tsd-navigation .tsd-kind-class > a {
+  color: var(--quantum-blue);
+  font-weight: 500;
+}
+
+.tsd-navigation .tsd-kind-interface > a {
+  color: var(--quantum-purple);
+  font-weight: 500;
+}
+
+/* Code block improvements */
+.tsd-signature {
+  background: var(--code-bg);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+/* Example sections */
+.tsd-comment .example {
+  background: #f0f9ff;
+  border-left: 4px solid var(--quantum-blue);
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 0 6px 6px 0;
+}
+
+/* Quantum-specific styling */
+.quantum-gate {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  background: var(--quantum-gradient);
+  color: white;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  margin: 0 0.2rem;
+}
+
+/* Mathematical expressions */
+.math {
+  font-family: 'Times New Roman', serif;
+  font-style: italic;
+}
+
+/* Performance indicators */
+.performance-badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  background: #10b981;
+  color: white;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Warning and note boxes */
+.tsd-comment .warning {
+  background: #fef3cd;
+  border-left: 4px solid #fbbf24;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 0 6px 6px 0;
+}
+
+.tsd-comment .note {
+  background: #e0f2fe;
+  border-left: 4px solid #0284c7;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 0 6px 6px 0;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .tsd-page-title {
+    padding: 1rem;
+    margin: -1rem -1rem 1rem -1rem;
+  }
+  
+  .tsd-page-title h1 {
+    font-size: 1.8rem;
+  }
+}
+
+/* Search improvements */
+.tsd-search input {
+  border-radius: 20px;
+  border: 2px solid var(--border-light);
+  transition: border-color 0.3s ease;
+}
+
+.tsd-search input:focus {
+  border-color: var(--quantum-blue);
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+/* Table improvements */
+.tsd-parameters table,
+.tsd-returns table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.tsd-parameters th,
+.tsd-parameters td,
+.tsd-returns th,
+.tsd-returns td {
+  border: 1px solid var(--border-light);
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.tsd-parameters th,
+.tsd-returns th {
+  background: var(--code-bg);
+  font-weight: 600;
+}

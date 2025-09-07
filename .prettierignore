@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Production
+dist/
+build/
+
+# Testing
+coverage/
+
+# Documentation
+docs/.vitepress/dist
+docs/.vitepress/cache
+
+# IDE
+.vscode/
+.idea/
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
+
+# Temporary
+*.tmp
+*.temp
+.cache
+
+# Generated
+*.d.ts
+tsconfig.tsbuildinfo
+
+# Vendor dependencies - Third-party code should not be reformatted
+src/vendor/

@@ -1,0 +1,94 @@
+{
+  "entryPoints": ["./src/index.ts"],
+  "entryPointStrategy": "expand",
+  "out": "./docs/api",
+  "theme": "default",
+  "name": "q5m.js - Quantum Computing Library",
+  "readme": "./README.md",
+  "includeVersion": true,
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeExternals": true,
+  "excludeInternal": false,
+  "hideGenerator": false,
+  "searchInComments": true,
+  "cleanOutputDir": true,
+  "treatWarningsAsErrors": false,
+  "validation": {
+    "notExported": false,
+    "invalidLink": true,
+    "notDocumented": false
+  },
+  "blockTags": [
+    "@alpha", "@beta", "@category", "@decorator", "@deprecated", "@example", "@experimental", "@hidden", "@ignore", "@internal", "@override", "@packageDocumentation", "@param", "@public", "@readonly", "@remarks", "@returns", "@sealed", "@see", "@throws", "@virtual", "@version"
+  ],
+  "categorizeByGroup": true,
+  "defaultCategory": "Other",
+  "categoryOrder": [
+    "Core Classes",
+    "Quantum Gates", 
+    "Quantum Algorithms",
+    "Mathematical Utilities",
+    "Visualization",
+    "Converters",
+    "Types",
+    "Constants",
+    "*"
+  ],
+  "sort": ["source-order", "alphabetical"],
+  "kindSortOrder": [
+    "Document",
+    "Project",
+    "Module",
+    "Namespace",
+    "Enum",
+    "EnumMember",
+    "Class",
+    "Interface",
+    "TypeAlias",
+    "Constructor",
+    "Property",
+    "Variable",
+    "Function",
+    "Accessor",
+    "Method",
+    "Parameter",
+    "TypeParameter",
+    "TypeLiteral",
+    "CallSignature",
+    "ConstructorSignature",
+    "IndexSignature",
+    "GetSignature",
+    "SetSignature"
+  ],
+  "groupOrder": [
+    "Classes",
+    "Interfaces", 
+    "Type Aliases",
+    "Variables",
+    "Functions"
+  ],
+  "navigationLinks": {
+    "GitHub": "https://github.com/openql-org/q5mjs",
+    "NPM": "https://www.npmjs.com/package/q5m"
+  },
+  "sidebarLinks": {
+    "Getting Started": "./docs/getting-started.md",
+    "Plugin System": "./docs/developers/plugin-system.md",
+    "Internal API": "./docs/developers/internal-api.md"
+  },
+  "customCss": "./docs/custom-docs.css",
+  "titleLink": "https://github.com/openql-org/q5mjs",
+  "sourceLinkTemplate": "https://github.com/openql-org/q5mjs/blob/{gitRevision}/{path}#L{line}",
+  "gitRevision": "main",
+  "githubPages": false,
+  "basePath": "./",
+  "exclude": [
+    "**/node_modules/**",
+    "**/tests/**",
+    "**/build/**",
+    "**/dist/**",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
+}

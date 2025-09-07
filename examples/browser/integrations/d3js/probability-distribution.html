@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q5M.js - Dynamic Probability Distribution Visualization</title>
+<!-- SPDX-License-Identifier: MIT -->
+<!-- SPDX-FileCopyrightText: Copyright 2025 OpenQL Project -->
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f0f23);
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .controls-panel {
+            width: 420px;
+            background: rgba(0, 0, 0, 0.95);
+            padding: 25px;
+            box-shadow: 3px 0 25px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(20px);
+            overflow-y: auto;
+            border-right: 2px solid #444;
+        }
+
+        .visualization-panel {
+            flex: 1;
+            position: relative;
+            background: #0a0a0f;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            margin: 0 0 25px 0;
+            font-size: 30px;
+            color: #ff6b6b;
+            text-align: center;
+            text-shadow: 0 2px 12px rgba(255, 107, 107, 0.5);
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 22px;
+            background: rgba(255, 107, 107, 0.08);
+            border-radius: 12px;
+            border-left: 4px solid #ff6b6b;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .section h3 {
+            margin: 0 0 15px 0;
+            color: #ff8a80;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .control-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #ffcdd2;
+            font-weight: 500;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 8px;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 107, 107, 0.3);
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ff6b6b;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(255, 107, 107, 0.5);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ff6b6b;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(255, 107, 107, 0.5);
+        }
+
+        input[type="number"] {
+            width: 90px;
+            padding: 10px;
+            border: 1px solid #d32f2f;
+            background: rgba(255, 107, 107, 0.1);
+            color: white;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 12px rgba(255, 107, 107, 0.3);
+        }
+
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #d32f2f);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 6px 8px 6px 0;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(255, 107, 107, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(255, 107, 107, 0.4);
+            background: linear-gradient(45deg, #ff8a80, #f44336);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .gate-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .gate-grid button {
+            margin: 0;
+            padding: 12px 10px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .charts-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .chart-section {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 12px;
+            border: 2px solid #333;
+            padding: 20px;
+            position: relative;
+        }
+
+        .chart-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ff8a80;
+            margin: 0 0 15px 0;
+            text-align: center;
+        }
+
+        .chart-wrapper {
+            height: calc(33% - 50px);
+            position: relative;
+            min-height: 200px;
+        }
+        
+        #amplitude-chart {
+            height: calc(33% + 50px); /* Extra height for amplitude chart to be more square */
+            min-height: 400px;
+        }
+
+        .state-summary {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 18px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            margin-top: 15px;
+        }
+
+        .fidelity-display {
+            color: #81c784;
+            margin-bottom: 12px;
+        }
+
+        .entanglement-display {
+            color: #64b5f6;
+            margin-bottom: 12px;
+        }
+
+        .purity-display {
+            color: #ffb74d;
+        }
+
+        .educational-note {
+            background: rgba(76, 175, 80, 0.15);
+            border-left: 3px solid #4caf50;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 13px;
+            line-height: 1.6;
+            border-radius: 6px;
+        }
+
+        .measurement-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .real-time-indicator {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            border: 1px solid #4caf50;
+        }
+
+        .comparison-mode {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid #ff8f00;
+            color: #ffb74d;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
+            border: 1px solid #ff6b6b;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            max-width: 200px;
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="controls-panel">
+            <h1>Probability Distributions</h1>
+            
+            <div class="section">
+                <h3>Quantum System</h3>
+                <div class="control-group">
+                    <label>Number of Qubits:</label>
+                    <input type="number" id="num-qubits" value="2" min="1" max="4" onchange="initializeSystem()">
+                </div>
+                <div class="control-group">
+                    <label>
+                        <input type="checkbox" id="real-time-mode" checked onchange="toggleRealTime()">
+                        Real-time Updates
+                    </label>
+                </div>
+                <button onclick="resetSystem()">Reset System</button>
+                <button onclick="randomState()">Random State</button>
+            </div>
+
+            <div class="section">
+                <h3>Gate Operations</h3>
+                <div class="control-group">
+                    <label>Target Qubit:</label>
+                    <input type="number" id="target-qubit" value="0" min="0" max="1">
+                </div>
+                <div class="gate-grid">
+                    <button onclick="applyGate('H')">H</button>
+                    <button onclick="applyGate('X')">X</button>
+                    <button onclick="applyGate('Y')">Y</button>
+                    <button onclick="applyGate('Z')">Z</button>
+                    <button onclick="applyGate('S')">S</button>
+                    <button onclick="applyGate('T')">T</button>
+                    <button onclick="applyGate('Sdg')">S†</button>
+                    <button onclick="applyGate('Tdg')">T†</button>
+                </div>
+                
+                <div class="control-group">
+                    <label>Rotation Angle: <span id="angle-display">π/4</span></label>
+                    <input type="range" id="rotation-angle" min="0" max="6.28" value="0.785" step="0.01"
+                           oninput="updateAngleDisplay()">
+                </div>
+                <div class="gate-grid">
+                    <button onclick="applyRotation('RX')">RX</button>
+                    <button onclick="applyRotation('RY')">RY</button>
+                    <button onclick="applyRotation('RZ')">RZ</button>
+                    <button onclick="applyPhase()">Phase</button>
+                </div>
+
+                <div class="control-group" style="margin-top: 20px;">
+                    <label>Two-Qubit Gates:</label>
+                    <div class="measurement-controls">
+                        <input type="number" id="control-qubit" value="0" min="0" max="1" style="width: 50px;">
+                        <span style="color: #ff8a80;">→</span>
+                        <input type="number" id="target-qubit-2q" value="1" min="0" max="1" style="width: 50px;">
+                    </div>
+                    <button onclick="applyTwoQubitGate('CNOT')" style="width: 48%; margin-right: 4%;">CNOT</button>
+                    <button onclick="applyTwoQubitGate('CZ')" style="width: 48%;">CZ</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Measurements & Analysis</h3>
+                <div class="control-group">
+                    <label>Number of Shots:</label>
+                    <input type="number" id="num-shots" value="1000" min="100" max="10000" step="100">
+                </div>
+                <button onclick="performMeasurements()">Perform Measurements</button>
+                <button onclick="clearMeasurements()">Clear Results</button>
+                
+                <div class="control-group" style="margin-top: 15px;">
+                    <label>
+                        <input type="checkbox" id="compare-mode" onchange="toggleComparisonMode()">
+                        Comparison Mode
+                    </label>
+                </div>
+                <button onclick="saveCurrentState()" id="save-state-btn" style="display: none;">Save Current State</button>
+            </div>
+
+            <div class="section">
+                <h3>Preset Distributions</h3>
+                <button onclick="createUniformSuperposition()">Uniform Superposition</button>
+                <button onclick="createBellState()">Bell State</button>
+                <button onclick="createGHZState()">GHZ State</button>
+                <button onclick="createWState()">W State</button>
+            </div>
+
+            <div class="section">
+                <h3>System Information</h3>
+                <div class="state-summary">
+                    <div class="fidelity-display">
+                        <strong>State Fidelity:</strong><br>
+                        <span id="fidelity-value">1.000</span>
+                    </div>
+                    <div class="entanglement-display">
+                        <strong>Entanglement Measure:</strong><br>
+                        <span id="entanglement-value">0.000</span>
+                    </div>
+                    <div class="purity-display">
+                        <strong>State Purity:</strong><br>
+                        <span id="purity-value">1.000</span>
+                    </div>
+                </div>
+                
+                <div class="educational-note">
+                    <strong>Probability Visualization:</strong><br>
+                    The bar chart shows theoretical probabilities, while the histogram displays 
+                    measurement results. Differences indicate quantum noise or finite sampling effects. 
+                    The polar chart reveals phase relationships between quantum states.
+                </div>
+            </div>
+        </div>
+
+        <div class="visualization-panel">
+            <div class="real-time-indicator" id="real-time-indicator">
+                LIVE
+            </div>
+            
+            <div class="charts-container">
+                <div class="chart-section">
+                    <h3 class="chart-title">Theoretical Probability Distribution</h3>
+                    <div class="chart-wrapper" id="probability-chart"></div>
+                </div>
+                
+                <div class="chart-section">
+                    <h3 class="chart-title">Measurement Results Histogram</h3>
+                    <div class="chart-wrapper" id="measurement-chart"></div>
+                </div>
+                
+                <div class="chart-section">
+                    <h3 class="chart-title">Complex Amplitude Visualization</h3>
+                    <div class="chart-wrapper" id="amplitude-chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- D3.js CDN -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- Q5M.js local -->
+    <script src="../../../../dist/q5m.min.js"></script>
+    <script>
+        // Fallback to CDN if local file fails to load
+        if (typeof Q5M === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/q5mjs@latest/dist/q5m.min.js';
+            document.head.appendChild(script);
+        }
+    </script>
+
+    <script>
+        // Global state
+        let numQubits = 2;
+        let numStates = 4; // 2^numQubits
+        let circuit = null;
+        let currentState = null;
+        let measurementResults = [];
+        let isRealTimeMode = true;
+        let comparisonState = null;
+        let isComparisonMode = false;
+        
+        // Chart dimensions
+        const chartMargin = { top: 20, right: 20, bottom: 60, left: 60 };
+        let chartWidth = 0, chartHeight = 0;
+        
+        // D3 components
+        let probabilitySvg, measurementSvg, amplitudeSvg;
+        let tooltip;
+        
+        // Color schemes
+        const stateColors = d3.schemeSet3;
+        const measurementColor = '#ff8a80';
+        const comparisonColor = '#64b5f6';
+        
+        function initializeSystem() {
+            numQubits = parseInt(document.getElementById('num-qubits').value);
+            numStates = Math.pow(2, numQubits);
+            
+            // Update UI limits
+            document.getElementById('target-qubit').max = numQubits - 1;
+            document.getElementById('control-qubit').max = numQubits - 1;
+            document.getElementById('target-qubit-2q').max = numQubits - 1;
+            
+            // Initialize quantum circuit
+            circuit = new Q5M.Circuit(numQubits);
+            measurementResults = [];
+            
+            // Setup visualizations
+            initializeCharts();
+            updateAllVisualizations();
+        }
+        
+        function initializeCharts() {
+            // Set dimensions for each chart individually based on their actual container size
+            const containers = [
+                {id: 'probability-chart', type: 'bar'},
+                {id: 'measurement-chart', type: 'histogram'}, 
+                {id: 'amplitude-chart', type: 'polar'}
+            ];
+            
+            // For now, use a common approach but we'll refactor individual chart setup
+            const firstContainer = document.getElementById('probability-chart');
+            if (firstContainer) {
+                const rect = firstContainer.getBoundingClientRect();
+                chartWidth = Math.max(200, rect.width - chartMargin.left - chartMargin.right);
+                chartHeight = Math.max(150, rect.height - chartMargin.top - chartMargin.bottom);
+            } else {
+                // Fallback dimensions
+                chartWidth = 400;
+                chartHeight = 250;
+            }
+            
+            setupProbabilityChart();
+            setupMeasurementChart();
+            setupAmplitudeChart();
+            
+            // Create tooltip
+            if (tooltip) tooltip.remove();
+            tooltip = d3.select('body').append('div')
+                .attr('class', 'tooltip')
+                .style('opacity', 0);
+        }
+        
+        function setupProbabilityChart() {
+            const container = d3.select('#probability-chart');
+            container.selectAll('*').remove();
+            
+            probabilitySvg = container.append('svg')
+                .attr('width', chartWidth + chartMargin.left + chartMargin.right)
+                .attr('height', chartHeight + chartMargin.top + chartMargin.bottom)
+                .append('g')
+                .attr('transform', `translate(${chartMargin.left},${chartMargin.top})`);
+            
+            // Add axes
+            const xScale = d3.scaleBand()
+                .domain(d3.range(numStates).map(i => getBinaryString(i, numQubits)))
+                .range([0, chartWidth])
+                .padding(0.1);
+            
+            const yScale = d3.scaleLinear()
+                .domain([0, 1])
+                .range([chartHeight, 0]);
+            
+            probabilitySvg.append('g')
+                .attr('class', 'x-axis')
+                .attr('transform', `translate(0,${chartHeight})`)
+                .call(d3.axisBottom(xScale));
+            
+            probabilitySvg.append('g')
+                .attr('class', 'y-axis')
+                .call(d3.axisLeft(yScale).tickFormat(d3.format('.2f')));
+            
+            // Add labels
+            probabilitySvg.append('text')
+                .attr('class', 'x-label')
+                .attr('text-anchor', 'middle')
+                .attr('x', chartWidth / 2)
+                .attr('y', chartHeight + 50)
+                .style('fill', '#ff8a80')
+                .style('font-size', '14px')
+                .text('Quantum States');
+            
+            probabilitySvg.append('text')
+                .attr('class', 'y-label')
+                .attr('text-anchor', 'middle')
+                .attr('transform', 'rotate(-90)')
+                .attr('x', -chartHeight / 2)
+                .attr('y', -40)
+                .style('fill', '#ff8a80')
+                .style('font-size', '14px')
+                .text('Probability');
+        }
+        
+        function setupMeasurementChart() {
+            const container = d3.select('#measurement-chart');
+            container.selectAll('*').remove();
+            
+            measurementSvg = container.append('svg')
+                .attr('width', chartWidth + chartMargin.left + chartMargin.right)
+                .attr('height', chartHeight + chartMargin.top + chartMargin.bottom)
+                .append('g')
+                .attr('transform', `translate(${chartMargin.left},${chartMargin.top})`);
+            
+            // Add axes
+            const xScale = d3.scaleBand()
+                .domain(d3.range(numStates).map(i => getBinaryString(i, numQubits)))
+                .range([0, chartWidth])
+                .padding(0.1);
+            
+            const yScale = d3.scaleLinear()
+                .domain([0, 1])
+                .range([chartHeight, 0]);
+            
+            measurementSvg.append('g')
+                .attr('class', 'x-axis')
+                .attr('transform', `translate(0,${chartHeight})`)
+                .call(d3.axisBottom(xScale));
+            
+            measurementSvg.append('g')
+                .attr('class', 'y-axis')
+                .call(d3.axisLeft(yScale).tickFormat(d3.format('.2f')));
+            
+            // Add labels
+            measurementSvg.append('text')
+                .attr('class', 'x-label')
+                .attr('text-anchor', 'middle')
+                .attr('x', chartWidth / 2)
+                .attr('y', chartHeight + 50)
+                .style('fill', '#ff8a80')
+                .style('font-size', '14px')
+                .text('Measured States');
+            
+            measurementSvg.append('text')
+                .attr('class', 'y-label')
+                .attr('text-anchor', 'middle')
+                .attr('transform', 'rotate(-90)')
+                .attr('x', -chartHeight / 2)
+                .attr('y', -40)
+                .style('fill', '#ff8a80')
+                .style('font-size', '14px')
+                .text('Frequency');
+        }
+        
+        function setupAmplitudeChart() {
+            const container = d3.select('#amplitude-chart');
+            container.selectAll('*').remove();
+            
+            // Get amplitude chart specific dimensions
+            const amplitudeContainer = document.getElementById('amplitude-chart');
+            let amplitudeWidth = chartWidth;
+            let amplitudeHeight = chartHeight;
+            
+            if (amplitudeContainer) {
+                const rect = amplitudeContainer.getBoundingClientRect();
+                amplitudeWidth = Math.max(300, rect.width - chartMargin.left - chartMargin.right);
+                amplitudeHeight = Math.max(300, rect.height - chartMargin.top - chartMargin.bottom);
+            }
+            
+            amplitudeSvg = container.append('svg')
+                .attr('width', amplitudeWidth + chartMargin.left + chartMargin.right)
+                .attr('height', amplitudeHeight + chartMargin.top + chartMargin.bottom)
+                .append('g')
+                .attr('transform', `translate(${chartMargin.left},${chartMargin.top})`);
+            
+            // Create polar coordinate system
+            const centerX = amplitudeWidth / 2;
+            const centerY = amplitudeHeight / 2;
+            const radius = Math.max(10, Math.min(amplitudeWidth, amplitudeHeight) / 2 - 40);
+            
+            // Add circular grid
+            const radiusScale = d3.scaleLinear()
+                .domain([0, 1])
+                .range([0, radius]);
+            
+            // Add concentric circles with labels - adjusted for 10x scale
+            // Since we're scaling by 10x, adjust the labels to show actual amplitude values
+            for (let r = 0.1; r <= 1; r += 0.1) {
+                amplitudeSvg.append('circle')
+                    .attr('cx', centerX)
+                    .attr('cy', centerY)
+                    .attr('r', radiusScale(r))
+                    .attr('fill', 'none')
+                    .attr('stroke', '#444')
+                    .attr('stroke-width', 1)
+                    .attr('stroke-dasharray', '2,2');
+                
+                // Add scale labels - show actual amplitude values (divided by 10 due to scaling)
+                amplitudeSvg.append('text')
+                    .attr('x', centerX + radiusScale(r) + 5)
+                    .attr('y', centerY + 3)
+                    .style('font-size', '10px')
+                    .style('fill', '#888')
+                    .text((r / 10).toFixed(2)); // Show actual amplitude scale
+            }
+            
+            // Add radial lines
+            for (let angle = 0; angle < 360; angle += 30) {
+                const radians = (angle * Math.PI) / 180;
+                amplitudeSvg.append('line')
+                    .attr('x1', centerX)
+                    .attr('y1', centerY)
+                    .attr('x2', centerX + radius * Math.cos(radians))
+                    .attr('y2', centerY + radius * Math.sin(radians))
+                    .attr('stroke', '#444')
+                    .attr('stroke-width', 0.5);
+            }
+            
+            // Add labels
+            amplitudeSvg.append('text')
+                .attr('class', 'chart-title')
+                .attr('text-anchor', 'middle')
+                .attr('x', centerX)
+                .attr('y', amplitudeHeight + 30)
+                .style('fill', '#ff8a80')
+                .style('font-size', '14px')
+                .style('font-weight', 'bold')
+                .text('Amplitude: Magnitude & Phase');
+        }
+        
+        function applyGate(gateType) {
+            const targetQubit = parseInt(document.getElementById('target-qubit').value);
+            
+            if (targetQubit >= numQubits) {
+                alert(`Target qubit must be less than ${numQubits}`);
+                return;
+            }
+            
+            switch (gateType) {
+                case 'H': circuit.h(targetQubit); break;
+                case 'X': circuit.x(targetQubit); break;
+                case 'Y': circuit.y(targetQubit); break;
+                case 'Z': circuit.z(targetQubit); break;
+                case 'S': circuit.s(targetQubit); break;
+                case 'T': circuit.t(targetQubit); break;
+                case 'Sdg': circuit.sdg(targetQubit); break;
+                case 'Tdg': circuit.tdg(targetQubit); break;
+            }
+            
+            if (isRealTimeMode) {
+                updateAllVisualizations();
+            }
+        }
+        
+        function applyRotation(gateType) {
+            const targetQubit = parseInt(document.getElementById('target-qubit').value);
+            const angle = parseFloat(document.getElementById('rotation-angle').value);
+            
+            if (targetQubit >= numQubits) {
+                alert(`Target qubit must be less than ${numQubits}`);
+                return;
+            }
+            
+            switch (gateType) {
+                case 'RX': circuit.rx(targetQubit, angle); break;
+                case 'RY': circuit.ry(targetQubit, angle); break;
+                case 'RZ': circuit.rz(targetQubit, angle); break;
+            }
+            
+            if (isRealTimeMode) {
+                updateAllVisualizations();
+            }
+        }
+        
+        function applyPhase() {
+            const targetQubit = parseInt(document.getElementById('target-qubit').value);
+            const angle = parseFloat(document.getElementById('rotation-angle').value);
+            
+            if (targetQubit >= numQubits) {
+                alert(`Target qubit must be less than ${numQubits}`);
+                return;
+            }
+            
+            circuit.phase(targetQubit, angle);
+            
+            if (isRealTimeMode) {
+                updateAllVisualizations();
+            }
+        }
+        
+        function applyTwoQubitGate(gateType) {
+            const controlQubit = parseInt(document.getElementById('control-qubit').value);
+            const targetQubit = parseInt(document.getElementById('target-qubit-2q').value);
+            
+            if (controlQubit >= numQubits || targetQubit >= numQubits) {
+                alert(`Qubit indices must be less than ${numQubits}`);
+                return;
+            }
+            
+            if (controlQubit === targetQubit) {
+                alert('Control and target qubits must be different');
+                return;
+            }
+            
+            switch (gateType) {
+                case 'CNOT': circuit.cnot(controlQubit, targetQubit); break;
+                case 'CZ': circuit.cz(controlQubit, targetQubit); break;
+                case 'SWAP': circuit.swap(controlQubit, targetQubit); break;
+            }
+            
+            if (isRealTimeMode) {
+                updateAllVisualizations();
+            }
+        }
+        
+        function updateAllVisualizations() {
+            try {
+                const result = circuit.execute();
+                currentState = result.state;
+                
+                updateProbabilityChart();
+                updateAmplitudeChart();
+                updateSystemInfo();
+            } catch (error) {
+                console.error('Circuit execution failed:', error);
+            }
+        }
+        
+        function updateProbabilityChart() {
+            if (!currentState) return;
+            
+            const data = [];
+            for (let i = 0; i < numStates; i++) {
+                const amplitude = currentState.amplitude(i);
+                data.push({
+                    state: getBinaryString(i, numQubits),
+                    stateIndex: i,
+                    probability: amplitude.abs() ** 2
+                });
+            }
+            
+            const xScale = d3.scaleBand()
+                .domain(data.map(d => d.state))
+                .range([0, chartWidth])
+                .padding(0.1);
+            
+            const yScale = d3.scaleLinear()
+                .domain([0, Math.max(1, d3.max(data, d => d.probability))])
+                .range([chartHeight, 0]);
+            
+            // Update bars
+            const bars = probabilitySvg.selectAll('.prob-bar')
+                .data(data, d => d.state);
+            
+            // Remove old bars
+            bars.exit()
+                .transition()
+                .duration(300)
+                .attr('height', 0)
+                .attr('y', chartHeight)
+                .remove();
+            
+            // Add new bars
+            const newBars = bars.enter()
+                .append('rect')
+                .attr('class', 'prob-bar')
+                .attr('x', d => xScale(d.state))
+                .attr('width', xScale.bandwidth())
+                .attr('y', chartHeight)
+                .attr('height', 0)
+                .attr('fill', (d, i) => stateColors[i % stateColors.length])
+                .attr('stroke', '#ff6b6b')
+                .attr('stroke-width', 1)
+                .attr('opacity', 0.8);
+            
+            // Update all bars
+            newBars.merge(bars)
+                .on('mouseover', function(event, d) {
+                    d3.select(this).attr('opacity', 1);
+                    tooltip.transition().duration(200).style('opacity', .9);
+                    tooltip.html(`State: |${d.state}⟩<br/>Probability: ${(d.probability * 100).toFixed(2)}%`)
+                        .style('left', (event.pageX + 10) + 'px')
+                        .style('top', (event.pageY - 28) + 'px');
+                })
+                .on('mouseout', function() {
+                    d3.select(this).attr('opacity', 0.8);
+                    tooltip.transition().duration(500).style('opacity', 0);
+                })
+                .transition()
+                .duration(500)
+                .attr('y', d => yScale(d.probability))
+                .attr('height', d => chartHeight - yScale(d.probability));
+            
+            // Add comparison bars if in comparison mode
+            if (isComparisonMode && comparisonState) {
+                const comparisonData = [];
+                for (let i = 0; i < numStates; i++) {
+                    const amplitude = comparisonState.amplitude(i);
+                    comparisonData.push({
+                        state: getBinaryString(i, numQubits),
+                        probability: amplitude.abs() ** 2
+                    });
+                }
+                
+                const compBars = probabilitySvg.selectAll('.comp-bar')
+                    .data(comparisonData, d => d.state);
+                
+                compBars.enter()
+                    .append('rect')
+                    .attr('class', 'comp-bar')
+                    .attr('x', d => xScale(d.state) + xScale.bandwidth() * 0.6)
+                    .attr('width', xScale.bandwidth() * 0.4)
+                    .attr('y', chartHeight)
+                    .attr('height', 0)
+                    .attr('fill', comparisonColor)
+                    .attr('opacity', 0.6)
+                    .merge(compBars)
+                    .transition()
+                    .duration(500)
+                    .attr('y', d => yScale(d.probability))
+                    .attr('height', d => chartHeight - yScale(d.probability));
+            } else {
+                probabilitySvg.selectAll('.comp-bar').remove();
+            }
+            
+            // Update y-axis
+            probabilitySvg.select('.y-axis')
+                .transition()
+                .duration(500)
+                .call(d3.axisLeft(yScale).tickFormat(d3.format('.2f')));
+        }
+        
+        function updateAmplitudeChart() {
+            if (!currentState) return;
+            
+            // Get current amplitude chart dimensions
+            const amplitudeContainer = document.getElementById('amplitude-chart');
+            let amplitudeWidth = chartWidth;
+            let amplitudeHeight = chartHeight;
+            
+            if (amplitudeContainer) {
+                const rect = amplitudeContainer.getBoundingClientRect();
+                amplitudeWidth = Math.max(300, rect.width - chartMargin.left - chartMargin.right);
+                amplitudeHeight = Math.max(300, rect.height - chartMargin.top - chartMargin.bottom);
+            }
+            
+            const centerX = amplitudeWidth / 2;
+            const centerY = amplitudeHeight / 2;
+            const radius = Math.max(10, Math.min(amplitudeWidth, amplitudeHeight) / 2 - 40);
+            
+            // First, find the maximum magnitude for normalization
+            const allAmplitudes = [];
+            for (let i = 0; i < numStates; i++) {
+                const amplitude = currentState.amplitude(i);
+                allAmplitudes.push({
+                    amplitude: amplitude,
+                    magnitude: amplitude.abs(),
+                    index: i
+                });
+            }
+            
+            // Find max magnitude for normalization
+            const maxMagnitude = Math.max(...allAmplitudes.map(a => a.magnitude));
+            
+            // Debug: log amplitude values
+            console.log('=== AMPLITUDE DEBUG ===');
+            console.log('Amplitudes:', allAmplitudes.map(a => ({state: getBinaryString(a.index, numQubits), magnitude: a.magnitude.toFixed(4)})));
+            console.log('Max magnitude:', maxMagnitude.toFixed(4));
+            
+            const data = [];
+            for (let i = 0; i < numStates; i++) {
+                const ampData = allAmplitudes[i];
+                const phase = Math.atan2(ampData.amplitude.im, ampData.amplitude.re);
+                
+                // Vector length with enhanced scaling for better visibility
+                // Use minimum offset + proportional scaling with more dramatic differences
+                const minVectorLength = radius * 0.20; // 20% minimum
+                const maxVectorLength = radius * 0.80; // 80% maximum
+                const normalizedMagnitude = ampData.magnitude / (maxMagnitude || 1);
+                
+                // Apply power scaling to make differences more visible
+                const scaledMagnitude = Math.pow(normalizedMagnitude, 0.7); // Slight compression for better visibility
+                const vectorLength = minVectorLength + (scaledMagnitude * (maxVectorLength - minVectorLength));
+                
+                // Debug: log vector length calculation
+                console.log(`Vector - State |${getBinaryString(i, numQubits)}⟩: magnitude=${ampData.magnitude.toFixed(4)}, normalized=${normalizedMagnitude.toFixed(4)}, scaled=${scaledMagnitude.toFixed(4)}, vectorLength=${vectorLength.toFixed(1)}`);
+                
+                // Circle position at the end of the vector
+                const endX = centerX + vectorLength * Math.cos(phase);
+                const endY = centerY + vectorLength * Math.sin(phase);
+                
+                data.push({
+                    state: getBinaryString(i, numQubits),
+                    stateIndex: i,
+                    magnitude: ampData.magnitude,
+                    phase: phase,
+                    vectorLength: vectorLength,
+                    x: endX,
+                    y: endY
+                });
+            }
+            
+            // Sort data by stateIndex in descending order so |00⟩ (index 0) is drawn last (on top)
+            // This ensures |11⟩ is drawn first (background) and |00⟩ is drawn last (foreground)
+            const sortedData = [...data].sort((a, b) => b.stateIndex - a.stateIndex);
+            const vectors = amplitudeSvg.selectAll('.amp-vector')
+                .data(sortedData, d => d.state);
+            
+            vectors.exit().remove();
+            
+            const newVectors = vectors.enter()
+                .append('g')
+                .attr('class', 'amp-vector');
+            
+            // Add lines (vectors)
+            newVectors.append('line')
+                .attr('class', 'vector-line')
+                .attr('x1', centerX)
+                .attr('y1', centerY)
+                .attr('stroke-width', 3)
+                .attr('opacity', 0.8);
+            
+            // Helper function to calculate circle radius
+            const getCircleRadius = (d) => {
+                // If magnitude is very small, return 0 (will be hidden)
+                if (d.magnitude < 1e-6) return 0;
+                
+                // Use direct magnitude proportion for more dynamic size differences
+                const normalizedMagnitude = d.magnitude / (maxMagnitude || 1);
+                // Scale circle size from 6px to 30px based on amplitude magnitude
+                const baseRadius = 6 + (normalizedMagnitude * 24); // 6px to 30px range
+                
+                // Debug: log circle calculation
+                console.log(`Circle - State |${d.state}⟩: magnitude=${d.magnitude.toFixed(4)}, normalized=${normalizedMagnitude.toFixed(4)}, radius=${baseRadius.toFixed(1)}`);
+                
+                return Math.max(6, Math.min(30, baseRadius));
+            };
+            
+            // Add circles (endpoints) - size based on amplitude magnitude
+            newVectors.append('circle')
+                .attr('class', 'vector-point')
+                .attr('r', getCircleRadius)
+                .attr('opacity', 0.9)
+                .attr('stroke', '#fff')
+                .attr('stroke-width', 2);
+            
+            // Add labels - position based on individual circle size
+            const fontSize = Math.max(10, Math.min(14, radius / 20));
+            newVectors.append('text')
+                .attr('class', 'vector-label')
+                .attr('text-anchor', 'middle')
+                .attr('dy', d => {
+                    // Position label above circle based on its radius
+                    const circleRadius = getCircleRadius(d);
+                    return -circleRadius - 8;
+                })
+                .style('font-size', `${fontSize}px`)
+                .style('fill', '#fff')
+                .style('font-weight', 'bold');
+            
+            // Update all vectors and reorder them so |00⟩ is on top
+            const allVectors = newVectors.merge(vectors);
+            
+            // Reorder DOM elements to match data order (|11⟩ first, |00⟩ last)
+            allVectors.order();
+            
+            allVectors.select('.vector-line')
+                .transition()
+                .duration(500)
+                .attr('x2', d => d.x)
+                .attr('y2', d => d.y)
+                .attr('stroke', d => stateColors[d.stateIndex % stateColors.length])
+                .style('opacity', d => d.magnitude > 1e-6 ? 0.8 : 0); // Hide when magnitude is very small
+            
+            allVectors.select('.vector-point')
+                .on('mouseover', function(event, d) {
+                    tooltip.transition().duration(200).style('opacity', .9);
+                    tooltip.html(`|${d.state}⟩<br/>Magnitude: ${d.magnitude.toFixed(3)}<br/>Phase: ${(d.phase * 180 / Math.PI).toFixed(1)}°`)
+                        .style('left', (event.pageX + 10) + 'px')
+                        .style('top', (event.pageY - 28) + 'px');
+                })
+                .on('mouseout', function() {
+                    tooltip.transition().duration(500).style('opacity', 0);
+                })
+                .transition()
+                .duration(500)
+                .attr('cx', d => d.x)
+                .attr('cy', d => d.y)
+                .attr('r', getCircleRadius) // Update radius based on magnitude
+                .attr('fill', d => stateColors[d.stateIndex % stateColors.length])
+                .style('opacity', d => d.magnitude > 1e-6 ? 0.9 : 0); // Hide when magnitude is very small
+            
+            allVectors.select('.vector-label')
+                .transition()
+                .duration(500)
+                .attr('x', d => d.x)
+                .attr('y', d => d.y)
+                .attr('dy', d => {
+                    // Update label position based on current circle size
+                    const circleRadius = getCircleRadius(d);
+                    return -circleRadius - 8;
+                })
+                .text(d => `|${d.state}⟩`)
+                .style('opacity', d => d.magnitude > 1e-6 ? 1 : 0); // Hide when magnitude is very small
+        }
+        
+        function performMeasurements() {
+            if (!currentState) return;
+            
+            const numShots = parseInt(document.getElementById('num-shots').value);
+            measurementResults = [];
+            
+            // Simulate measurements
+            for (let i = 0; i < numShots; i++) {
+                const rand = Math.random();
+                let cumulativeProb = 0;
+                
+                for (let state = 0; state < numStates; state++) {
+                    const amplitude = currentState.amplitude(state);
+                    const probability = amplitude.abs() ** 2;
+                    cumulativeProb += probability;
+                    
+                    if (rand <= cumulativeProb) {
+                        measurementResults.push(state);
+                        break;
+                    }
+                }
+            }
+            
+            updateMeasurementChart();
+        }
+        
+        function updateMeasurementChart() {
+            if (measurementResults.length === 0) return;
+            
+            // Count occurrences
+            const counts = new Array(numStates).fill(0);
+            measurementResults.forEach(result => counts[result]++);
+            
+            const data = counts.map((count, i) => ({
+                state: getBinaryString(i, numQubits),
+                count: count,
+                frequency: count / measurementResults.length
+            }));
+            
+            const xScale = d3.scaleBand()
+                .domain(data.map(d => d.state))
+                .range([0, chartWidth])
+                .padding(0.1);
+            
+            const yScale = d3.scaleLinear()
+                .domain([0, Math.max(1, d3.max(data, d => d.frequency))])
+                .range([chartHeight, 0]);
+            
+            // Update bars
+            const bars = measurementSvg.selectAll('.meas-bar')
+                .data(data, d => d.state);
+            
+            bars.exit()
+                .transition()
+                .duration(300)
+                .attr('height', 0)
+                .attr('y', chartHeight)
+                .remove();
+            
+            const newBars = bars.enter()
+                .append('rect')
+                .attr('class', 'meas-bar')
+                .attr('x', d => xScale(d.state))
+                .attr('width', xScale.bandwidth())
+                .attr('y', chartHeight)
+                .attr('height', 0)
+                .attr('fill', measurementColor)
+                .attr('opacity', 0.7)
+                .attr('stroke', '#d32f2f')
+                .attr('stroke-width', 1);
+            
+            newBars.merge(bars)
+                .on('mouseover', function(event, d) {
+                    d3.select(this).attr('opacity', 1);
+                    tooltip.transition().duration(200).style('opacity', .9);
+                    tooltip.html(`State: |${d.state}⟩<br/>Count: ${d.count}/${measurementResults.length}<br/>Frequency: ${(d.frequency * 100).toFixed(2)}%`)
+                        .style('left', (event.pageX + 10) + 'px')
+                        .style('top', (event.pageY - 28) + 'px');
+                })
+                .on('mouseout', function() {
+                    d3.select(this).attr('opacity', 0.7);
+                    tooltip.transition().duration(500).style('opacity', 0);
+                })
+                .transition()
+                .duration(500)
+                .attr('y', d => yScale(d.frequency))
+                .attr('height', d => chartHeight - yScale(d.frequency));
+            
+            // Update y-axis
+            measurementSvg.select('.y-axis')
+                .transition()
+                .duration(500)
+                .call(d3.axisLeft(yScale).tickFormat(d3.format('.2f')));
+        }
+        
+        function updateSystemInfo() {
+            if (!currentState) return;
+            
+            // Calculate fidelity with |000...0⟩ state
+            const initialState = new Array(numStates).fill(new Q5M.Complex(0, 0));
+            initialState[0] = new Q5M.Complex(1, 0);
+            
+            let fidelity = 0;
+            for (let i = 0; i < numStates; i++) {
+                const amp1 = currentState.amplitude(i);
+                const amp2 = initialState[i];
+                fidelity += (amp1.real * amp2.real + amp1.imag * amp2.imag);
+            }
+            fidelity = Math.abs(fidelity);
+            
+            // Calculate purity (simplified for pure states)
+            let purity = 0;
+            for (let i = 0; i < numStates; i++) {
+                const amp = currentState.amplitude(i);
+                purity += Math.pow(amp.abs(), 4);
+            }
+            
+            // Calculate entanglement measure (von Neumann entropy for single qubit)
+            let entanglement = 0;
+            if (numQubits > 1) {
+                // Simplified entanglement measure
+                for (let i = 0; i < numStates; i++) {
+                    const amp = currentState.amplitude(i);
+                    const prob = amp.abs() ** 2;
+                    if (prob > 0) {
+                        entanglement -= prob * Math.log2(prob);
+                    }
+                }
+                entanglement = Math.min(entanglement / numQubits, 1); // Normalize
+            }
+            
+            document.getElementById('fidelity-value').textContent = fidelity.toFixed(3);
+            document.getElementById('entanglement-value').textContent = entanglement.toFixed(3);
+            document.getElementById('purity-value').textContent = purity.toFixed(3);
+        }
+        
+        // Utility functions
+        function getBinaryString(num, bits) {
+            return num.toString(2).padStart(bits, '0');
+        }
+        
+        function resetSystem() {
+            circuit = new Q5M.Circuit(numQubits);
+            measurementResults = [];
+            comparisonState = null;
+            updateAllVisualizations();
+            clearMeasurementChart();
+        }
+        
+        function randomState() {
+            circuit = new Q5M.Circuit(numQubits);
+            // Apply random gates
+            const gates = ['H', 'X', 'Y', 'Z', 'S', 'T'];
+            const numGates = Math.floor(Math.random() * 5) + 3;
+            
+            for (let i = 0; i < numGates; i++) {
+                const gate = gates[Math.floor(Math.random() * gates.length)];
+                const qubit = Math.floor(Math.random() * numQubits);
+                applyGate(gate);
+            }
+            
+            if (isRealTimeMode) {
+                updateAllVisualizations();
+            }
+        }
+        
+        function clearMeasurements() {
+            measurementResults = [];
+            clearMeasurementChart();
+        }
+        
+        function clearMeasurementChart() {
+            measurementSvg.selectAll('.meas-bar').remove();
+        }
+        
+        function toggleRealTime() {
+            isRealTimeMode = document.getElementById('real-time-mode').checked;
+            const indicator = document.getElementById('real-time-indicator');
+            
+            if (isRealTimeMode) {
+                indicator.style.display = 'block';
+                indicator.classList.add('pulse');
+                updateAllVisualizations();
+            } else {
+                indicator.style.display = 'none';
+                indicator.classList.remove('pulse');
+            }
+        }
+        
+        function toggleComparisonMode() {
+            isComparisonMode = document.getElementById('compare-mode').checked;
+            const saveButton = document.getElementById('save-state-btn');
+            
+            if (isComparisonMode) {
+                saveButton.style.display = 'inline-block';
+            } else {
+                saveButton.style.display = 'none';
+                comparisonState = null;
+                updateProbabilityChart(); // Remove comparison bars
+            }
+        }
+        
+        function saveCurrentState() {
+            if (currentState) {
+                comparisonState = currentState;
+                updateProbabilityChart();
+            }
+        }
+        
+        function updateAngleDisplay() {
+            const angle = parseFloat(document.getElementById('rotation-angle').value);
+            const display = angle.toFixed(2) === (Math.PI/4).toFixed(2) ? 'π/4' :
+                           angle.toFixed(2) === (Math.PI/2).toFixed(2) ? 'π/2' :
+                           angle.toFixed(2) === Math.PI.toFixed(2) ? 'π' :
+                           angle.toFixed(2) === (2*Math.PI).toFixed(2) ? '2π' :
+                           `${(angle).toFixed(2)}`;
+            document.getElementById('angle-display').textContent = display;
+        }
+        
+        // Preset quantum states
+        function createUniformSuperposition() {
+            circuit = new Q5M.Circuit(numQubits);
+            for (let i = 0; i < numQubits; i++) {
+                circuit.h(i);
+            }
+            updateAllVisualizations();
+        }
+        
+        function createBellState() {
+            if (numQubits < 2) {
+                alert('Bell state requires at least 2 qubits');
+                return;
+            }
+            circuit = new Q5M.Circuit(numQubits);
+            circuit.h(0).cnot(0, 1);
+            updateAllVisualizations();
+        }
+        
+        function createGHZState() {
+            if (numQubits < 3) {
+                alert('GHZ state requires at least 3 qubits');
+                return;
+            }
+            circuit = new Q5M.Circuit(numQubits);
+            circuit.h(0);
+            for (let i = 1; i < numQubits; i++) {
+                circuit.cnot(0, i);
+            }
+            updateAllVisualizations();
+        }
+        
+        function createWState() {
+            if (numQubits < 3) {
+                alert('W state requires at least 3 qubits');
+                return;
+            }
+            circuit = new Q5M.Circuit(numQubits);
+            // Simplified W state construction
+            circuit.H(0).CNOT(0, 1).H(0).CNOT(0, 2);
+            updateAllVisualizations();
+        }
+        
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            initializeSystem();
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            setTimeout(() => {
+                initializeCharts();
+                updateAllVisualizations();
+                if (measurementResults.length > 0) {
+                    updateMeasurementChart();
+                }
+            }, 100);
+        });
+        
+        // Style the SVG axes
+        const style = document.createElement('style');
+        style.textContent = `
+            .x-axis, .y-axis {
+                color: #ff8a80;
+            }
+            .x-axis text, .y-axis text {
+                fill: #ff8a80;
+                font-size: 11px;
+            }
+            .x-axis path, .y-axis path,
+            .x-axis line, .y-axis line {
+                stroke: #d32f2f;
+                stroke-width: 1;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

@@ -1,0 +1,457 @@
+/* Jupyter-style theme for Q5M.js Notebooks */
+/* SPDX-License-Identifier: MIT */
+/* SPDX-FileCopyrightText: Copyright 2025 OpenQL Project */
+
+:root {
+    --jp-layout-color0: #111111;
+    --jp-layout-color1: #1e1e1e;
+    --jp-layout-color2: #212121;
+    --jp-layout-color3: #313131;
+    --jp-layout-color4: #3c3c3c;
+    --jp-content-font-color1: #ffffff;
+    --jp-content-font-color2: #bcbcbc;
+    --jp-content-font-color3: #a0a0a0;
+    --jp-ui-font-color1: #ffffff;
+    --jp-ui-font-color2: #bcbcbc;
+    --jp-ui-font-color3: #a0a0a0;
+    --jp-border-color0: #808080;
+    --jp-border-color1: #5a5a5a;
+    --jp-border-color2: #404040;
+    --jp-accent-color: #0969da;
+    --jp-success-color: #28a745;
+    --jp-error-color: #dc3545;
+    --jp-warning-color: #ffc107;
+    --jp-info-color: #17a2b8;
+}
+
+/* Light theme colors */
+[data-theme="light"] {
+    --jp-layout-color0: #ffffff;
+    --jp-layout-color1: #f8f9fa;
+    --jp-layout-color2: #f1f3f4;
+    --jp-layout-color3: #e9ecef;
+    --jp-layout-color4: #dee2e6;
+    --jp-content-font-color1: #212529;
+    --jp-content-font-color2: #495057;
+    --jp-content-font-color3: #6c757d;
+    --jp-ui-font-color1: #212529;
+    --jp-ui-font-color2: #495057;
+    --jp-ui-font-color3: #6c757d;
+    --jp-border-color0: #dee2e6;
+    --jp-border-color1: #ced4da;
+    --jp-border-color2: #adb5bd;
+}
+
+/* Notebook container styles */
+.jp-Notebook {
+    background: var(--jp-layout-color0);
+    color: var(--jp-content-font-color1);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+}
+
+/* Cell styles */
+.jp-Cell {
+    background: var(--jp-layout-color1);
+    border: 1px solid var(--jp-border-color2);
+    border-radius: 4px;
+    margin: 8px 0;
+    position: relative;
+}
+
+.jp-Cell:hover {
+    border-color: var(--jp-border-color1);
+}
+
+.jp-Cell.jp-mod-selected {
+    border-color: var(--jp-accent-color);
+    box-shadow: 0 0 0 2px rgba(9, 105, 218, 0.3);
+}
+
+/* Code cell styles */
+.jp-CodeCell {
+    background: var(--jp-layout-color0);
+}
+
+.jp-InputArea {
+    background: var(--jp-layout-color1);
+    border-radius: 4px;
+    position: relative;
+}
+
+.jp-InputPrompt {
+    background: var(--jp-layout-color2);
+    color: var(--jp-ui-font-color2);
+    padding: 8px 12px;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    border-right: 1px solid var(--jp-border-color2);
+    min-width: 80px;
+    text-align: center;
+    user-select: none;
+}
+
+.jp-Editor {
+    background: var(--jp-layout-color0);
+    border: none;
+    outline: none;
+    color: var(--jp-content-font-color1);
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 12px;
+    resize: none;
+    width: 100%;
+    min-height: 50px;
+}
+
+/* Output area styles */
+.jp-OutputArea {
+    background: var(--jp-layout-color0);
+    border-top: 1px solid var(--jp-border-color2);
+}
+
+.jp-OutputPrompt {
+    background: var(--jp-layout-color2);
+    color: var(--jp-ui-font-color2);
+    padding: 8px 12px;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    border-right: 1px solid var(--jp-border-color2);
+    min-width: 80px;
+    text-align: center;
+}
+
+.jp-OutputArea-output {
+    padding: 12px;
+    background: var(--jp-layout-color0);
+    color: var(--jp-content-font-color1);
+}
+
+/* Markdown cell styles */
+.jp-MarkdownCell {
+    background: var(--jp-layout-color0);
+}
+
+.jp-MarkdownCell .jp-InputArea {
+    display: none;
+}
+
+.jp-MarkdownCell.jp-mod-selected .jp-InputArea {
+    display: block;
+}
+
+.jp-MarkdownOutput {
+    padding: 16px;
+    line-height: 1.6;
+}
+
+/* Markdown content styles */
+.jp-MarkdownOutput h1,
+.jp-MarkdownOutput h2,
+.jp-MarkdownOutput h3,
+.jp-MarkdownOutput h4,
+.jp-MarkdownOutput h5,
+.jp-MarkdownOutput h6 {
+    color: var(--jp-content-font-color1);
+    margin: 1.5em 0 0.5em 0;
+    font-weight: 600;
+}
+
+.jp-MarkdownOutput h1 { font-size: 2em; }
+.jp-MarkdownOutput h2 { font-size: 1.5em; }
+.jp-MarkdownOutput h3 { font-size: 1.25em; }
+
+.jp-MarkdownOutput p {
+    margin: 1em 0;
+    color: var(--jp-content-font-color1);
+}
+
+.jp-MarkdownOutput code {
+    background: var(--jp-layout-color2);
+    color: var(--jp-content-font-color1);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: 0.875em;
+}
+
+.jp-MarkdownOutput pre {
+    background: var(--jp-layout-color2);
+    border: 1px solid var(--jp-border-color2);
+    border-radius: 4px;
+    padding: 12px;
+    overflow-x: auto;
+}
+
+.jp-MarkdownOutput pre code {
+    background: none;
+    padding: 0;
+}
+
+.jp-MarkdownOutput blockquote {
+    border-left: 4px solid var(--jp-accent-color);
+    padding-left: 16px;
+    margin: 1em 0;
+    color: var(--jp-content-font-color2);
+}
+
+.jp-MarkdownOutput ul,
+.jp-MarkdownOutput ol {
+    margin: 1em 0;
+    padding-left: 2em;
+}
+
+.jp-MarkdownOutput table {
+    border-collapse: collapse;
+    margin: 1em 0;
+    width: 100%;
+}
+
+.jp-MarkdownOutput th,
+.jp-MarkdownOutput td {
+    border: 1px solid var(--jp-border-color2);
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.jp-MarkdownOutput th {
+    background: var(--jp-layout-color2);
+    font-weight: 600;
+}
+
+/* Toolbar styles */
+.jp-Toolbar {
+    background: var(--jp-layout-color1);
+    border-bottom: 1px solid var(--jp-border-color2);
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.jp-ToolbarButton {
+    background: var(--jp-layout-color2);
+    border: 1px solid var(--jp-border-color2);
+    border-radius: 3px;
+    color: var(--jp-ui-font-color1);
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.jp-ToolbarButton:hover {
+    background: var(--jp-layout-color3);
+    border-color: var(--jp-border-color1);
+}
+
+.jp-ToolbarButton:active {
+    background: var(--jp-layout-color4);
+}
+
+.jp-ToolbarButton.jp-mod-primary {
+    background: var(--jp-accent-color);
+    border-color: var(--jp-accent-color);
+    color: white;
+}
+
+.jp-ToolbarButton.jp-mod-success {
+    background: var(--jp-success-color);
+    border-color: var(--jp-success-color);
+    color: white;
+}
+
+.jp-ToolbarButton.jp-mod-danger {
+    background: var(--jp-error-color);
+    border-color: var(--jp-error-color);
+    color: white;
+}
+
+/* Status indicators */
+.jp-StatusIndicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.jp-StatusIndicator.jp-mod-running {
+    background: rgba(255, 193, 7, 0.2);
+    color: var(--jp-warning-color);
+}
+
+.jp-StatusIndicator.jp-mod-success {
+    background: rgba(40, 167, 69, 0.2);
+    color: var(--jp-success-color);
+}
+
+.jp-StatusIndicator.jp-mod-error {
+    background: rgba(220, 53, 69, 0.2);
+    color: var(--jp-error-color);
+}
+
+/* Sidebar styles */
+.jp-SidePanel {
+    background: var(--jp-layout-color1);
+    border-right: 1px solid var(--jp-border-color2);
+    width: 300px;
+    overflow-y: auto;
+}
+
+.jp-SidePanelHeader {
+    background: var(--jp-layout-color2);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--jp-border-color2);
+    font-weight: 600;
+    color: var(--jp-ui-font-color1);
+}
+
+.jp-SidePanelContent {
+    padding: 16px;
+}
+
+/* File browser styles */
+.jp-FileBrowser {
+    background: var(--jp-layout-color0);
+}
+
+.jp-FileBrowser-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.jp-FileBrowser-item:hover {
+    background: var(--jp-layout-color2);
+}
+
+.jp-FileBrowser-item.jp-mod-selected {
+    background: var(--jp-accent-color);
+    color: white;
+}
+
+.jp-FileBrowser-itemIcon {
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.jp-FileBrowser-itemText {
+    flex: 1;
+    font-size: 14px;
+}
+
+/* Code syntax highlighting */
+.hljs {
+    background: var(--jp-layout-color0) !important;
+    color: var(--jp-content-font-color1) !important;
+}
+
+.hljs-keyword { color: #ff79c6; }
+.hljs-string { color: #f1fa8c; }
+.hljs-number { color: #bd93f9; }
+.hljs-comment { color: #6272a4; font-style: italic; }
+.hljs-function { color: #50fa7b; }
+.hljs-variable { color: #8be9fd; }
+
+/* Quantum circuit visualization */
+.quantum-circuit {
+    background: var(--jp-layout-color0);
+    border: 1px solid var(--jp-border-color2);
+    border-radius: 4px;
+    padding: 16px;
+    margin: 16px 0;
+    overflow-x: auto;
+}
+
+.quantum-state-display {
+    background: var(--jp-layout-color1);
+    border: 1px solid var(--jp-border-color2);
+    border-radius: 4px;
+    padding: 16px;
+    margin: 16px 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .jp-SidePanel {
+        width: 100%;
+        height: 200px;
+        border-right: none;
+        border-bottom: 1px solid var(--jp-border-color2);
+    }
+    
+    .jp-InputPrompt,
+    .jp-OutputPrompt {
+        min-width: 60px;
+        font-size: 12px;
+        padding: 6px 8px;
+    }
+    
+    .jp-Editor {
+        font-size: 13px;
+        padding: 8px;
+    }
+}
+
+/* Dark mode toggle */
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--jp-layout-color2);
+    border: 1px solid var(--jp-border-color2);
+    border-radius: 20px;
+    padding: 8px 12px;
+    cursor: pointer;
+    color: var(--jp-ui-font-color1);
+    font-size: 14px;
+    z-index: 1000;
+    transition: all 0.2s;
+}
+
+.theme-toggle:hover {
+    background: var(--jp-layout-color3);
+}
+
+/* Animation utilities */
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* Loading spinner */
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--jp-border-color2);
+    border-top: 2px solid var(--jp-accent-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

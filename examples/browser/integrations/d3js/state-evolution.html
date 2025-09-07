@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q5M.js - Interactive Quantum State Evolution</title>
+<!-- SPDX-License-Identifier: MIT -->
+<!-- SPDX-FileCopyrightText: Copyright 2025 OpenQL Project -->
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23, #1a1a2e);
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .controls-panel {
+            width: 400px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 25px;
+            box-shadow: 3px 0 20px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(20px);
+            overflow-y: auto;
+            border-right: 1px solid #333;
+        }
+
+        .visualization-panel {
+            flex: 1;
+            position: relative;
+            background: #0a0a0f;
+        }
+
+        h1 {
+            margin: 0 0 25px 0;
+            font-size: 28px;
+            color: #9c27b0;
+            text-align: center;
+            text-shadow: 0 2px 8px rgba(156, 39, 176, 0.4);
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(156, 39, 176, 0.08);
+            border-radius: 12px;
+            border-left: 4px solid #9c27b0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .section h3 {
+            margin: 0 0 15px 0;
+            color: #ba68c8;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .control-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #e1bee7;
+            font-weight: 500;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 8px;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(156, 39, 176, 0.3);
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #9c27b0;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(156, 39, 176, 0.5);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #9c27b0;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(156, 39, 176, 0.5);
+        }
+
+        input[type="number"] {
+            width: 80px;
+            padding: 10px;
+            border: 1px solid #7b1fa2;
+            background: rgba(156, 39, 176, 0.1);
+            color: white;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #9c27b0;
+            box-shadow: 0 0 10px rgba(156, 39, 176, 0.3);
+        }
+
+        button {
+            background: linear-gradient(45deg, #9c27b0, #7b1fa2);
+            border: none;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 6px 8px 6px 0;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 8px rgba(156, 39, 176, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(156, 39, 176, 0.4);
+            background: linear-gradient(45deg, #ad33c7, #8e24aa);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .gate-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .gate-grid button {
+            margin: 0;
+            padding: 10px 8px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .visualization-area {
+            padding: 20px;
+            height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: rgba(156, 39, 176, 0.1);
+            border-radius: 10px;
+            border: 1px solid #7b1fa2;
+        }
+
+        .chart-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #ba68c8;
+            margin: 0;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chart-container {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            border: 2px solid #4a148c;
+            position: relative;
+        }
+
+        .state-info {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-top: 15px;
+        }
+
+        .amplitude-display {
+            color: #81c784;
+            margin-bottom: 10px;
+        }
+
+        .probability-display {
+            color: #ffb74d;
+            margin-bottom: 10px;
+        }
+
+        .bloch-coords {
+            color: #64b5f6;
+        }
+
+        .educational-note {
+            background: rgba(76, 175, 80, 0.15);
+            border-left: 3px solid #4caf50;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 13px;
+            line-height: 1.6;
+            border-radius: 6px;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
+            border: 1px solid #9c27b0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .legend {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #7b1fa2;
+            font-size: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            border-radius: 2px;
+        }
+
+        .time-scrubber {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(156, 39, 176, 0.1);
+            border-radius: 8px;
+            border: 1px solid #7b1fa2;
+        }
+
+        .playback-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .time-slider {
+            flex: 1;
+        }
+
+        #play-button {
+            min-width: 80px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="controls-panel">
+            <h1>State Evolution</h1>
+            
+            <div class="section">
+                <h3>Circuit Configuration</h3>
+                <div class="control-group">
+                    <label>Number of Qubits:</label>
+                    <input type="number" id="num-qubits" value="2" min="1" max="3" onchange="initializeCircuit()">
+                </div>
+                <div class="control-group">
+                    <label>Evolution Steps: <span id="steps-value">50</span></label>
+                    <input type="range" id="evolution-steps" min="10" max="200" value="50" 
+                           oninput="updateStepsValue()">
+                </div>
+                <button onclick="clearEvolution()">Clear Evolution</button>
+            </div>
+
+            <div class="section">
+                <h3>Quantum Gates</h3>
+                <div class="control-group">
+                    <label>Target Qubit:</label>
+                    <input type="number" id="target-qubit" value="0" min="0" max="1">
+                </div>
+                <div class="gate-grid">
+                    <button onclick="addGateToEvolution('H')">H</button>
+                    <button onclick="addGateToEvolution('X')">X</button>
+                    <button onclick="addGateToEvolution('Y')">Y</button>
+                    <button onclick="addGateToEvolution('Z')">Z</button>
+                    <button onclick="addGateToEvolution('S')">S</button>
+                    <button onclick="addGateToEvolution('T')">T</button>
+                    <button onclick="addGateToEvolution('RX')">RX</button>
+                    <button onclick="addGateToEvolution('RY')">RY</button>
+                </div>
+                
+                <div class="control-group">
+                    <label>Rotation Angle (π units): <span id="angle-value">0.25</span></label>
+                    <input type="range" id="rotation-angle" min="0" max="2" value="0.25" step="0.05"
+                           oninput="updateAngleValue()">
+                </div>
+
+                <div class="control-group" style="margin-top: 20px;">
+                    <label>Two-Qubit Gates (Control → Target):</label>
+                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                        <input type="number" id="control-qubit" value="0" min="0" max="1" style="width: 50px;">
+                        <span>→</span>
+                        <input type="number" id="target-qubit-2q" value="1" min="0" max="1" style="width: 50px;">
+                    </div>
+                    <button onclick="addTwoQubitGate('CNOT')" style="width: 100%;">CNOT</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Preset Evolutions</h3>
+                <button onclick="createHadamardEvolution()">Hadamard Evolution</button>
+                <button onclick="createRotationEvolution()">Rotation Sweep</button>
+                <button onclick="createBellStateEvolution()">Bell State Evolution</button>
+                <button onclick="createInterferencePattern()">Interference Pattern</button>
+            </div>
+
+            <div class="section">
+                <h3>Visualization Options</h3>
+                <div class="control-group">
+                    <label>
+                        <input type="checkbox" id="show-amplitudes" checked onchange="updateVisualization()">
+                        Show Amplitude Evolution
+                    </label>
+                </div>
+                <div class="control-group">
+                    <label>
+                        <input type="checkbox" id="show-probabilities" checked onchange="updateVisualization()">
+                        Show Probability Evolution
+                    </label>
+                </div>
+                <div class="control-group">
+                    <label>
+                        <input type="checkbox" id="show-phase" onchange="updateVisualization()">
+                        Show Phase Evolution
+                    </label>
+                </div>
+                <div class="control-group">
+                    <label>
+                        <input type="checkbox" id="show-bloch" onchange="updateVisualization()">
+                        Show Bloch Coordinates (Single Qubit)
+                    </label>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Current State Information</h3>
+                <div class="state-info">
+                    <div class="amplitude-display">
+                        <strong>Amplitudes:</strong><br>
+                        <div id="current-amplitudes">|00⟩: 1.000 + 0.000i<br>|01⟩: 0.000 + 0.000i<br>|10⟩: 0.000 + 0.000i<br>|11⟩: 0.000 + 0.000i</div>
+                    </div>
+                    <div class="probability-display">
+                        <strong>Probabilities:</strong><br>
+                        <div id="current-probabilities">P(|00⟩): 100.0%<br>P(|01⟩): 0.0%<br>P(|10⟩): 0.0%<br>P(|11⟩): 0.0%</div>
+                    </div>
+                    <div class="bloch-coords" id="bloch-display" style="display: none;">
+                        <strong>Bloch Vector:</strong><br>
+                        x: <span id="bloch-x">0.000</span><br>
+                        y: <span id="bloch-y">0.000</span><br>
+                        z: <span id="bloch-z">1.000</span>
+                    </div>
+                </div>
+                
+                <div class="educational-note">
+                    <strong>State Evolution Visualization:</strong><br>
+                    This interactive chart shows how quantum states change over time as gates are applied. 
+                    Each line represents the evolution of a basis state's amplitude or probability. 
+                    Use the time scrubber to explore different moments in the evolution.
+                </div>
+            </div>
+        </div>
+
+        <div class="visualization-panel">
+            <div class="visualization-area">
+                <div class="chart-header">
+                    <h2 class="chart-title">Quantum State Evolution Over Time</h2>
+                    <div class="chart-controls">
+                        <button onclick="exportData()">Export Data</button>
+                        <button onclick="resetZoom()">Reset Zoom</button>
+                    </div>
+                </div>
+                
+                <div class="chart-container" id="chart-container">
+                    <div class="legend" id="legend"></div>
+                </div>
+
+                <div class="time-scrubber">
+                    <div class="playback-controls">
+                        <button id="play-button" onclick="togglePlayback()">Play</button>
+                        <label style="font-size: 12px; color: #ba68c8;">
+                            Time: <span id="current-time">0.00</span> / <span id="total-time">1.00</span>
+                        </label>
+                        <label style="font-size: 12px; color: #ba68c8;">
+                            Speed: <span id="speed-value">1.0x</span>
+                        </label>
+                        <input type="range" id="playback-speed" min="0.1" max="3" value="1" step="0.1"
+                               oninput="updateSpeedValue()" style="width: 80px;">
+                    </div>
+                    <input type="range" id="time-slider" class="time-slider" min="0" max="100" value="0"
+                           oninput="scrubTime()" onchange="scrubTime()">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- D3.js CDN -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- Q5M.js CDN -->
+    <script src="../../../../dist/q5m.min.js"></script>
+    <script>
+        // Fallback to CDN if local file fails to load
+        if (typeof Q5M === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/q5mjs@latest/dist/q5m.min.js';
+            document.head.appendChild(script);
+        }
+    </script>
+
+    <script>
+        // Global variables
+        let evolutionData = [];
+        let currentEvolutionIndex = 0;
+        let isPlaying = false;
+        let playbackSpeed = 1.0;
+        let animationId = null;
+        let numQubits = 2;
+        let numStates = 4; // 2^numQubits
+        
+        // D3 components
+        let svg, xScale, yScale, xAxis, yAxis, line, tooltip;
+        let width = 0, height = 0;
+        const margin = { top: 20, right: 80, bottom: 60, left: 80 };
+        
+        // Color schemes
+        const colors = d3.schemeCategory10;
+        const amplitudeColors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688'];
+        const probabilityColors = ['#ff9800', '#ff5722', '#795548', '#607d8b', '#4caf50', '#8bc34a', '#cddc39', '#ffeb3b'];
+
+        function initializeVisualization() {
+            const container = d3.select('#chart-container');
+            const containerRect = container.node().getBoundingClientRect();
+            
+            width = containerRect.width - margin.left - margin.right;
+            height = containerRect.height - margin.top - margin.bottom;
+            
+            // Clear existing SVG
+            container.select('svg').remove();
+            
+            // Create SVG
+            svg = container.append('svg')
+                .attr('width', width + margin.left + margin.right)
+                .attr('height', height + margin.top + margin.bottom)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+            
+            // Create scales
+            xScale = d3.scaleLinear()
+                .domain([0, 1])
+                .range([0, width]);
+            
+            yScale = d3.scaleLinear()
+                .domain([0, 1])
+                .range([height, 0]);
+            
+            // Create axes
+            xAxis = d3.axisBottom(xScale)
+                .ticks(10)
+                .tickFormat(d3.format('.2f'));
+            
+            yAxis = d3.axisLeft(yScale)
+                .ticks(10)
+                .tickFormat(d3.format('.3f'));
+            
+            // Add axes to SVG
+            svg.append('g')
+                .attr('class', 'x-axis')
+                .attr('transform', `translate(0,${height})`)
+                .call(xAxis);
+            
+            svg.append('g')
+                .attr('class', 'y-axis')
+                .call(yAxis);
+            
+            // Add axis labels
+            svg.append('text')
+                .attr('class', 'x-label')
+                .attr('text-anchor', 'middle')
+                .attr('x', width / 2)
+                .attr('y', height + 50)
+                .style('fill', '#ba68c8')
+                .style('font-size', '14px')
+                .text('Evolution Time (normalized)');
+            
+            svg.append('text')
+                .attr('class', 'y-label')
+                .attr('text-anchor', 'middle')
+                .attr('transform', 'rotate(-90)')
+                .attr('x', -height / 2)
+                .attr('y', -50)
+                .style('fill', '#ba68c8')
+                .style('font-size', '14px')
+                .text('Amplitude / Probability');
+            
+            // Create line generator
+            line = d3.line()
+                .x(d => xScale(d.time))
+                .y(d => yScale(d.value))
+                .curve(d3.curveCardinal);
+            
+            // Create tooltip
+            tooltip = d3.select('body').append('div')
+                .attr('class', 'tooltip')
+                .style('opacity', 0);
+            
+            // Add zoom and pan
+            const zoom = d3.zoom()
+                .scaleExtent([0.5, 10])
+                .on('zoom', handleZoom);
+            
+            svg.call(zoom);
+            
+            initializeCircuit();
+        }
+
+        function handleZoom(event) {
+            const { transform } = event;
+            
+            // Update scales
+            const newXScale = transform.rescaleX(xScale);
+            const newYScale = transform.rescaleY(yScale);
+            
+            // Update axes
+            svg.select('.x-axis').call(xAxis.scale(newXScale));
+            svg.select('.y-axis').call(yAxis.scale(newYScale));
+            
+            // Update lines
+            svg.selectAll('.evolution-line')
+                .attr('d', d => line.x(p => newXScale(p.time)).y(p => newYScale(p.value))(d.values));
+        }
+
+        function initializeCircuit() {
+            numQubits = parseInt(document.getElementById('num-qubits').value);
+            numStates = Math.pow(2, numQubits);
+            
+            // Update UI limits
+            document.getElementById('target-qubit').max = numQubits - 1;
+            document.getElementById('control-qubit').max = numQubits - 1;
+            document.getElementById('target-qubit-2q').max = numQubits - 1;
+            
+            clearEvolution();
+            updateStateDisplay();
+        }
+
+        function clearEvolution() {
+            evolutionData = [];
+            currentEvolutionIndex = 0;
+            updateVisualization();
+            updateTimeSlider();
+            updateStateDisplay();
+        }
+
+        function addGateToEvolution(gateType) {
+            const targetQubit = parseInt(document.getElementById('target-qubit').value);
+            const steps = parseInt(document.getElementById('evolution-steps').value);
+            const angle = parseFloat(document.getElementById('rotation-angle').value) * Math.PI;
+            
+            if (targetQubit >= numQubits) {
+                alert(`Target qubit must be less than ${numQubits}`);
+                return;
+            }
+            
+            // Create evolution by applying gate gradually
+            const newEvolutionData = [];
+            
+            for (let i = 0; i <= steps; i++) {
+                const t = i / steps;
+                const circuit = new Q5M.Circuit(numQubits);
+                
+                // Apply previous evolutions
+                evolutionData.forEach((prevEvolution, idx) => {
+                    if (idx < evolutionData.length) {
+                        applyGateToCircuit(circuit, prevEvolution.gate, prevEvolution.params, 1.0);
+                    }
+                });
+                
+                // Apply current gate with interpolation
+                if (['RX', 'RY', 'RZ'].includes(gateType)) {
+                    applyGateToCircuit(circuit, gateType, {target: targetQubit, angle: angle * t}, 1.0);
+                } else {
+                    // For non-rotation gates, apply discretely at the end
+                    if (i === steps) {
+                        applyGateToCircuit(circuit, gateType, {target: targetQubit}, 1.0);
+                    }
+                }
+                
+                const result = circuit.execute();
+                const stateData = extractStateData(result.state, t);
+                newEvolutionData.push(stateData);
+            }
+            
+            evolutionData.push({
+                gate: gateType,
+                params: {target: targetQubit, angle: gateType.startsWith('R') ? angle : null},
+                evolution: newEvolutionData
+            });
+            
+            updateVisualization();
+            updateTimeSlider();
+        }
+
+        function addTwoQubitGate(gateType) {
+            const controlQubit = parseInt(document.getElementById('control-qubit').value);
+            const targetQubit = parseInt(document.getElementById('target-qubit-2q').value);
+            const steps = parseInt(document.getElementById('evolution-steps').value);
+            
+            if (controlQubit >= numQubits || targetQubit >= numQubits) {
+                alert(`Qubit indices must be less than ${numQubits}`);
+                return;
+            }
+            
+            if (controlQubit === targetQubit) {
+                alert('Control and target qubits must be different');
+                return;
+            }
+            
+            const newEvolutionData = [];
+            
+            for (let i = 0; i <= steps; i++) {
+                const t = i / steps;
+                const circuit = new Q5M.Circuit(numQubits);
+                
+                // Apply previous evolutions
+                evolutionData.forEach(prevEvolution => {
+                    applyGateToCircuit(circuit, prevEvolution.gate, prevEvolution.params, 1.0);
+                });
+                
+                // Apply two-qubit gate discretely at the end
+                if (i === steps) {
+                    applyGateToCircuit(circuit, gateType, {control: controlQubit, target: targetQubit}, 1.0);
+                }
+                
+                const result = circuit.execute();
+                const stateData = extractStateData(result.state, t);
+                newEvolutionData.push(stateData);
+            }
+            
+            evolutionData.push({
+                gate: gateType,
+                params: {control: controlQubit, target: targetQubit},
+                evolution: newEvolutionData
+            });
+            
+            updateVisualization();
+            updateTimeSlider();
+        }
+
+        function applyGateToCircuit(circuit, gateType, params, factor = 1.0) {
+            switch (gateType) {
+                case 'H': circuit.h(params.target); break;
+                case 'X': circuit.x(params.target); break;
+                case 'Y': circuit.y(params.target); break;
+                case 'Z': circuit.z(params.target); break;
+                case 'S': circuit.s(params.target); break;
+                case 'T': circuit.t(params.target); break;
+                case 'RX': circuit.rx(params.target, params.angle * factor); break;
+                case 'RY': circuit.ry(params.target, params.angle * factor); break;
+                case 'RZ': circuit.rz(params.target, params.angle * factor); break;
+                case 'CNOT': circuit.cnot(params.control, params.target); break;
+                case 'CZ': circuit.cz(params.control, params.target); break;
+                case 'SWAP': circuit.swap(params.control, params.target); break;
+            }
+        }
+
+        function extractStateData(state, time) {
+            const data = { time, amplitudes: [], probabilities: [], phases: [] };
+            
+            for (let i = 0; i < numStates; i++) {
+                const amplitude = state.amplitude(i);
+                data.amplitudes.push({
+                    state: i,
+                    real: amplitude.re,
+                    imag: amplitude.im,
+                    magnitude: amplitude.abs()
+                });
+                data.probabilities.push({
+                    state: i,
+                    value: amplitude.abs() ** 2
+                });
+                data.phases.push({
+                    state: i,
+                    value: Math.atan2(amplitude.im, amplitude.re)
+                });
+            }
+            
+            // Calculate Bloch coordinates for single qubit
+            if (numQubits === 1) {
+                const amp0 = state.amplitude(0);
+                const amp1 = state.amplitude(1);
+                
+                data.bloch = {
+                    x: 2 * (amp0.re * amp1.re + amp0.im * amp1.im),
+                    y: 2 * (amp1.re * amp0.im - amp0.re * amp1.im),
+                    z: amp0.abs() ** 2 - amp1.abs() ** 2
+                };
+            }
+            
+            return data;
+        }
+
+        function updateVisualization() {
+            // Clear previous lines
+            svg.selectAll('.evolution-line').remove();
+            svg.selectAll('.evolution-point').remove();
+            
+            if (evolutionData.length === 0) {
+                // Clear legend when no data
+                d3.select('#legend').html('');
+                return;
+            }
+            
+            const showAmplitudes = document.getElementById('show-amplitudes').checked;
+            const showProbabilities = document.getElementById('show-probabilities').checked;
+            const showPhase = document.getElementById('show-phase').checked;
+            const showBloch = document.getElementById('show-bloch').checked && numQubits === 1;
+            
+            // Prepare data for visualization
+            const allData = [];
+            let globalTime = 0;
+            
+            evolutionData.forEach((evolution, evolutionIdx) => {
+                evolution.evolution.forEach((point, pointIdx) => {
+                    const normalizedTime = globalTime + (pointIdx / evolution.evolution.length);
+                    
+                    if (showAmplitudes) {
+                        point.amplitudes.forEach((amp, stateIdx) => {
+                            allData.push({
+                                type: 'amplitude-magnitude',
+                                state: stateIdx,
+                                time: normalizedTime,
+                                value: amp.magnitude,
+                                label: `|${getBinaryString(stateIdx, numQubits)}⟩ Amplitude`
+                            });
+                        });
+                    }
+                    
+                    if (showProbabilities) {
+                        point.probabilities.forEach((prob, stateIdx) => {
+                            allData.push({
+                                type: 'probability',
+                                state: stateIdx,
+                                time: normalizedTime,
+                                value: prob.value,
+                                label: `P(|${getBinaryString(stateIdx, numQubits)}⟩)`
+                            });
+                        });
+                    }
+                    
+                    if (showPhase) {
+                        point.phases.forEach((phase, stateIdx) => {
+                            allData.push({
+                                type: 'phase',
+                                state: stateIdx,
+                                time: normalizedTime,
+                                value: (phase.value + Math.PI) / (2 * Math.PI), // Normalize to [0,1]
+                                label: `|${getBinaryString(stateIdx, numQubits)}⟩ Phase`
+                            });
+                        });
+                    }
+                    
+                    if (showBloch && point.bloch) {
+                        allData.push(
+                            {
+                                type: 'bloch-x',
+                                state: 'x',
+                                time: normalizedTime,
+                                value: (point.bloch.x + 1) / 2, // Normalize to [0,1]
+                                label: 'Bloch X'
+                            },
+                            {
+                                type: 'bloch-y',
+                                state: 'y',
+                                time: normalizedTime,
+                                value: (point.bloch.y + 1) / 2, // Normalize to [0,1]
+                                label: 'Bloch Y'
+                            },
+                            {
+                                type: 'bloch-z',
+                                state: 'z',
+                                time: normalizedTime,
+                                value: (point.bloch.z + 1) / 2, // Normalize to [0,1]
+                                label: 'Bloch Z'
+                            }
+                        );
+                    }
+                });
+                globalTime += 1;
+            });
+            
+            // Group data by type and state
+            const groupedData = d3.group(allData, d => `${d.type}-${d.state}`);
+            
+            // Update scales
+            const timeExtent = d3.extent(allData, d => d.time);
+            xScale.domain(timeExtent.length ? timeExtent : [0, 1]);
+            yScale.domain([0, 1]);
+            
+            // Update axes
+            svg.select('.x-axis').call(xAxis);
+            svg.select('.y-axis').call(yAxis);
+            
+            // Create lines
+            let colorIndex = 0;
+            groupedData.forEach((values, key) => {
+                const [type, state] = key.split('-');
+                const color = getColorForType(type, state, colorIndex++);
+                
+                // Sort values by time
+                values.sort((a, b) => a.time - b.time);
+                
+                // Create line
+                svg.append('path')
+                    .datum(values)
+                    .attr('class', 'evolution-line')
+                    .attr('fill', 'none')
+                    .attr('stroke', color)
+                    .attr('stroke-width', 2)
+                    .attr('opacity', 0.8)
+                    .attr('d', line.x(d => xScale(d.time)).y(d => yScale(d.value)))
+                    .on('mouseover', function(event, d) {
+                        tooltip.transition().duration(200).style('opacity', .9);
+                        tooltip.html(`${d[0].label}<br/>Click to highlight`)
+                            .style('left', (event.pageX + 10) + 'px')
+                            .style('top', (event.pageY - 28) + 'px');
+                    })
+                    .on('mouseout', function() {
+                        tooltip.transition().duration(500).style('opacity', 0);
+                    })
+                    .on('click', function(event, d) {
+                        highlightLine(this, d[0].label);
+                    });
+                
+                // Add points for interactivity
+                svg.selectAll(`.point-${key}`)
+                    .data(values)
+                    .enter().append('circle')
+                    .attr('class', `evolution-point point-${key}`)
+                    .attr('cx', d => xScale(d.time))
+                    .attr('cy', d => yScale(d.value))
+                    .attr('r', 2)
+                    .attr('fill', color)
+                    .attr('opacity', 0.6)
+                    .on('mouseover', function(event, d) {
+                        tooltip.transition().duration(200).style('opacity', .9);
+                        tooltip.html(`${d.label}<br/>Time: ${d.time.toFixed(3)}<br/>Value: ${d.value.toFixed(3)}`)
+                            .style('left', (event.pageX + 10) + 'px')
+                            .style('top', (event.pageY - 28) + 'px');
+                    })
+                    .on('mouseout', function() {
+                        tooltip.transition().duration(500).style('opacity', 0);
+                    });
+            });
+            
+            updateLegend(groupedData);
+        }
+
+        function getColorForType(type, state, colorIndex) {
+            switch (type) {
+                case 'amplitude-magnitude':
+                    return amplitudeColors[parseInt(state) % amplitudeColors.length];
+                case 'probability':
+                    return probabilityColors[parseInt(state) % probabilityColors.length];
+                case 'phase':
+                    return d3.interpolateViridis(parseInt(state) / numStates);
+                case 'bloch-x':
+                    return '#f44336';
+                case 'bloch-y':
+                    return '#4caf50';
+                case 'bloch-z':
+                    return '#2196f3';
+                default:
+                    return colors[colorIndex % colors.length];
+            }
+        }
+
+        function getBinaryString(num, bits) {
+            return num.toString(2).padStart(bits, '0');
+        }
+
+        function highlightLine(element, label) {
+            // Reset all lines
+            svg.selectAll('.evolution-line').style('stroke-width', 2).style('opacity', 0.8);
+            
+            // Highlight selected line
+            d3.select(element).style('stroke-width', 4).style('opacity', 1);
+            
+            console.log(`Highlighted: ${label}`);
+        }
+
+        function updateLegend(groupedData) {
+            const legend = d3.select('#legend');
+            legend.html('');
+            
+            legend.append('div')
+                .style('font-weight', 'bold')
+                .style('margin-bottom', '10px')
+                .style('color', '#ba68c8')
+                .text('Legend');
+            
+            let colorIndex = 0;
+            groupedData.forEach((values, key) => {
+                const [type, state] = key.split('-');
+                const color = getColorForType(type, state, colorIndex++);
+                const label = values[0].label;
+                
+                const item = legend.append('div')
+                    .attr('class', 'legend-item');
+                
+                item.append('div')
+                    .attr('class', 'legend-color')
+                    .style('background-color', color);
+                
+                item.append('span')
+                    .style('font-size', '11px')
+                    .style('color', '#e1bee7')
+                    .text(label);
+            });
+        }
+
+        // Preset evolution patterns
+        function createHadamardEvolution() {
+            clearEvolution();
+            document.getElementById('target-qubit').value = 0;
+            addGateToEvolution('H');
+        }
+
+        function createRotationEvolution() {
+            clearEvolution();
+            document.getElementById('target-qubit').value = 0;
+            document.getElementById('rotation-angle').value = 2; // Full rotation
+            updateAngleValue();
+            addGateToEvolution('RY');
+        }
+
+        function createBellStateEvolution() {
+            if (numQubits < 2) {
+                alert('Bell state requires at least 2 qubits');
+                return;
+            }
+            clearEvolution();
+            
+            // First apply Hadamard to qubit 0
+            document.getElementById('target-qubit').value = 0;
+            addGateToEvolution('H');
+            
+            // Then CNOT with control 0, target 1
+            setTimeout(() => {
+                document.getElementById('control-qubit').value = 0;
+                document.getElementById('target-qubit-2q').value = 1;
+                addTwoQubitGate('CNOT');
+            }, 100);
+        }
+
+        function createInterferencePattern() {
+            clearEvolution();
+            document.getElementById('target-qubit').value = 0;
+            
+            // Create interference with multiple rotations
+            addGateToEvolution('H');
+            setTimeout(() => {
+                document.getElementById('rotation-angle').value = 0.5;
+                updateAngleValue();
+                addGateToEvolution('RZ');
+            }, 100);
+            setTimeout(() => {
+                addGateToEvolution('H');
+            }, 200);
+        }
+
+        // Time control functions
+        function updateTimeSlider() {
+            const totalSteps = evolutionData.reduce((sum, evolution) => sum + evolution.evolution.length, 0);
+            document.getElementById('time-slider').max = Math.max(1, totalSteps - 1);
+            document.getElementById('total-time').textContent = (totalSteps > 0 ? 1.0 : 0.0).toFixed(2);
+        }
+
+        function scrubTime() {
+            const slider = document.getElementById('time-slider');
+            const totalSteps = parseInt(slider.max) + 1;
+            const currentStep = parseInt(slider.value);
+            const normalizedTime = totalSteps > 1 ? currentStep / (totalSteps - 1) : 0;
+            
+            document.getElementById('current-time').textContent = normalizedTime.toFixed(2);
+            
+            // Update current state display based on scrubbed time
+            updateCurrentStateFromTime(currentStep, totalSteps);
+        }
+
+        function updateCurrentStateFromTime(step, totalSteps) {
+            if (evolutionData.length === 0) return;
+            
+            // Find the corresponding evolution data
+            let currentStep = step;
+            let evolutionIndex = 0;
+            let pointIndex = 0;
+            
+            for (let i = 0; i < evolutionData.length && currentStep >= 0; i++) {
+                if (currentStep < evolutionData[i].evolution.length) {
+                    evolutionIndex = i;
+                    pointIndex = currentStep;
+                    break;
+                }
+                currentStep -= evolutionData[i].evolution.length;
+            }
+            
+            if (evolutionIndex < evolutionData.length && pointIndex < evolutionData[evolutionIndex].evolution.length) {
+                const currentData = evolutionData[evolutionIndex].evolution[pointIndex];
+                updateStateDisplay(currentData);
+            }
+        }
+
+        function updateStateDisplay(stateData = null) {
+            if (!stateData && evolutionData.length === 0) {
+                // Show initial state
+                const initialAmps = [];
+                const initialProbs = [];
+                for (let i = 0; i < numStates; i++) {
+                    const amp = i === 0 ? '1.000 + 0.000i' : '0.000 + 0.000i';
+                    const prob = i === 0 ? '100.0%' : '0.0%';
+                    initialAmps.push(`|${getBinaryString(i, numQubits)}⟩: ${amp}`);
+                    initialProbs.push(`P(|${getBinaryString(i, numQubits)}⟩): ${prob}`);
+                }
+                
+                document.getElementById('current-amplitudes').innerHTML = initialAmps.join('<br>');
+                document.getElementById('current-probabilities').innerHTML = initialProbs.join('<br>');
+                
+                if (numQubits === 1) {
+                    document.getElementById('bloch-x').textContent = '0.000';
+                    document.getElementById('bloch-y').textContent = '0.000';
+                    document.getElementById('bloch-z').textContent = '1.000';
+                }
+                
+                return;
+            }
+            
+            if (!stateData) return;
+            
+            // Update amplitude display
+            const ampTexts = stateData.amplitudes.map((amp, i) => 
+                `|${getBinaryString(i, numQubits)}⟩: ${amp.real.toFixed(3)} + ${amp.imag.toFixed(3)}i`);
+            document.getElementById('current-amplitudes').innerHTML = ampTexts.join('<br>');
+            
+            // Update probability display
+            const probTexts = stateData.probabilities.map((prob, i) => 
+                `P(|${getBinaryString(i, numQubits)}⟩): ${(prob.value * 100).toFixed(1)}%`);
+            document.getElementById('current-probabilities').innerHTML = probTexts.join('<br>');
+            
+            // Update Bloch coordinates if single qubit
+            if (numQubits === 1 && stateData.bloch) {
+                document.getElementById('bloch-x').textContent = stateData.bloch.x.toFixed(3);
+                document.getElementById('bloch-y').textContent = stateData.bloch.y.toFixed(3);
+                document.getElementById('bloch-z').textContent = stateData.bloch.z.toFixed(3);
+                
+                const showBloch = document.getElementById('show-bloch').checked;
+                document.getElementById('bloch-display').style.display = showBloch ? 'block' : 'none';
+            }
+        }
+
+        function togglePlayback() {
+            if (isPlaying) {
+                stopPlayback();
+            } else {
+                startPlayback();
+            }
+        }
+
+        function startPlayback() {
+            if (evolutionData.length === 0) return;
+            
+            isPlaying = true;
+            document.getElementById('play-button').textContent = 'Pause';
+            
+            const slider = document.getElementById('time-slider');
+            const maxValue = parseInt(slider.max);
+            
+            function animate() {
+                if (!isPlaying) return;
+                
+                let currentValue = parseInt(slider.value);
+                currentValue += playbackSpeed;
+                
+                if (currentValue > maxValue) {
+                    currentValue = 0; // Loop
+                }
+                
+                slider.value = currentValue;
+                scrubTime();
+                
+                animationId = setTimeout(animate, 50); // 20 FPS
+            }
+            
+            animate();
+        }
+
+        function stopPlayback() {
+            isPlaying = false;
+            document.getElementById('play-button').textContent = 'Play';
+            if (animationId) {
+                clearTimeout(animationId);
+                animationId = null;
+            }
+        }
+
+        function updateStepsValue() {
+            const value = document.getElementById('evolution-steps').value;
+            document.getElementById('steps-value').textContent = value;
+        }
+
+        function updateAngleValue() {
+            const value = parseFloat(document.getElementById('rotation-angle').value);
+            document.getElementById('angle-value').textContent = value.toFixed(2);
+        }
+
+        function updateSpeedValue() {
+            const value = parseFloat(document.getElementById('playback-speed').value);
+            playbackSpeed = value;
+            document.getElementById('speed-value').textContent = value.toFixed(1) + 'x';
+        }
+
+        function resetZoom() {
+            // Reset zoom to show all data
+            const zoom = d3.zoom().scaleExtent([0.5, 10]);
+            svg.call(zoom.transform, d3.zoomIdentity);
+        }
+
+        function exportData() {
+            if (evolutionData.length === 0) {
+                alert('No evolution data to export');
+                return;
+            }
+            
+            const exportObject = {
+                metadata: {
+                    numQubits: numQubits,
+                    numEvolutions: evolutionData.length,
+                    timestamp: new Date().toISOString()
+                },
+                evolutions: evolutionData.map(evolution => ({
+                    gate: evolution.gate,
+                    params: evolution.params,
+                    data: evolution.evolution
+                }))
+            };
+            
+            const dataStr = JSON.stringify(exportObject, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `quantum-evolution-${Date.now()}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // Window resize handler
+        function handleResize() {
+            initializeVisualization();
+            updateVisualization();
+        }
+
+        // Initialize everything when page loads
+        window.addEventListener('load', () => {
+            initializeVisualization();
+            updateStateDisplay();
+        });
+        
+        window.addEventListener('resize', handleResize);
+        
+        // Style the axes and grid
+        const style = document.createElement('style');
+        style.textContent = `
+            .x-axis, .y-axis {
+                color: #ba68c8;
+            }
+            .x-axis text, .y-axis text {
+                fill: #ba68c8;
+                font-size: 12px;
+            }
+            .x-axis path, .y-axis path,
+            .x-axis line, .y-axis line {
+                stroke: #7b1fa2;
+                stroke-width: 1;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "extends": ["../.eslintrc.json"],
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "env": {
+    "cypress/globals": true
+  },
+  "plugins": ["cypress"],
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-unsafe-assignment": "off",
+    "@typescript-eslint/no-unsafe-member-access": "off",
+    "@typescript-eslint/no-unsafe-call": "off",
+    "@typescript-eslint/no-unsafe-return": "off",
+    "@typescript-eslint/no-unsafe-argument": "off",
+    "@typescript-eslint/no-namespace": "off",
+    "no-console": "off",
+    "cypress/no-assigning-return-values": "error",
+    "cypress/no-unnecessary-waiting": "error",
+    "cypress/assertion-before-screenshot": "warn",
+    "cypress/no-force": "warn",
+    "cypress/no-async-tests": "error"
+  }
+}

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q5M.js + Angular: Quantum Entanglement</title>
+<!-- SPDX-License-Identifier: MIT -->
+<!-- SPDX-FileCopyrightText: Copyright 2025 OpenQL Project -->
+    <!-- Simplified approach using CDN zone.js and Angular bundles -->
+    <script src="https://cdn.jsdelivr.net/npm/zone.js@0.14.0/dist/zone.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/rxjs@7/dist/bundles/rxjs.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@angular/core@17/bundles/core.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@angular/common@17/bundles/common.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@angular/platform-browser@17/bundles/platform-browser.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@angular/platform-browser-dynamic@17/bundles/platform-browser-dynamic.umd.js"></script>
+    <script src="../../../../../dist/q5m.min.js"></script>
+    <script>
+        // Fallback to CDN if local file fails to load
+        if (typeof Q5M === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/q5m@latest/dist/q5m.min.js';
+            document.head.appendChild(script);
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #dd0031 0%, #c3002f 25%, #000000 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            box-shadow: 0 4px 24px rgba(221, 0, 49, 0.1);
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        button {
+            background: linear-gradient(45deg, #dd0031, #a8002a);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(221, 0, 49, 0.2);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(221, 0, 49, 0.3);
+        }
+        button.active {
+            background: linear-gradient(45deg, #ff6b35, #d85121);
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+        }
+        .state-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        .probabilities {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 12px;
+        }
+        .probability-bar {
+            text-align: center;
+        }
+        .bar {
+            background: linear-gradient(to top, #dd0031, #ff6b35);
+            border-radius: 4px;
+            transition: height 0.3s ease;
+            margin: 8px 0;
+            min-height: 4px;
+        }
+        .state-info {
+            background: rgba(0,0,0,0.4);
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Roboto Mono', 'Courier New', monospace;
+            font-size: 14px;
+            border-left: 4px solid #dd0031;
+        }
+        .amplitude-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .amplitude {
+            background: rgba(255,255,255,0.08);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .complex-num {
+            color: #ff6b35;
+            font-weight: 600;
+            font-family: 'Roboto Mono', monospace;
+        }
+        .angular-badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(221, 0, 49, 0.2);
+            border: 1px solid rgba(221, 0, 49, 0.4);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #dd0031;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="header">
+                <h1>🔗 Quantum Entanglement with Angular</h1>
+                <p>
+                    Explore Bell states and GHZ states using Q5M.js
+                    <span class="angular-badge">🅰️ Angular</span>
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>🎯 Create Entangled States</h3>
+                <div class="controls">
+                    <button onclick="createBellState()" id="bell-btn">
+                        Bell State |Φ⁺⟩
+                    </button>
+                    <button onclick="createBellStateMinus()" id="bell-minus-btn">
+                        Bell State |Φ⁻⟩
+                    </button>
+                    <button onclick="createGHZState()" id="ghz-btn">
+                        GHZ State (3 qubits)
+                    </button>
+                    <button onclick="createWState()" id="w-btn">
+                        W State (3 qubits)
+                    </button>
+                    <button onclick="resetState()" id="reset-btn">
+                        Reset |000⟩
+                    </button>
+                </div>
+            </div>
+
+            <div class="state-display">
+                <div class="card">
+                    <h3>📊 Measurement Probabilities</h3>
+                    <div id="probabilities" class="probabilities"></div>
+                </div>
+
+                <div class="card">
+                    <h3>🌊 Quantum Amplitudes</h3>
+                    <div id="amplitudes" class="amplitude-display"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>ℹ️ State Information</h3>
+                <div class="state-info">
+                    <div><strong>Current State:</strong> <span id="state-desc">Ground State |000⟩</span></div>
+                    <div><strong>Number of Qubits:</strong> <span id="num-qubits">3</span></div>
+                    <div><strong>Entanglement:</strong> <span id="entanglement">No entanglement</span></div>
+                    <div><strong>Schmidt Rank:</strong> <span id="schmidt-rank">1 (no entanglement)</span></div>
+                    <div><strong>Framework:</strong> Angular (Simplified CDN Version)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Global state
+        let circuit = null;
+        let quantumState = null;
+        let currentState = 'reset';
+        let numQubits = 3;
+
+        // Initialize circuit
+        function initCircuit() {
+            if (typeof Q5M !== 'undefined') {
+                circuit = new Q5M.Circuit(numQubits);
+                executeCircuit();
+            } else {
+                setTimeout(initCircuit, 100);
+            }
+        }
+
+        // Execute circuit and update display
+        function executeCircuit() {
+            try {
+                const result = circuit.execute();
+                quantumState = result.state;
+                updateDisplay();
+            } catch (error) {
+                console.error('Circuit execution error:', error);
+            }
+        }
+
+        // State creation methods
+        function createBellState() {
+            circuit = new Q5M.Circuit(2);
+            numQubits = 2;
+            
+            // Create Bell state: H(0) CNOT(0,1)
+            circuit.h(0).cnot(0, 1);
+            
+            currentState = 'bell';
+            executeCircuit();
+            setActiveButton('bell-btn');
+        }
+
+        function createBellStateMinus() {
+            circuit = new Q5M.Circuit(2);
+            numQubits = 2;
+            
+            // Create Bell state with phase: X(0) H(0) CNOT(0,1)
+            circuit.x(0).h(0).cnot(0, 1);
+            
+            currentState = 'bell-';
+            executeCircuit();
+            setActiveButton('bell-minus-btn');
+        }
+
+        function createGHZState() {
+            circuit = new Q5M.Circuit(3);
+            numQubits = 3;
+            
+            // Create GHZ state: H(0) CNOT(0,1) CNOT(0,2)
+            circuit.h(0).cnot(0, 1).cnot(0, 2);
+            
+            currentState = 'ghz';
+            executeCircuit();
+            setActiveButton('ghz-btn');
+        }
+
+        function createWState() {
+            circuit = new Q5M.Circuit(3);
+            numQubits = 3;
+            
+            // Create W state approximation
+            circuit
+                .ry(0, 2 * Math.acos(Math.sqrt(2/3)))
+                .cnot(0, 1)
+                .x(0)
+                .cnot(1, 2)
+                .cnot(0, 1);
+            
+            currentState = 'w';
+            executeCircuit();
+            setActiveButton('w-btn');
+        }
+
+        function resetState() {
+            circuit = new Q5M.Circuit(3);
+            numQubits = 3;
+            
+            currentState = 'reset';
+            executeCircuit();
+            setActiveButton('reset-btn');
+        }
+
+        // Update display
+        function updateDisplay() {
+            if (!quantumState) return;
+
+            const probabilities = quantumState.probabilities();
+            const amplitudes = quantumState.amplitudes();
+
+            // Update probabilities
+            const probDiv = document.getElementById('probabilities');
+            probDiv.innerHTML = '';
+            probabilities.forEach((prob, i) => {
+                const div = document.createElement('div');
+                div.className = 'probability-bar';
+                div.innerHTML = `
+                    <div class="bar" style="height: ${prob * 200}px"></div>
+                    <div>|${getBinaryString(i, numQubits)}⟩</div>
+                    <div>${(prob * 100).toFixed(1)}%</div>
+                `;
+                probDiv.appendChild(div);
+            });
+
+            // Update amplitudes
+            const ampDiv = document.getElementById('amplitudes');
+            ampDiv.innerHTML = '';
+            amplitudes.forEach((amp, i) => {
+                const div = document.createElement('div');
+                div.className = 'amplitude';
+                div.innerHTML = `
+                    <div>|${getBinaryString(i, numQubits)}⟩</div>
+                    <div class="complex-num">${formatComplex(amp)}</div>
+                `;
+                ampDiv.appendChild(div);
+            });
+
+            // Update state info
+            updateStateInfo();
+        }
+
+        function updateStateInfo() {
+            const stateDescs = {
+                'bell': 'Bell State |Φ⁺⟩ = (|00⟩ + |11⟩)/√2 - Maximally entangled 2-qubit state',
+                'bell-': 'Bell State |Φ⁻⟩ = (|00⟩ - |11⟩)/√2 - Maximally entangled with phase',
+                'ghz': 'GHZ State = (|000⟩ + |111⟩)/√2 - 3-qubit entangled state',
+                'w': 'W State = (|001⟩ + |010⟩ + |100⟩)/√3 - Symmetric 3-qubit state',
+                'reset': 'Ground State |000⟩ - No entanglement'
+            };
+
+            const entanglementInfo = {
+                'bell': 'Maximally entangled (2 qubits)',
+                'bell-': 'Maximally entangled (2 qubits)',
+                'ghz': 'Maximal 3-qubit entanglement',
+                'w': 'Partial 3-qubit entanglement',
+                'reset': 'No entanglement (separable state)'
+            };
+
+            const schmidtRanks = {
+                'bell': '2 (maximal entanglement)',
+                'bell-': '2 (maximal entanglement)',
+                'ghz': '2 (maximal entanglement)',
+                'w': '2 (partial entanglement)',
+                'reset': '1 (no entanglement)'
+            };
+
+            document.getElementById('state-desc').textContent = stateDescs[currentState] || 'Custom state';
+            document.getElementById('num-qubits').textContent = numQubits;
+            document.getElementById('entanglement').textContent = entanglementInfo[currentState] || 'Unknown';
+            document.getElementById('schmidt-rank').textContent = schmidtRanks[currentState] || 'Variable';
+        }
+
+        // Utility functions
+        function getBinaryString(index, numBits) {
+            return index.toString(2).padStart(numBits, '0');
+        }
+
+        function formatComplex(complex) {
+            if (!complex) return '0';
+            
+            const re = complex.re;
+            const im = complex.im;
+            
+            if (Math.abs(im) < 0.001) {
+                return re.toFixed(3);
+            }
+            
+            if (Math.abs(re) < 0.001) {
+                return `${im.toFixed(3)}i`;
+            }
+            
+            const sign = im >= 0 ? '+' : '';
+            return `${re.toFixed(3)}${sign}${im.toFixed(3)}i`;
+        }
+
+        function setActiveButton(btnId) {
+            // Remove active class from all buttons
+            document.querySelectorAll('button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Add active class to selected button
+            const btn = document.getElementById(btnId);
+            if (btn) {
+                btn.classList.add('active');
+            }
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', () => {
+            console.log('Initializing Angular Quantum Entanglement Demo...');
+            initCircuit();
+        });
+    </script>
+</body>
+</html>
