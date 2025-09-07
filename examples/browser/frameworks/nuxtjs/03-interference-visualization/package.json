@@ -1,0 +1,52 @@
+{
+  "name": "q5m-nuxtjs-interference-visualization-demo",
+  "version": "1.0.0",
+  "description": "Quantum interference visualization demo using Nuxt.js and Q5M.js",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "start": "nuxt start",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "@nuxt/eslint-config": "^0.2.0",
+    "eslint": "^8.57.0",
+    "nuxt": "^3.8.0"
+  },
+  "dependencies": {
+    "vue": "^3.3.4"
+  },
+  "keywords": [
+    "quantum-computing",
+    "nuxt.js",
+    "vue.js",
+    "q5m.js",
+    "interference",
+    "superposition",
+    "double-slit",
+    "mach-zehnder",
+    "ramsey-fringes",
+    "wave-functions",
+    "quantum-physics",
+    "visualization",
+    "canvas",
+    "ssr",
+    "spa"
+  ],
+  "author": "Q5M.js Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-repo/q5mjs-poc"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

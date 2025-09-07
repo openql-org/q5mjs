@@ -1,0 +1,78 @@
+{
+  "name": "q5m-nextjs-interference-visualization",
+  "version": "1.0.0",
+  "description": "Interactive quantum interference visualization with wave-particle duality using Next.js and Q5M.js",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "export": "next export",
+    "analyze": "cross-env ANALYZE=true next build",
+    "type-check": "tsc --noEmit",
+    "preview": "next build && next start",
+    "clean": "rm -rf .next out"
+  },
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@next/bundle-analyzer": "^14.0.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "^14.0.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "quantum-computing",
+    "interference-visualization",
+    "wave-particle-duality",
+    "quantum-superposition",
+    "next.js",
+    "react",
+    "q5m.js",
+    "canvas-animation",
+    "html5-canvas",
+    "quantum-physics",
+    "double-slit-experiment",
+    "mach-zehnder",
+    "ramsey-fringes",
+    "quantum-visualization"
+  ],
+  "author": "Q5M.js Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-repo/q5mjs-poc"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie <= 11"
+  ],
+  "performance": {
+    "budgets": [
+      {
+        "type": "initial",
+        "maximumWarning": "500kb",
+        "maximumError": "1mb"
+      },
+      {
+        "type": "anyComponentStyle",
+        "maximumWarning": "50kb",
+        "maximumError": "100kb"
+      }
+    ]
+  }
+}

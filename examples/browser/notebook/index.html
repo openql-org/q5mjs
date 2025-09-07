@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q5M.js Notebook Gallery</title>
+<!-- SPDX-License-Identifier: MIT -->
+<!-- SPDX-FileCopyrightText: Copyright 2025 OpenQL Project -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: #fafafa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .category {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .category:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+        
+        .category-header {
+            padding: 1.5rem;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .tutorials { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .algorithms { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .visualization { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .advanced { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        
+        .category-header h2 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .category-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+        
+        .notebook-list {
+            padding: 0;
+        }
+        
+        .notebook-item {
+            display: block;
+            padding: 1rem 1.5rem;
+            text-decoration: none;
+            color: inherit;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s;
+        }
+        
+        .notebook-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .notebook-item:last-child {
+            border-bottom: none;
+        }
+        
+        .notebook-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            color: #2c3e50;
+        }
+        
+        .notebook-description {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.3rem;
+        }
+        
+        .notebook-meta {
+            font-size: 0.8rem;
+            color: #999;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 3rem 0;
+            color: #666;
+            border-top: 1px solid #eee;
+            margin-top: 3rem;
+        }
+        
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📓 Q5M.js Notebook Gallery</h1>
+        <p>Interactive Jupyter Notebook Examples for Quantum Computing</p>
+    </div>
+
+    <div class="container">
+        <div class="categories">
+            <div class="category">
+                <div class="category-header tutorials">
+                    <h2>📚 Tutorials</h2>
+                    <p>Step-by-step learning from basics to advanced concepts</p>
+                </div>
+                <div class="notebook-list">
+                    <a href="#" onclick="openNotebook('notebooks/tutorials/01-quantum-basics.ipynb'); return false;" class="notebook-item">
+                        <div class="notebook-title">Quantum Computing Basics</div>
+                        <div class="notebook-description">Introduction to qubits, superposition, and measurement</div>
+                        <div class="notebook-meta">
+                            <span>Beginner</span>
+                            <span>15 min</span>
+                        </div>
+                    </a>
+                    <a href="#" onclick="openNotebook('notebooks/tutorials/02-single-qubit-gates.ipynb'); return false;" class="notebook-item">
+                        <div class="notebook-title">Single Qubit Gates</div>
+                        <div class="notebook-description">X, Y, Z, H gates and their applications</div>
+                        <div class="notebook-meta">
+                            <span>Beginner</span>
+                            <span>20 min</span>
+                        </div>
+                    </a>
+                    <a href="#" onclick="openNotebook('notebooks/tutorials/03-multi-qubit-systems.ipynb'); return false;" class="notebook-item">
+                        <div class="notebook-title">Multi-Qubit Systems</div>
+                        <div class="notebook-description">Entanglement, CNOT gates, and Bell states</div>
+                        <div class="notebook-meta">
+                            <span>Intermediate</span>
+                            <span>25 min</span>
+                        </div>
+                    </a>
+                    <a href="#" onclick="openNotebook('notebooks/tutorials/04-measurements.ipynb'); return false;" class="notebook-item">
+                        <div class="notebook-title">Quantum Measurements</div>
+                        <div class="notebook-description">Measurement bases and Born rule</div>
+                        <div class="notebook-meta">
+                            <span>Intermediate</span>
+                            <span>20 min</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-header algorithms">
+                    <h2>🧮 Algorithms</h2>
+                    <p>Classic quantum algorithms and implementations</p>
+                </div>
+                <div class="notebook-list">
+                    <a href="#" onclick="openNotebook('notebooks/algorithms/01-grovers-search.ipynb'); return false;" class="notebook-item">
+                        <div class="notebook-title">Grover's Search Algorithm</div>
+                        <div class="notebook-description">Quantum search algorithm for unstructured databases</div>
+                        <div class="notebook-meta">
+                            <span>Advanced</span>
+                            <span>45 min</span>
+                        </div>
+                    </a>
+                    <a href="#" onclick="openNotebook('notebooks/algorithms/02-quantum-fourier-transform.ipynb'); return false;" class="notebook-item">
+                        <div class="notebook-title">Quantum Fourier Transform</div>
+                        <div class="notebook-description">QFT implementation and applications</div>
+                        <div class="notebook-meta">
+                            <span>Advanced</span>
+                            <span>40 min</span>
+                        </div>
+                    </a>
+                    <a href="#" onclick="openNotebook('notebooks/algorithms/03-phase-estimation.ipynb'); return false;" class="notebook-item">
+                        <div class="notebook-title">Phase Estimation Algorithm</div>
+                        <div class="notebook-description">Estimating eigenvalues of unitary operators</div>
+                        <div class="notebook-meta">
+                            <span>Expert</span>
+                            <span>50 min</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-header visualization">
+                    <h2>🎨 Visualization</h2>
+                    <p>Visual representations and interactive quantum systems</p>
+                </div>
+                <div class="notebook-list">
+                    <a href="#" onclick="openNotebook('notebooks/visualization/01-circuit-rendering.ipynb'); return false;" class="notebook-item">
+                        <div class="notebook-title">Circuit Visualization</div>
+                        <div class="notebook-description">ASCII, SVG, and interactive circuit rendering</div>
+                        <div class="notebook-meta">
+                            <span>Beginner</span>
+                            <span>15 min</span>
+                        </div>
+                    </a>
+                    <a href="#" onclick="openNotebook('notebooks/visualization/02-state-visualization.ipynb'); return false;" class="notebook-item">
+                        <div class="notebook-title">State Visualization</div>
+                        <div class="notebook-description">Probability distributions and amplitude displays</div>
+                        <div class="notebook-meta">
+                            <span>Intermediate</span>
+                            <span>25 min</span>
+                        </div>
+                    </a>
+                    <a href="#" onclick="openNotebook('notebooks/visualization/03-bloch-sphere.ipynb'); return false;" class="notebook-item">
+                        <div class="notebook-title">Bloch Sphere Visualization</div>
+                        <div class="notebook-description">3D visualization of single qubit states</div>
+                        <div class="notebook-meta">
+                            <span>Intermediate</span>
+                            <span>30 min</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-header advanced">
+                    <h2>⚡ Advanced</h2>
+                    <p>Advanced topics and experimental features</p>
+                </div>
+                <div class="notebook-list">
+                    <a href="#" onclick="openNotebook('notebooks/advanced/01-custom-gates.ipynb'); return false;" class="notebook-item">
+                        <div class="notebook-title">Custom Quantum Gates</div>
+                        <div class="notebook-description">Creating and implementing custom quantum gates</div>
+                        <div class="notebook-meta">
+                            <span>Expert</span>
+                            <span>35 min</span>
+                        </div>
+                    </a>
+                    <a href="#" onclick="openNotebook('notebooks/advanced/02-noise-models.ipynb'); return false;" class="notebook-item">
+                        <div class="notebook-title">Noise Models</div>
+                        <div class="notebook-description">Modeling decoherence and gate errors</div>
+                        <div class="notebook-meta">
+                            <span>Expert</span>
+                            <span>45 min</span>
+                        </div>
+                    </a>
+                    <a href="#" onclick="openNotebook('notebooks/advanced/03-quantum-error-correction.ipynb'); return false;" class="notebook-item">
+                        <div class="notebook-title">Quantum Error Correction</div>
+                        <div class="notebook-description">Basic QEC codes and syndrome detection</div>
+                        <div class="notebook-meta">
+                            <span>Expert</span>
+                            <span>60 min</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Built with Q5M.js • <a href="https://github.com/your-repo/q5m.js">View on GitHub</a></p>
+    </div>
+    
+    <script>
+        function openNotebook(notebookPath) {
+            console.log('Opening notebook:', notebookPath);
+            
+            // Store the notebook path in sessionStorage to avoid URL issues
+            sessionStorage.setItem('currentNotebook', notebookPath);
+            
+            // Navigate to viewer without URL parameters
+            window.location.href = './notebook-viewer.html';
+        }
+    </script>
+</body>
+</html>

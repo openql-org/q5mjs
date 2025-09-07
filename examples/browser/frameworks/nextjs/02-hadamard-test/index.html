@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q5M.js + Next.js: Hadamard Test</title>
+<!-- SPDX-License-Identifier: MIT -->
+<!-- SPDX-FileCopyrightText: Copyright 2025 OpenQL Project -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="../../../../../dist/q5m.min.js"></script>
+    <script>
+        // Fallback to CDN if local file fails to load
+        if (typeof Q5M === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/q5m@latest/dist/q5m.min.js';
+            document.head.appendChild(script);
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 25%, #0070f3 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            box-shadow: 0 4px 24px rgba(0, 112, 243, 0.1);
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(0, 112, 243, 0.3);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0070f3;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 112, 243, 0.3);
+        }
+        .phase-display {
+            background: rgba(255,255,255,0.08);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Fira Code', monospace;
+            min-width: 80px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        button {
+            background: linear-gradient(45deg, #0070f3, #0051a2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 112, 243, 0.2);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 112, 243, 0.3);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        button.active {
+            background: linear-gradient(45deg, #ff4757, #c44569);
+            box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
+        }
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        .measurement-results {
+            background: rgba(0,0,0,0.4);
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            border-left: 4px solid #0070f3;
+        }
+        .result-bar {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+            gap: 12px;
+        }
+        .bar {
+            background: linear-gradient(to right, #0070f3, #5bc0de);
+            height: 20px;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            min-width: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .circuit-display {
+            background: rgba(255,255,255,0.04);
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .qubit-line {
+            margin: 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .gate {
+            background: #0070f3;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            min-width: 32px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 112, 243, 0.2);
+        }
+        .controlled-gate {
+            background: #ff4757;
+            box-shadow: 0 2px 4px rgba(255, 71, 87, 0.2);
+        }
+        .phase-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .info-item {
+            background: rgba(255,255,255,0.08);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .eigenvalue {
+            font-size: 18px;
+            font-weight: 700;
+            color: #5bc0de;
+            font-family: 'Fira Code', monospace;
+        }
+        select {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.08);
+            color: white;
+            font-family: inherit;
+        }
+        select option {
+            background: #000000;
+            color: white;
+        }
+        .nextjs-badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(0, 112, 243, 0.2);
+            border: 1px solid rgba(0, 112, 243, 0.4);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #0070f3;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useCallback } = React;
+        const { createRoot } = ReactDOM;
+
+        const HadamardTest = () => {
+            // State variables (Next.js hook patterns)
+            const [phase, setPhase] = useState(1.57); // π/2 by default
+            const [gateType, setGateType] = useState('phase');
+            const [prob0, setProb0] = useState(0.5);
+            const [prob1, setProb1] = useState(0.5);
+            const [isRunning, setIsRunning] = useState(false);
+
+            // Computed values
+            const getPhaseDisplay = () => {
+                const phaseValue = parseFloat(phase);
+                const piRatio = phaseValue / Math.PI;
+                
+                if (Math.abs(piRatio - Math.round(piRatio)) < 0.01) {
+                    const roundedRatio = Math.round(piRatio);
+                    if (roundedRatio === 0) return '0';
+                    if (roundedRatio === 1) return 'π';
+                    if (roundedRatio === -1) return '-π';
+                    return `${roundedRatio}π`;
+                }
+                
+                if (Math.abs(piRatio - 0.5) < 0.01) return 'π/2';
+                if (Math.abs(piRatio - -0.5) < 0.01) return '-π/2';
+                if (Math.abs(piRatio - 1.5) < 0.01) return '3π/2';
+                if (Math.abs(piRatio - 0.25) < 0.01) return 'π/4';
+                if (Math.abs(piRatio - 0.75) < 0.01) return '3π/4';
+                
+                return `${phaseValue.toFixed(2)}`;
+            };
+
+            const getGateSymbol = () => {
+                switch (gateType) {
+                    case 'z': return 'Z';
+                    case 's': return 'S';
+                    case 't': return 'T';
+                    case 'phase': return 'φ';
+                    default: return 'U';
+                }
+            };
+
+            const getActualPhase = () => {
+                switch (gateType) {
+                    case 'z': return 'π';
+                    case 's': return 'π/2';
+                    case 't': return 'π/4';
+                    case 'phase': return getPhaseDisplay();
+                    default: return '0';
+                }
+            };
+
+            const getExpectedProb0 = () => {
+                let phaseValue;
+                switch (gateType) {
+                    case 'z': phaseValue = Math.PI; break;
+                    case 's': phaseValue = Math.PI / 2; break;
+                    case 't': phaseValue = Math.PI / 4; break;
+                    case 'phase': phaseValue = parseFloat(phase); break;
+                    default: phaseValue = 0;
+                }
+                
+                // For eigenstate |1⟩, the probability is (1 + cos(φ))/2
+                const expected = (1 + Math.cos(phaseValue)) / 2;
+                return expected.toFixed(3);
+            };
+
+            const getEstimatedPhase = () => {
+                // Estimate phase from measurement probability
+                // P(|0⟩) = (1 + cos(φ))/2, so φ = arccos(2*P(|0⟩) - 1)
+                const phaseEst = Math.acos(2 * prob0 - 1);
+                const piRatio = phaseEst / Math.PI;
+                
+                if (Math.abs(piRatio - 0.5) < 0.05) return 'π/2';
+                if (Math.abs(piRatio - 0.25) < 0.05) return 'π/4';
+                if (Math.abs(piRatio - 0.75) < 0.05) return '3π/4';
+                if (Math.abs(piRatio - 1) < 0.05) return 'π';
+                
+                return `${phaseEst.toFixed(2)}`;
+            };
+
+            const getPhaseError = () => {
+                let truePhase;
+                switch (gateType) {
+                    case 'z': truePhase = Math.PI; break;
+                    case 's': truePhase = Math.PI / 2; break;
+                    case 't': truePhase = Math.PI / 4; break;
+                    case 'phase': truePhase = parseFloat(phase); break;
+                    default: truePhase = 0;
+                }
+                
+                const estimatedPhaseValue = Math.acos(2 * prob0 - 1);
+                const error = Math.abs(truePhase - estimatedPhaseValue);
+                return `${error.toFixed(3)}`;
+            };
+
+            const getPhaseKickback = () => {
+                const phaseVal = parseFloat(phase);
+                if (Math.abs(phaseVal) < 0.01) return 'None';
+                return `Phase e^(i${getPhaseDisplay()}) → Control`;
+            };
+
+            // Main Hadamard test function
+            const runHadamardTest = useCallback(() => {
+                if (typeof Q5M === 'undefined') return;
+                
+                try {
+                    // Create 2-qubit circuit: ancilla + target
+                    const circuit = new Q5M.Circuit(2);
+                    
+                    // Prepare target qubit in eigenstate |1⟩
+                    circuit.x(1);
+                    
+                    // Hadamard on ancilla (qubit 0) 
+                    circuit.h(0);
+                    
+                    // Apply controlled gate based on selection
+                    switch (gateType) {
+                        case 'z':
+                            circuit.cz(0, 1);
+                            break;
+                        case 's':
+                            // Controlled-S gate using controlled phase with π/2
+                            circuit.cp(0, 1, Math.PI / 2);
+                            break;
+                        case 't':
+                            // Controlled-T gate using controlled phase with π/4
+                            circuit.cp(0, 1, Math.PI / 4);
+                            break;
+                        case 'phase':
+                            circuit.cp(0, 1, parseFloat(phase));
+                            break;
+                    }
+                    
+                    // Final Hadamard on ancilla
+                    circuit.h(0);
+                    
+                    // Execute and get probabilities
+                    const result = circuit.execute();
+                    const probabilities = result.state.probabilities();
+                    
+                    // Extract ancilla measurement probabilities
+                    // |00⟩ and |01⟩ correspond to ancilla in |0⟩
+                    // |10⟩ and |11⟩ correspond to ancilla in |1⟩  
+                    const p0 = probabilities[0] + probabilities[1]; // |0⟩ on ancilla
+                    const p1 = probabilities[2] + probabilities[3]; // |1⟩ on ancilla
+                    
+                    setProb0(p0);
+                    setProb1(p1);
+                    
+                } catch (error) {
+                    console.error('Hadamard test error:', error);
+                }
+            }, [gateType, phase]);
+
+            const runMultipleMeasurements = async () => {
+                setIsRunning(true);
+                
+                let totalZeros = 0;
+                const numMeasurements = 1000;
+                
+                for (let i = 0; i < numMeasurements; i++) {
+                    // Simulate individual measurements
+                    const circuit = new Q5M.Circuit(2);
+                    
+                    // Prepare target in |1⟩
+                    circuit.x(1);
+                    
+                    // Hadamard test protocol
+                    circuit.h(0);
+                    
+                    switch (gateType) {
+                        case 'z': 
+                            circuit.cz(0, 1); 
+                            break;
+                        case 's': 
+                            // Controlled-S gate using controlled phase with π/2
+                            circuit.cp(0, 1, Math.PI / 2); 
+                            break;
+                        case 't': 
+                            // Controlled-T gate using controlled phase with π/4
+                            circuit.cp(0, 1, Math.PI / 4); 
+                            break;
+                        case 'phase': 
+                            circuit.cp(0, 1, parseFloat(phase)); 
+                            break;
+                    }
+                    
+                    circuit.h(0);
+                    
+                    // Execute and get probabilities to simulate measurement
+                    const result = circuit.execute();
+                    const probabilities = result.state.probabilities();
+                    
+                    // Simulate measurement of ancilla qubit
+                    // |00⟩ and |01⟩ correspond to ancilla in |0⟩
+                    const p0 = probabilities[0] + probabilities[1];
+                    
+                    // Randomly sample based on probability
+                    if (Math.random() < p0) totalZeros++;
+                    
+                    // Update display periodically
+                    if (i % 100 === 0) {
+                        setProb0(totalZeros / (i + 1));
+                        setProb1(1 - totalZeros / (i + 1));
+                        await new Promise(resolve => setTimeout(resolve, 10));
+                    }
+                }
+                
+                // Final update
+                setProb0(totalZeros / numMeasurements);
+                setProb1(1 - totalZeros / numMeasurements);
+                
+                setIsRunning(false);
+            };
+
+            // Initialize
+            useEffect(() => {
+                runHadamardTest();
+            }, [runHadamardTest]);
+
+            return (
+                <div className="container">
+                    <div className="header">
+                        <h1>🧪 Hadamard Test with Next.js</h1>
+                        <p>
+                            Explore phase estimation and phase kickback phenomena
+                            <span className="nextjs-badge">⚡ Next.js</span>
+                        </p>
+                    </div>
+
+                    <div className="card">
+                        <h3>⚙️ Test Parameters</h3>
+                        <div className="controls">
+                            <div className="control-group">
+                                <label><strong>Phase (φ):</strong></label>
+                                <div className="slider-container">
+                                    <input 
+                                        type="range" 
+                                        value={phase}
+                                        onChange={(e) => setPhase(e.target.value)}
+                                        min="0" 
+                                        max="6.28318" 
+                                        step="0.1"
+                                    />
+                                    <div className="phase-display">{getPhaseDisplay()}</div>
+                                </div>
+                            </div>
+                            
+                            <div className="control-group">
+                                <label><strong>Gate Type:</strong></label>
+                                <select value={gateType} onChange={(e) => setGateType(e.target.value)}>
+                                    <option value="z">Z Gate (Phase flip)</option>
+                                    <option value="s">S Gate (π/2 phase)</option>
+                                    <option value="t">T Gate (π/4 phase)</option>
+                                    <option value="phase">Phase Gate (custom φ)</option>
+                                </select>
+                            </div>
+                            
+                            <div className="control-group">
+                                <label><strong>Measurements:</strong></label>
+                                <button onClick={runMultipleMeasurements} disabled={isRunning}>
+                                    {isRunning ? 'Running...' : 'Run 1000 Tests'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="results-grid">
+                        <div className="card">
+                            <h3>📊 Measurement Results</h3>
+                            <div className="measurement-results">
+                                <div><strong>Ancilla Qubit (Control) Measurements:</strong></div>
+                                <div className="result-bar">
+                                    <span style={{width: '60px'}}>|0⟩:</span>
+                                    <div className="bar" style={{width: `${prob0 * 300}px`}}>
+                                        {(prob0 * 100).toFixed(1)}%
+                                    </div>
+                                </div>
+                                <div className="result-bar">
+                                    <span style={{width: '60px'}}>|1⟩:</span>
+                                    <div className="bar" style={{width: `${prob1 * 300}px`}}>
+                                        {(prob1 * 100).toFixed(1)}%
+                                    </div>
+                                </div>
+                                
+                                <div style={{marginTop: '20px'}}>
+                                    <strong>Estimated Phase:</strong> {getEstimatedPhase()}
+                                    <br/>
+                                    <strong>Actual Phase:</strong> {getActualPhase()}
+                                    <br/>
+                                    <strong>Error:</strong> {getPhaseError()}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="card">
+                            <h3>🔄 Circuit Diagram</h3>
+                            <div className="circuit-display">
+                                <div className="qubit-line">
+                                    <span style={{width: '80px'}}>Ancilla |+⟩:</span>
+                                    <div className="gate">H</div>
+                                    <div className="gate controlled-gate">●</div>
+                                    <div className="gate">H</div>
+                                    <div className="gate" style={{background: '#5bc0de'}}>M</div>
+                                </div>
+                                <div className="qubit-line">
+                                    <span style={{width: '80px'}}>Target |ψ⟩:</span>
+                                    <div style={{width: '40px'}}></div>
+                                    <div className="gate">{getGateSymbol()}</div>
+                                    <div style={{width: '40px'}}></div>
+                                    <div style={{width: '40px'}}></div>
+                                </div>
+                            </div>
+                            
+                            <div className="phase-info">
+                                <div className="info-item">
+                                    <div>Expected P(|0⟩)</div>
+                                    <div className="eigenvalue">{getExpectedProb0()}</div>
+                                </div>
+                                <div className="info-item">
+                                    <div>Eigenvalue</div>
+                                    <div className="eigenvalue">e^(iφ)</div>
+                                </div>
+                                <div className="info-item">
+                                    <div>Phase Kickback</div>
+                                    <div className="eigenvalue">{getPhaseKickback()}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="card">
+                        <h3>📚 Algorithm Explanation</h3>
+                        <div className="measurement-results">
+                            <p><strong>Hadamard Test:</strong> A quantum algorithm to estimate the real part of ⟨ψ|U|ψ⟩ where U is a unitary operator.</p>
+                            
+                            <p><strong>Steps:</strong></p>
+                            <ol>
+                                <li>Prepare ancilla qubit in |+⟩ = (|0⟩ + |1⟩)/√2 using Hadamard gate</li>
+                                <li>Apply controlled-U operation with ancilla as control</li>
+                                <li>Apply Hadamard to ancilla again</li>
+                                <li>Measure ancilla: P(|0⟩) = (1 + Re(⟨ψ|U|ψ⟩))/2</li>
+                            </ol>
+                            
+                            <p><strong>Phase Kickback:</strong> When the controlled gate acts on an eigenstate, the phase is "kicked back" to the control qubit, enabling phase estimation.</p>
+                            
+                            <p><strong>Next.js Integration:</strong> This example demonstrates using quantum algorithms in a Next.js environment with React Server Components architecture and modern hooks.</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            return <HadamardTest />;
+        };
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

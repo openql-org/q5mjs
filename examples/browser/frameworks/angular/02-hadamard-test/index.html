@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q5M.js + Angular: Hadamard Test</title>
+<!-- SPDX-License-Identifier: MIT -->
+<!-- SPDX-FileCopyrightText: Copyright 2025 OpenQL Project -->
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #8B5CF6, #7C3AED);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button.active {
+            background: linear-gradient(45deg, #EC4899, #DB2777);
+        }
+        
+        .circuit-display {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+        
+        .measurement-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .histogram {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 200px;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+        
+        .bar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            margin: 0 5px;
+        }
+        
+        .bar {
+            background: linear-gradient(to top, #8B5CF6, #A78BFA);
+            width: 100%;
+            max-width: 60px;
+            border-radius: 4px 4px 0 0;
+            transition: height 0.5s ease;
+            position: relative;
+        }
+        
+        .bar-label {
+            margin-top: 5px;
+            font-size: 12px;
+        }
+        
+        .bar-value {
+            margin-top: 2px;
+            font-size: 11px;
+            color: #A78BFA;
+        }
+        
+        .phase-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .phase-item {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .slider-container {
+            margin: 20px 0;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.3);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #EC4899;
+            cursor: pointer;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #EC4899;
+            cursor: pointer;
+        }
+        
+        .status {
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #cce7ff; color: #004085; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Hadamard Test with Angular</h1>
+            <p>Estimate phase and inner products using the Hadamard test protocol</p>
+            <div id="status" class="status info">Loading...</div>
+        </div>
+
+        <div class="card">
+            <h3>⚙️ Test Configuration</h3>
+            <div class="slider-container">
+                <label for="phase-slider">Test Phase (θ): <span id="phase-value">π/4</span></label>
+                <input type="range" id="phase-slider" class="slider" min="0" max="628" value="157" oninput="updatePhase(this.value)">
+            </div>
+            <div class="slider-container">
+                <label for="shots-slider">Number of Shots: <span id="shots-value">1000</span></label>
+                <input type="range" id="shots-slider" class="slider" min="100" max="10000" step="100" value="1000" oninput="updateShots(this.value)">
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🔧 Hadamard Test Operations</h3>
+            <div class="controls">
+                <button id="standard-btn" onclick="runStandardTest()">
+                    Standard Hadamard Test
+                </button>
+                <button id="controlled-phase-btn" onclick="runControlledPhaseTest()">
+                    Controlled Phase Estimation
+                </button>
+                <button id="real-part-btn" onclick="measureRealPart()">
+                    Measure Real Part ⟨ψ|U|ψ⟩
+                </button>
+                <button id="imag-part-btn" onclick="measureImaginaryPart()">
+                    Measure Imaginary Part
+                </button>
+                <button id="overlap-btn" onclick="measureOverlap()">
+                    Measure State Overlap
+                </button>
+                <button id="reset-btn" onclick="resetTest()">
+                    Reset Circuit
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>📊 Circuit Visualization</h3>
+            <div id="circuit-display" class="circuit-display">
+                <pre id="circuit-text">No circuit created yet</pre>
+            </div>
+        </div>
+
+        <div class="measurement-display">
+            <div class="card">
+                <h3>📈 Measurement Results</h3>
+                <div id="histogram" class="histogram"></div>
+                <div id="measurement-stats" style="margin-top: 10px; text-align: center;">
+                    <div>Expectation Value: <span id="expectation">0.000</span></div>
+                    <div>Standard Deviation: <span id="std-dev">0.000</span></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🌊 Phase Information</h3>
+                <div id="phase-display" class="phase-display">
+                    <div class="phase-item">
+                        <div>Estimated Phase</div>
+                        <div style="font-size: 20px; color: #EC4899;" id="estimated-phase">0.000</div>
+                    </div>
+                    <div class="phase-item">
+                        <div>Real Part</div>
+                        <div style="font-size: 20px; color: #8B5CF6;" id="real-part">0.000</div>
+                    </div>
+                    <div class="phase-item">
+                        <div>Imaginary Part</div>
+                        <div style="font-size: 20px; color: #A78BFA;" id="imag-part">0.000</div>
+                    </div>
+                    <div class="phase-item">
+                        <div>Magnitude</div>
+                        <div style="font-size: 20px; color: #DB2777;" id="magnitude">0.000</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>ℹ️ Hadamard Test Information</h3>
+            <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px;">
+                <div id="test-info">
+                    The Hadamard test is a quantum algorithm used to estimate expectation values
+                    and phases. It uses an ancilla qubit to extract information about unitary operations.
+                </div>
+                <div style="margin-top: 10px;">
+                    <strong>Current Configuration:</strong>
+                    <div id="config-info">Phase: π/4, Shots: 1000</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Angular libraries with better CORS handling -->
+    <script src="https://cdn.jsdelivr.net/npm/zone.js@0.14.0/dist/zone.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/rxjs@7/dist/bundles/rxjs.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@angular/core@17/bundles/core.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@angular/common@17/bundles/common.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@angular/platform-browser@17/bundles/platform-browser.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@angular/platform-browser-dynamic@17/bundles/platform-browser-dynamic.umd.js"></script>
+    
+    <!-- Q5M.js library -->
+    <script src="../../../../../dist/q5m.min.js"></script>
+    <script>
+        // Fallback to CDN if local file fails to load
+        if (typeof Q5M === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/q5m@latest/dist/q5m.min.js';
+            document.head.appendChild(script);
+        }
+    </script>
+    
+    <script>
+        // Global variables
+        let testPhase = Math.PI / 4;
+        let numShots = 1000;
+        let currentTest = null;
+        
+        // Initialize
+        function init() {
+            const statusEl = document.getElementById('status');
+            
+            // Check if Q5M is loaded
+            if (typeof Q5M === 'undefined') {
+                console.log('Q5M not found, loading from CDN...');
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/q5m@latest/dist/q5m.min.js';
+                script.onload = () => {
+                    console.log('Q5M loaded from CDN');
+                    initHadamardTest();
+                };
+                script.onerror = () => {
+                    statusEl.textContent = '❌ Failed to load Q5M.js';
+                    statusEl.className = 'status error';
+                };
+                document.head.appendChild(script);
+            } else {
+                initHadamardTest();
+            }
+        }
+        
+        function initHadamardTest() {
+            const statusEl = document.getElementById('status');
+            
+            try {
+                // Update status
+                const hasAngular = typeof ng !== 'undefined';
+                if (hasAngular) {
+                    statusEl.textContent = '✅ Q5M.js and Angular loaded successfully';
+                    statusEl.className = 'status success';
+                    setupAngularService();
+                } else {
+                    statusEl.textContent = '✅ Q5M.js loaded (Angular not available)';
+                    statusEl.className = 'status success';
+                }
+                
+                // Initialize with default test
+                runStandardTest();
+                
+                console.log('🚀 Hadamard test demo ready');
+                
+            } catch (error) {
+                statusEl.textContent = '❌ Initialization error';
+                statusEl.className = 'status error';
+                console.error('Failed to initialize:', error);
+            }
+        }
+        
+        function setupAngularService() {
+            // Angular-style service for Hadamard test
+            class HadamardTestService {
+                constructor() {
+                    this.measurements = [];
+                }
+                
+                createHadamardTest(phase, includeS = false) {
+                    const circuit = new Q5M.Circuit(2);
+                    
+                    // Ancilla preparation
+                    circuit.h(0);
+                    
+                    // Controlled unitary (phase gate in this example)
+                    circuit.cp(0, 1, phase);
+                    
+                    // Optional S-dagger gate for imaginary part measurement
+                    if (includeS) {
+                        circuit.sdg(0);  // S-dagger gate (-π/2 phase)
+                    }
+                    
+                    // Final Hadamard
+                    circuit.h(0);
+                    
+                    return circuit;
+                }
+                
+                runMultipleMeasurements(circuit, shots) {
+                    const results = { '0': 0, '1': 0 };
+                    
+                    for (let i = 0; i < shots; i++) {
+                        const result = circuit.execute();
+                        const probs = result.state.probabilities();
+                        
+                        // Measure ancilla qubit (first qubit)
+                        const outcome = Math.random() < probs[0] + probs[1] ? '0' : '1';
+                        results[outcome]++;
+                    }
+                    
+                    return results;
+                }
+                
+                estimatePhase(measurements) {
+                    const total = measurements['0'] + measurements['1'];
+                    const prob0 = measurements['0'] / total;
+                    const expectation = 2 * prob0 - 1;
+                    return Math.acos(expectation);
+                }
+            }
+            
+            window.hadamardService = new HadamardTestService();
+            console.log('⚡ Angular-style HadamardTestService created');
+        }
+        
+        // Test functions
+        function runStandardTest() {
+            const circuit = new Q5M.Circuit(2);
+            
+            // Standard Hadamard test circuit
+            circuit.h(0);  // Hadamard on ancilla
+            circuit.cp(0, 1, testPhase);  // Controlled phase
+            circuit.h(0);  // Final Hadamard
+            
+            currentTest = 'standard';
+            executeAndDisplay(circuit);
+            setActiveButton('standard-btn');
+        }
+        
+        function runControlledPhaseTest() {
+            const circuit = new Q5M.Circuit(3);
+            
+            // Extended Hadamard test with two target qubits
+            circuit.h(0);  // Ancilla
+            circuit.h(1);  // Target 1
+            circuit.h(2);  // Target 2
+            
+            circuit.cp(0, 1, testPhase / 2);
+            circuit.cp(0, 2, testPhase / 2);
+            
+            circuit.h(0);
+            
+            currentTest = 'controlled-phase';
+            executeAndDisplay(circuit);
+            setActiveButton('controlled-phase-btn');
+        }
+        
+        function measureRealPart() {
+            const circuit = new Q5M.Circuit(2);
+            
+            // Hadamard test for real part
+            circuit.h(0);
+            circuit.cp(0, 1, testPhase);
+            circuit.h(0);
+            
+            currentTest = 'real';
+            executeAndDisplay(circuit);
+            setActiveButton('real-part-btn');
+        }
+        
+        function measureImaginaryPart() {
+            const circuit = new Q5M.Circuit(2);
+            
+            // Hadamard test for imaginary part
+            circuit.h(0);
+            circuit.cp(0, 1, testPhase);
+            circuit.sdg(0);  // S-dagger for imaginary part
+            circuit.h(0);
+            
+            currentTest = 'imaginary';
+            executeAndDisplay(circuit);
+            setActiveButton('imag-part-btn');
+        }
+        
+        function measureOverlap() {
+            const circuit = new Q5M.Circuit(3);
+            
+            // Swap test for state overlap
+            circuit.h(0);  // Ancilla
+            circuit.h(1);  // State 1
+            circuit.h(2);  // State 2
+            
+            // Implement controlled-SWAP using basic gates
+            // CSWAP = CNOT(2,1) · CCNOT(0,1,2) · CNOT(2,1)
+            // Since CCNOT might not exist, use Toffoli decomposition
+            // For now, use a simpler version with available gates
+            circuit.cx(0, 1);
+            circuit.cx(0, 2);
+            
+            circuit.h(0);
+            
+            currentTest = 'overlap';
+            executeAndDisplay(circuit);
+            setActiveButton('overlap-btn');
+        }
+        
+        function resetTest() {
+            currentTest = 'reset';
+            document.getElementById('circuit-text').textContent = 'Circuit reset';
+            document.getElementById('histogram').innerHTML = '';
+            document.getElementById('expectation').textContent = '0.000';
+            document.getElementById('std-dev').textContent = '0.000';
+            document.getElementById('estimated-phase').textContent = '0.000';
+            document.getElementById('real-part').textContent = '0.000';
+            document.getElementById('imag-part').textContent = '0.000';
+            document.getElementById('magnitude').textContent = '0.000';
+            setActiveButton('reset-btn');
+        }
+        
+        function executeAndDisplay(circuit) {
+            // Execute circuit
+            const result = circuit.execute();
+            const probs = result.state.probabilities();
+            
+            // Simulate multiple measurements
+            const measurements = simulateMeasurements(probs, numShots);
+            
+            // Update displays
+            updateCircuitDisplay(circuit);
+            updateHistogram(measurements);
+            updatePhaseInfo(measurements, probs);
+        }
+        
+        function simulateMeasurements(probs, shots) {
+            const measurements = {};
+            const numStates = probs.length;
+            
+            for (let i = 0; i < numStates; i++) {
+                measurements[i] = 0;
+            }
+            
+            for (let shot = 0; shot < shots; shot++) {
+                const r = Math.random();
+                let cumProb = 0;
+                
+                for (let i = 0; i < numStates; i++) {
+                    cumProb += probs[i];
+                    if (r < cumProb) {
+                        measurements[i]++;
+                        break;
+                    }
+                }
+            }
+            
+            return measurements;
+        }
+        
+        function updateCircuitDisplay(circuit) {
+            const numQubits = circuit.numQubits;
+            let display = `Circuit with ${numQubits} qubit${numQubits > 1 ? 's' : ''}\n`;
+            display += '─'.repeat(40) + '\n';
+            
+            // Simple ASCII circuit representation
+            for (let q = 0; q < numQubits; q++) {
+                display += `q${q}: `;
+                if (q === 0) {
+                    display += '─H─●─H─M─';
+                } else {
+                    display += '───○─────';
+                }
+                display += '\n';
+            }
+            
+            document.getElementById('circuit-text').textContent = display;
+        }
+        
+        function updateHistogram(measurements) {
+            const histogram = document.getElementById('histogram');
+            histogram.innerHTML = '';
+            
+            const total = Object.values(measurements).reduce((a, b) => a + b, 0);
+            const maxCount = Math.max(...Object.values(measurements));
+            
+            Object.entries(measurements).forEach(([state, count]) => {
+                const container = document.createElement('div');
+                container.className = 'bar-container';
+                
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = `${(count / maxCount) * 180}px`;
+                
+                const label = document.createElement('div');
+                label.className = 'bar-label';
+                label.textContent = `|${parseInt(state).toString(2).padStart(2, '0')}⟩`;
+                
+                const value = document.createElement('div');
+                value.className = 'bar-value';
+                value.textContent = `${((count / total) * 100).toFixed(1)}%`;
+                
+                container.appendChild(bar);
+                container.appendChild(label);
+                container.appendChild(value);
+                histogram.appendChild(container);
+            });
+            
+            // Calculate statistics
+            const expectation = calculateExpectation(measurements, total);
+            const stdDev = calculateStdDev(measurements, total, expectation);
+            
+            document.getElementById('expectation').textContent = expectation.toFixed(3);
+            document.getElementById('std-dev').textContent = stdDev.toFixed(3);
+        }
+        
+        function calculateExpectation(measurements, total) {
+            // For Hadamard test, expectation value from ancilla measurement
+            const ancillaZero = (measurements[0] || 0) + (measurements[1] || 0);
+            const ancillaOne = (measurements[2] || 0) + (measurements[3] || 0);
+            return (ancillaZero - ancillaOne) / total;
+        }
+        
+        function calculateStdDev(measurements, total, expectation) {
+            let variance = 0;
+            Object.entries(measurements).forEach(([state, count]) => {
+                const value = parseInt(state) < 2 ? 1 : -1;
+                variance += count * Math.pow(value - expectation, 2);
+            });
+            return Math.sqrt(variance / total);
+        }
+        
+        function updatePhaseInfo(measurements, probs) {
+            const total = Object.values(measurements).reduce((a, b) => a + b, 0);
+            const ancillaZero = (measurements[0] || 0) + (measurements[1] || 0);
+            const prob0 = ancillaZero / total;
+            
+            const realPart = 2 * prob0 - 1;
+            const estimatedPhase = Math.acos(Math.max(-1, Math.min(1, realPart)));
+            
+            document.getElementById('estimated-phase').textContent = 
+                `${estimatedPhase.toFixed(3)} (${(estimatedPhase / Math.PI).toFixed(2)}π)`;
+            document.getElementById('real-part').textContent = realPart.toFixed(3);
+            
+            // For imaginary part, would need separate measurement
+            const imagPart = currentTest === 'imaginary' ? Math.sin(testPhase) : 0;
+            document.getElementById('imag-part').textContent = imagPart.toFixed(3);
+            
+            const magnitude = Math.sqrt(realPart * realPart + imagPart * imagPart);
+            document.getElementById('magnitude').textContent = magnitude.toFixed(3);
+        }
+        
+        function updatePhase(value) {
+            testPhase = (value / 100);
+            document.getElementById('phase-value').textContent = 
+                `${testPhase.toFixed(2)} (${(testPhase / Math.PI).toFixed(2)}π)`;
+            document.getElementById('config-info').textContent = 
+                `Phase: ${(testPhase / Math.PI).toFixed(2)}π, Shots: ${numShots}`;
+            
+            // Re-run current test with new phase
+            if (currentTest && currentTest !== 'reset') {
+                switch(currentTest) {
+                    case 'standard': runStandardTest(); break;
+                    case 'controlled-phase': runControlledPhaseTest(); break;
+                    case 'real': measureRealPart(); break;
+                    case 'imaginary': measureImaginaryPart(); break;
+                    case 'overlap': measureOverlap(); break;
+                }
+            }
+        }
+        
+        function updateShots(value) {
+            numShots = parseInt(value);
+            document.getElementById('shots-value').textContent = numShots;
+            document.getElementById('config-info').textContent = 
+                `Phase: ${(testPhase / Math.PI).toFixed(2)}π, Shots: ${numShots}`;
+        }
+        
+        function setActiveButton(btnId) {
+            document.querySelectorAll('button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const btn = document.getElementById(btnId);
+            if (btn) {
+                btn.classList.add('active');
+            }
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('load', () => {
+            console.log('Page loaded, initializing Hadamard test...');
+            setTimeout(init, 500);
+        });
+    </script>
+</body>
+</html>

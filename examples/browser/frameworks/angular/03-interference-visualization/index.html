@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q5M.js + Angular: Quantum Interference Visualization</title>
+<!-- SPDX-License-Identifier: MIT -->
+<!-- SPDX-FileCopyrightText: Copyright 2025 OpenQL Project -->
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #06B6D4, #0891B2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button.active {
+            background: linear-gradient(45deg, #3B82F6, #2563EB);
+        }
+        
+        .visualization-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .canvas-container {
+            position: relative;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        canvas {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
+        .phase-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .slider-container {
+            margin: 10px 0;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.3);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #06B6D4;
+            cursor: pointer;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #06B6D4;
+            cursor: pointer;
+        }
+        
+        .animation-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        .animation-button {
+            background: linear-gradient(45deg, #10B981, #059669);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .animation-button.pause {
+            background: linear-gradient(45deg, #EF4444, #DC2626);
+        }
+        
+        .interference-pattern {
+            display: grid;
+            grid-template-columns: repeat(20, 1fr);
+            gap: 2px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+        
+        .pattern-cell {
+            aspect-ratio: 1;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .info-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .info-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .info-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .info-value {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .status {
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #cce7ff; color: #004085; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌊 Quantum Interference Visualization</h1>
+            <p>Explore constructive and destructive interference in quantum systems</p>
+            <div id="status" class="status info">Loading...</div>
+        </div>
+
+        <div class="card">
+            <h3>🎮 Interference Controls</h3>
+            <div class="controls">
+                <button id="single-slit-btn" onclick="singleSlitPattern()">
+                    Single Slit Diffraction
+                </button>
+                <button id="double-slit-btn" onclick="doubleSlitPattern()">
+                    Double Slit Interference
+                </button>
+                <button id="mach-zehnder-btn" onclick="machZehnder()">
+                    Mach-Zehnder Interferometer
+                </button>
+                <button id="quantum-eraser-btn" onclick="quantumEraser()">
+                    Quantum Eraser
+                </button>
+                <button id="phase-kickback-btn" onclick="phaseKickback()">
+                    Phase Kickback
+                </button>
+                <button id="reset-btn" onclick="resetVisualization()">
+                    Reset
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>⚙️ Phase Controls</h3>
+            <div class="phase-controls">
+                <div class="slider-container">
+                    <label>Path 1 Phase: <span id="phase1-value">0.00π</span></label>
+                    <input type="range" id="phase1-slider" class="slider" 
+                           min="0" max="628" value="0" 
+                           oninput="updatePhase1(this.value)">
+                </div>
+                <div class="slider-container">
+                    <label>Path 2 Phase: <span id="phase2-value">0.00π</span></label>
+                    <input type="range" id="phase2-slider" class="slider" 
+                           min="0" max="628" value="0" 
+                           oninput="updatePhase2(this.value)">
+                </div>
+                <div class="slider-container">
+                    <label>Relative Phase: <span id="relative-phase">0.00π</span></label>
+                    <input type="range" id="relative-slider" class="slider" 
+                           min="0" max="628" value="0" 
+                           oninput="updateRelativePhase(this.value)">
+                </div>
+                <div class="slider-container">
+                    <label>Animation Speed: <span id="speed-value">1.0x</span></label>
+                    <input type="range" id="speed-slider" class="slider" 
+                           min="1" max="50" value="10" 
+                           oninput="updateSpeed(this.value)">
+                </div>
+            </div>
+        </div>
+
+        <div class="visualization-grid">
+            <div class="card">
+                <h3>📊 Amplitude Visualization</h3>
+                <div class="canvas-container">
+                    <canvas id="amplitude-canvas" width="400" height="300"></canvas>
+                </div>
+                <div class="animation-controls">
+                    <button class="animation-button" onclick="toggleAnimation()">
+                        <span id="animation-text">Start Animation</span>
+                    </button>
+                    <button class="animation-button" onclick="stepAnimation()">
+                        Step Forward
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🎨 Interference Pattern</h3>
+                <div class="canvas-container">
+                    <canvas id="pattern-canvas" width="400" height="300"></canvas>
+                </div>
+                <div style="text-align: center; margin-top: 10px;">
+                    <small>Brightness represents probability amplitude</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>📈 Quantum State Information</h3>
+            <div class="info-panel">
+                <div class="info-item">
+                    <div class="info-label">Amplitude Path 1</div>
+                    <div class="info-value" id="amp1">0.707</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Amplitude Path 2</div>
+                    <div class="info-value" id="amp2">0.707</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Total Probability</div>
+                    <div class="info-value" id="total-prob">1.000</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Interference Type</div>
+                    <div class="info-value" id="interference-type">Constructive</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>ℹ️ Interference Theory</h3>
+            <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px;">
+                <div id="theory-text">
+                    Quantum interference occurs when probability amplitudes from different paths combine.
+                    The total amplitude is the sum of individual amplitudes: ψ_total = ψ_1 + ψ_2.
+                    The probability is |ψ_total|² = |ψ_1|² + |ψ_2|² + 2Re(ψ_1*ψ_2).
+                </div>
+                <div style="margin-top: 10px;">
+                    <strong>Current Experiment:</strong>
+                    <span id="experiment-info">Double Slit Interference</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Angular libraries with better CORS handling -->
+    <script src="https://cdn.jsdelivr.net/npm/zone.js@0.14.0/dist/zone.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/rxjs@7/dist/bundles/rxjs.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@angular/core@17/bundles/core.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@angular/common@17/bundles/common.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@angular/platform-browser@17/bundles/platform-browser.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@angular/platform-browser-dynamic@17/bundles/platform-browser-dynamic.umd.js"></script>
+    
+    <!-- Q5M.js library -->
+    <script src="../../../../../dist/q5m.min.js"></script>
+    <script>
+        // Fallback to CDN if local file fails to load
+        if (typeof Q5M === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/q5m@latest/dist/q5m.min.js';
+            document.head.appendChild(script);
+        }
+    </script>
+    
+    <script>
+        // Global variables
+        let phase1 = 0;
+        let phase2 = 0;
+        let relativePhase = 0;
+        let animationSpeed = 1.0;
+        let animationFrame = 0;
+        let isAnimating = false;
+        let animationId = null;
+        let currentExperiment = 'double-slit';
+        
+        // Canvas contexts
+        let ampCanvas, ampCtx;
+        let patternCanvas, patternCtx;
+        
+        // Initialize
+        function init() {
+            const statusEl = document.getElementById('status');
+            
+            // Setup canvases
+            ampCanvas = document.getElementById('amplitude-canvas');
+            ampCtx = ampCanvas.getContext('2d');
+            patternCanvas = document.getElementById('pattern-canvas');
+            patternCtx = patternCanvas.getContext('2d');
+            
+            // Check if Q5M is loaded
+            if (typeof Q5M === 'undefined') {
+                console.log('Q5M not found, loading from CDN...');
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/q5m@latest/dist/q5m.min.js';
+                script.onload = () => {
+                    console.log('Q5M loaded from CDN');
+                    initInterference();
+                };
+                script.onerror = () => {
+                    statusEl.textContent = '❌ Failed to load Q5M.js';
+                    statusEl.className = 'status error';
+                };
+                document.head.appendChild(script);
+            } else {
+                initInterference();
+            }
+        }
+        
+        function initInterference() {
+            const statusEl = document.getElementById('status');
+            
+            try {
+                // Update status
+                const hasAngular = typeof ng !== 'undefined';
+                if (hasAngular) {
+                    statusEl.textContent = '✅ Q5M.js and Angular loaded successfully';
+                    statusEl.className = 'status success';
+                    setupAngularService();
+                } else {
+                    statusEl.textContent = '✅ Q5M.js loaded (Angular not available)';
+                    statusEl.className = 'status success';
+                }
+                
+                // Initialize with double slit
+                doubleSlitPattern();
+                
+                console.log('🚀 Interference visualization ready');
+                
+            } catch (error) {
+                statusEl.textContent = '❌ Initialization error';
+                statusEl.className = 'status error';
+                console.error('Failed to initialize:', error);
+            }
+        }
+        
+        function setupAngularService() {
+            // Angular-style service for interference patterns
+            class InterferenceService {
+                constructor() {
+                    this.patterns = [];
+                }
+                
+                createInterferenceCircuit(type) {
+                    const circuit = new Q5M.Circuit(2);
+                    
+                    switch(type) {
+                        case 'double-slit':
+                            // Superposition creates paths
+                            circuit.h(0);
+                            circuit.phase(0, phase1);
+                            circuit.cx(0, 1);
+                            circuit.phase(1, phase2);
+                            break;
+                            
+                        case 'mach-zehnder':
+                            // Beam splitter 1
+                            circuit.h(0);
+                            // Phase shifters
+                            circuit.phase(0, phase1);
+                            circuit.x(1);
+                            circuit.cx(0, 1);
+                            circuit.phase(1, phase2);
+                            // Beam splitter 2
+                            circuit.h(0);
+                            break;
+                            
+                        case 'quantum-eraser':
+                            circuit.h(0);
+                            circuit.cx(0, 1);
+                            circuit.phase(0, relativePhase);
+                            circuit.h(1);  // Erase which-path info
+                            break;
+                    }
+                    
+                    return circuit;
+                }
+                
+                calculateInterferencePattern(circuit) {
+                    const result = circuit.execute();
+                    const state = result.state;
+                    const amplitudes = state.amplitudes();
+                    const probabilities = state.probabilities();
+                    
+                    return {
+                        amplitudes,
+                        probabilities,
+                        interferenceStrength: this.calculateInterferenceStrength(amplitudes)
+                    };
+                }
+                
+                calculateInterferenceStrength(amplitudes) {
+                    // Calculate visibility of interference pattern
+                    const probs = amplitudes.map(a => a.abs() ** 2);
+                    const max = Math.max(...probs);
+                    const min = Math.min(...probs);
+                    return (max - min) / (max + min);
+                }
+            }
+            
+            window.interferenceService = new InterferenceService();
+            console.log('⚡ Angular-style InterferenceService created');
+        }
+        
+        // Experiment functions
+        function singleSlitPattern() {
+            currentExperiment = 'single-slit';
+            const circuit = new Q5M.Circuit(2);
+            
+            // Single path with phase
+            circuit.phase(0, phase1);
+            circuit.h(0);
+            
+            visualizeCircuit(circuit);
+            setActiveButton('single-slit-btn');
+            updateExperimentInfo('Single Slit Diffraction - No interference, pure diffraction pattern');
+        }
+        
+        function doubleSlitPattern() {
+            currentExperiment = 'double-slit';
+            const circuit = new Q5M.Circuit(2);
+            
+            // Create superposition (two paths)
+            circuit.h(0);
+            circuit.phase(0, phase1);
+            circuit.cx(0, 1);
+            circuit.phase(1, phase2);
+            circuit.h(1);
+            
+            visualizeCircuit(circuit);
+            setActiveButton('double-slit-btn');
+            updateExperimentInfo('Double Slit - Classic interference from two coherent paths');
+        }
+        
+        function machZehnder() {
+            currentExperiment = 'mach-zehnder';
+            const circuit = new Q5M.Circuit(2);
+            
+            // First beam splitter
+            circuit.h(0);
+            // Phase shifters in arms
+            circuit.phase(0, phase1);
+            circuit.cx(0, 1);
+            circuit.phase(1, phase2);
+            // Second beam splitter
+            circuit.h(0);
+            
+            visualizeCircuit(circuit);
+            setActiveButton('mach-zehnder-btn');
+            updateExperimentInfo('Mach-Zehnder Interferometer - Controlled interference with phase shifters');
+        }
+        
+        function quantumEraser() {
+            currentExperiment = 'quantum-eraser';
+            const circuit = new Q5M.Circuit(3);
+            
+            // Create entangled state
+            circuit.h(0);
+            circuit.cx(0, 1);
+            circuit.cx(0, 2);
+            
+            // Erase which-path information
+            circuit.h(1);
+            circuit.h(2);
+            
+            visualizeCircuit(circuit);
+            setActiveButton('quantum-eraser-btn');
+            updateExperimentInfo('Quantum Eraser - Restore interference by erasing which-path information');
+        }
+        
+        function phaseKickback() {
+            currentExperiment = 'phase-kickback';
+            const circuit = new Q5M.Circuit(2);
+            
+            circuit.h(0);
+            circuit.x(1);
+            circuit.cp(0, 1, relativePhase);
+            circuit.h(0);
+            
+            visualizeCircuit(circuit);
+            setActiveButton('phase-kickback-btn');
+            updateExperimentInfo('Phase Kickback - Control qubit acquires phase from target');
+        }
+        
+        function resetVisualization() {
+            currentExperiment = 'reset';
+            isAnimating = false;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            
+            // Clear canvases
+            ampCtx.clearRect(0, 0, ampCanvas.width, ampCanvas.height);
+            patternCtx.clearRect(0, 0, patternCanvas.width, patternCanvas.height);
+            
+            // Reset values
+            phase1 = 0;
+            phase2 = 0;
+            relativePhase = 0;
+            document.getElementById('phase1-slider').value = 0;
+            document.getElementById('phase2-slider').value = 0;
+            document.getElementById('relative-slider').value = 0;
+            updatePhase1(0);
+            updatePhase2(0);
+            updateRelativePhase(0);
+            
+            setActiveButton('reset-btn');
+            updateExperimentInfo('Reset - All phases set to zero');
+        }
+        
+        function visualizeCircuit(circuit) {
+            const result = circuit.execute();
+            const state = result.state;
+            const amplitudes = state.amplitudes();
+            const probabilities = state.probabilities();
+            
+            drawAmplitudeVisualization(amplitudes);
+            drawInterferencePattern(probabilities);
+            updateStateInfo(amplitudes, probabilities);
+        }
+        
+        function drawAmplitudeVisualization(amplitudes) {
+            ampCtx.clearRect(0, 0, ampCanvas.width, ampCanvas.height);
+            
+            const centerX = ampCanvas.width / 2;
+            const centerY = ampCanvas.height / 2;
+            const radius = 100;
+            
+            // Draw axes
+            ampCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ampCtx.beginPath();
+            ampCtx.moveTo(centerX - radius - 20, centerY);
+            ampCtx.lineTo(centerX + radius + 20, centerY);
+            ampCtx.moveTo(centerX, centerY - radius - 20);
+            ampCtx.lineTo(centerX, centerY + radius + 20);
+            ampCtx.stroke();
+            
+            // Draw unit circle
+            ampCtx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ampCtx.beginPath();
+            ampCtx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ampCtx.stroke();
+            
+            // Draw amplitudes as vectors
+            amplitudes.forEach((amp, i) => {
+                if (Math.abs(amp.re) > 0.01 || Math.abs(amp.im) > 0.01) {
+                    const x = centerX + amp.re * radius;
+                    const y = centerY - amp.im * radius;
+                    
+                    // Draw vector
+                    ampCtx.strokeStyle = `hsl(${i * 60}, 100%, 60%)`;
+                    ampCtx.lineWidth = 2;
+                    ampCtx.beginPath();
+                    ampCtx.moveTo(centerX, centerY);
+                    ampCtx.lineTo(x, y);
+                    ampCtx.stroke();
+                    
+                    // Draw point
+                    ampCtx.fillStyle = `hsl(${i * 60}, 100%, 60%)`;
+                    ampCtx.beginPath();
+                    ampCtx.arc(x, y, 5, 0, 2 * Math.PI);
+                    ampCtx.fill();
+                    
+                    // Label
+                    ampCtx.fillStyle = 'white';
+                    ampCtx.font = '12px monospace';
+                    ampCtx.fillText(`|${i.toString(2).padStart(2, '0')}⟩`, x + 10, y - 5);
+                }
+            });
+            
+            // Add labels
+            ampCtx.fillStyle = 'white';
+            ampCtx.font = '12px sans-serif';
+            ampCtx.fillText('Real', centerX + radius + 25, centerY);
+            ampCtx.fillText('Imag', centerX + 5, centerY - radius - 25);
+        }
+        
+        function drawInterferencePattern(probabilities) {
+            patternCtx.clearRect(0, 0, patternCanvas.width, patternCanvas.height);
+            
+            const width = patternCanvas.width;
+            const height = patternCanvas.height;
+            const numSlits = 40;
+            
+            // Create interference pattern
+            for (let x = 0; x < width; x++) {
+                for (let y = 0; y < height; y++) {
+                    // Calculate interference intensity
+                    const theta = (x - width/2) / width * Math.PI;
+                    const phi = phase1 - phase2 + relativePhase;
+                    
+                    let intensity;
+                    if (currentExperiment === 'double-slit') {
+                        // Double slit pattern
+                        const singleSlit = Math.sin(theta) / theta || 1;
+                        const doubleSlit = Math.cos(theta * numSlits/2 + phi/2);
+                        intensity = Math.abs(singleSlit * doubleSlit) ** 2;
+                    } else {
+                        // General pattern based on probabilities
+                        const idx = Math.floor(x * probabilities.length / width);
+                        intensity = probabilities[idx] || 0;
+                    }
+                    
+                    // Add time-varying component for animation
+                    if (isAnimating) {
+                        intensity *= (1 + 0.3 * Math.sin(animationFrame * 0.05 + x * 0.01));
+                    }
+                    
+                    // Convert to color
+                    const brightness = Math.floor(intensity * 255);
+                    patternCtx.fillStyle = `rgb(${brightness * 0.2}, ${brightness * 0.6}, ${brightness})`;
+                    patternCtx.fillRect(x, y, 1, 1);
+                }
+            }
+        }
+        
+        function updateStateInfo(amplitudes, probabilities) {
+            // Update amplitude displays
+            const amp1 = amplitudes[0] || { re: 0, im: 0 };
+            const amp2 = amplitudes[1] || { re: 0, im: 0 };
+            
+            document.getElementById('amp1').textContent = 
+                `${amp1.abs().toFixed(3)}∠${(Math.atan2(amp1.im, amp1.re) / Math.PI).toFixed(2)}π`;
+            document.getElementById('amp2').textContent = 
+                `${amp2.abs().toFixed(3)}∠${(Math.atan2(amp2.im, amp2.re) / Math.PI).toFixed(2)}π`;
+            
+            // Total probability (should be 1)
+            const totalProb = probabilities.reduce((a, b) => a + b, 0);
+            document.getElementById('total-prob').textContent = totalProb.toFixed(3);
+            
+            // Interference type
+            const phaseDiff = phase1 - phase2 + relativePhase;
+            const interferenceType = Math.cos(phaseDiff) > 0 ? 'Constructive' : 'Destructive';
+            document.getElementById('interference-type').textContent = interferenceType;
+            document.getElementById('interference-type').style.color = 
+                interferenceType === 'Constructive' ? '#10B981' : '#EF4444';
+        }
+        
+        function updateExperimentInfo(info) {
+            document.getElementById('experiment-info').textContent = info;
+        }
+        
+        // Animation functions
+        function toggleAnimation() {
+            isAnimating = !isAnimating;
+            document.getElementById('animation-text').textContent = 
+                isAnimating ? 'Stop Animation' : 'Start Animation';
+            
+            if (isAnimating) {
+                animate();
+            } else if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+        }
+        
+        function stepAnimation() {
+            animationFrame += 5;
+            redrawWithCurrentSettings();
+        }
+        
+        function animate() {
+            if (!isAnimating) return;
+            
+            animationFrame += animationSpeed;
+            redrawWithCurrentSettings();
+            
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        function redrawWithCurrentSettings() {
+            switch(currentExperiment) {
+                case 'single-slit': singleSlitPattern(); break;
+                case 'double-slit': doubleSlitPattern(); break;
+                case 'mach-zehnder': machZehnder(); break;
+                case 'quantum-eraser': quantumEraser(); break;
+                case 'phase-kickback': phaseKickback(); break;
+            }
+        }
+        
+        // Control functions
+        function updatePhase1(value) {
+            phase1 = (value / 100);
+            document.getElementById('phase1-value').textContent = 
+                `${(phase1 / Math.PI).toFixed(2)}π`;
+            redrawWithCurrentSettings();
+        }
+        
+        function updatePhase2(value) {
+            phase2 = (value / 100);
+            document.getElementById('phase2-value').textContent = 
+                `${(phase2 / Math.PI).toFixed(2)}π`;
+            redrawWithCurrentSettings();
+        }
+        
+        function updateRelativePhase(value) {
+            relativePhase = (value / 100);
+            document.getElementById('relative-phase').textContent = 
+                `${(relativePhase / Math.PI).toFixed(2)}π`;
+            redrawWithCurrentSettings();
+        }
+        
+        function updateSpeed(value) {
+            animationSpeed = value / 10;
+            document.getElementById('speed-value').textContent = `${animationSpeed.toFixed(1)}x`;
+        }
+        
+        function setActiveButton(btnId) {
+            document.querySelectorAll('button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const btn = document.getElementById(btnId);
+            if (btn) {
+                btn.classList.add('active');
+            }
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('load', () => {
+            console.log('Page loaded, initializing interference visualization...');
+            setTimeout(init, 500);
+        });
+    </script>
+</body>
+</html>

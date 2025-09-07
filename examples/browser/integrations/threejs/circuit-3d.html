@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q5M.js - 3D Quantum Circuit Visualization</title>
+<!-- SPDX-License-Identifier: MIT -->
+<!-- SPDX-FileCopyrightText: Copyright 2025 OpenQL Project -->
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .controls-panel {
+            width: 380px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(15px);
+            overflow-y: auto;
+        }
+
+        .visualization-panel {
+            flex: 1;
+            position: relative;
+        }
+
+        h1 {
+            margin: 0 0 20px 0;
+            font-size: 26px;
+            color: #00bcd4;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0, 188, 212, 0.3);
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding: 18px;
+            background: rgba(0, 188, 212, 0.08);
+            border-radius: 10px;
+            border-left: 4px solid #00bcd4;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .section h3 {
+            margin: 0 0 12px 0;
+            color: #4fc3f7;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #e1f5fe;
+            font-weight: 500;
+        }
+
+        input[type="number"] {
+            width: 70px;
+            padding: 8px;
+            border: 1px solid #00838f;
+            background: rgba(0, 188, 212, 0.1);
+            color: white;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #00bcd4;
+            box-shadow: 0 0 8px rgba(0, 188, 212, 0.3);
+        }
+
+        button {
+            background: linear-gradient(45deg, #00bcd4, #0097a7);
+            border: none;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 4px 6px 4px 0;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 188, 212, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 188, 212, 0.4);
+            background: linear-gradient(45deg, #26c6da, #00acc1);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .gate-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .gate-grid button {
+            margin: 0;
+            padding: 8px 4px;
+            font-size: 12px;
+            min-width: 45px;
+        }
+
+        .qubit-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .circuit-display {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #00838f;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.6;
+            max-height: 200px;
+            overflow-y: auto;
+            color: #b3e5fc;
+        }
+
+        .circuit-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: rgba(0, 150, 136, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #004d40;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #4db6ac;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #80cbc4;
+            margin-top: 4px;
+        }
+
+        #info-panel {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 18px;
+            border-radius: 10px;
+            backdrop-filter: blur(15px);
+            font-size: 13px;
+            max-width: 280px;
+            border: 1px solid #00838f;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .info-section {
+            margin-bottom: 12px;
+        }
+
+        .info-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-title {
+            color: #00bcd4;
+            font-weight: bold;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .info-item {
+            margin: 4px 0;
+            font-size: 12px;
+            color: #b3e5fc;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+
+        #canvas-container:active {
+            cursor: grabbing;
+        }
+
+        .educational-note {
+            background: rgba(76, 175, 80, 0.15);
+            border-left: 3px solid #4caf50;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 12px;
+            line-height: 1.5;
+            border-radius: 6px;
+        }
+
+        .two-qubit-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .warning-message {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid #ff8f00;
+            color: #ffb74d;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="controls-panel">
+            <h1>3D Circuit</h1>
+            
+            <div class="section">
+                <h3>Circuit Setup</h3>
+                <div class="control-group">
+                    <label>Number of Qubits:</label>
+                    <input type="number" id="num-qubits" value="2" min="1" max="4" onchange="initializeCircuit()">
+                    <button onclick="clearCircuit()">Clear Circuit</button>
+                </div>
+                <div class="control-group">
+                    <label>Circuit Depth: <span id="depth-display">0</span></label>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Single-Qubit Gates</h3>
+                <div class="control-group">
+                    <label>Target Qubit:</label>
+                    <input type="number" id="target-qubit" value="0" min="0" max="1">
+                </div>
+                <div class="gate-grid">
+                    <button onclick="addGate('H')">H</button>
+                    <button onclick="addGate('X')">X</button>
+                    <button onclick="addGate('Y')">Y</button>
+                    <button onclick="addGate('Z')">Z</button>
+                    <button onclick="addGate('S')">S</button>
+                    <button onclick="addGate('T')">T</button>
+                    <button onclick="addGate('Sdg')">S†</button>
+                    <button onclick="addGate('Tdg')">T†</button>
+                </div>
+                <div class="control-group">
+                    <label>Rotation Angle (radians):</label>
+                    <input type="number" id="rotation-angle" value="1.57" step="0.1" style="width: 100px;">
+                </div>
+                <div class="gate-grid">
+                    <button onclick="addRotationGate('RX')">RX</button>
+                    <button onclick="addRotationGate('RY')">RY</button>
+                    <button onclick="addRotationGate('RZ')">RZ</button>
+                    <button onclick="addPhaseGate()">Phase</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Two-Qubit Gates</h3>
+                <div class="two-qubit-controls">
+                    <label>Control:</label>
+                    <input type="number" id="control-qubit" value="0" min="0" max="1" style="width: 50px;">
+                    <label>Target:</label>
+                    <input type="number" id="target-qubit-2" value="1" min="0" max="1" style="width: 50px;">
+                </div>
+                <div class="gate-grid">
+                    <button onclick="addTwoQubitGate('CNOT')">CNOT</button>
+                    <button onclick="addTwoQubitGate('CZ')">CZ</button>
+                    <button onclick="addTwoQubitGate('CY')">CY</button>
+                    <button onclick="addTwoQubitGate('SWAP')">SWAP</button>
+                </div>
+                <div class="control-group">
+                    <label>CP Rotation Angle (radians):</label>
+                    <input type="number" id="cp-rotation-angle" value="1.57" step="0.1" style="width: 100px;">
+                </div>
+                <div class="gate-grid">
+                    <button onclick="addControlPhaseGate()">CP</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Preset Circuits</h3>
+                <button onclick="createBellState()">Bell State</button>
+                <button onclick="createGHZState()">GHZ State</button>
+                <button onclick="createQFTCircuit()">QFT</button>
+                <button onclick="createRandomCircuit()">Random Circuit</button>
+            </div>
+
+            <div class="section">
+                <h3>Circuit Visualization</h3>
+                <button onclick="executeCircuit()">Execute & Animate</button>
+                <button onclick="stepThrough()" id="step-button">Step Through</button>
+                <button onclick="resetAnimation()">Reset View</button>
+                <div class="circuit-stats">
+                    <div class="stat-card">
+                        <span class="stat-value" id="gate-count">0</span>
+                        <div class="stat-label">Gates</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="circuit-depth">0</span>
+                        <div class="stat-label">Depth</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Circuit Code</h3>
+                <div class="circuit-display" id="circuit-code">
+                    // Empty circuit<br>
+                    const circuit = new Q5M.Circuit(2);
+                </div>
+                
+                <div class="educational-note">
+                    <strong>3D Circuit Visualization:</strong><br>
+                    Gates appear as 3D objects along qubit lines (horizontal bars). 
+                    Time flows from left to right, and different qubits are separated vertically. 
+                    Gate colors indicate types: blue for single-qubit, red for two-qubit gates.
+                </div>
+            </div>
+        </div>
+
+        <div class="visualization-panel">
+            <div id="canvas-container"></div>
+            <div id="info-panel">
+                <div class="info-section">
+                    <div class="info-title">Controls:</div>
+                    <div class="info-item">• Mouse: Rotate camera</div>
+                    <div class="info-item">• Wheel: Zoom in/out</div>
+                    <div class="info-item">• Click gates for details</div>
+                </div>
+                <div class="info-section">
+                    <div class="info-title">Visualization Legend:</div>
+                    <div class="info-item">• Blue bars: Qubit lines</div>
+                    <div class="info-item">• Cyan cubes: Single gates</div>
+                    <div class="info-item">• Red shapes: Two-qubit gates</div>
+                    <div class="info-item">• Golden spheres: Measurements</div>
+                </div>
+                <div class="info-section">
+                    <div class="info-title">Current State:</div>
+                    <div class="info-item">Qubits: <span id="info-qubits">2</span></div>
+                    <div class="info-item">Gates: <span id="info-gates">0</span></div>
+                    <div class="info-item">Step: <span id="info-step">0</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Q5M.js CDN -->
+    <script src="../../../../dist/q5m.min.js"></script>
+    <script>
+        // Fallback to CDN if local file fails to load
+        if (typeof Q5M === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/q5mjs@latest/dist/q5m.min.js';
+            document.head.appendChild(script);
+        }
+    </script>
+
+    <script>
+        // Three.js scene components
+        let scene, camera, renderer;
+        let circuitGroup, qubitLines = [];
+        let gateObjects = [];
+        let gateGroups = []; // Array to store gate object groups for each step
+        let animationStep = 0;
+        let isAnimating = false;
+
+        // Quantum circuit state
+        let numQubits = 2;
+        let circuit = null;
+        let gateHistory = [];
+
+        // Materials
+        let materials = {
+            qubitLine: new THREE.MeshPhongMaterial({ color: 0x00bcd4 }),
+            singleGate: new THREE.MeshPhongMaterial({ color: 0x42a5f5 }),
+            twoQubitGate: new THREE.MeshPhongMaterial({ color: 0xf44336 }),
+            measurement: new THREE.MeshPhongMaterial({ color: 0xffd700 }),
+            controlLine: new THREE.LineBasicMaterial({ color: 0xff5722, linewidth: 2 })
+        };
+
+        function init() {
+            const container = document.getElementById('canvas-container');
+            
+            // Scene setup
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0a1a);
+            
+            // Camera setup
+            camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(8, 6, 12);
+            
+            // Renderer setup
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(renderer.domElement);
+            
+            // Lighting
+            setupLighting();
+            
+            // Controls
+            setupMouseControls();
+            
+            // Initialize circuit
+            initializeCircuit();
+            
+            // Handle window resize
+            window.addEventListener('resize', onWindowResize);
+            
+            // Start render loop
+            animate();
+        }
+
+        function setupLighting() {
+            // Ambient light
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.3);
+            scene.add(ambientLight);
+            
+            // Main directional light
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
+            directionalLight.position.set(10, 10, 5);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            scene.add(directionalLight);
+            
+            // Point lights for color
+            const pointLight1 = new THREE.PointLight(0x00bcd4, 0.5, 20);
+            pointLight1.position.set(-5, 5, 5);
+            scene.add(pointLight1);
+            
+            const pointLight2 = new THREE.PointLight(0xf44336, 0.3, 15);
+            pointLight2.position.set(10, 2, -5);
+            scene.add(pointLight2);
+        }
+
+        function setupMouseControls() {
+            let isMouseDown = false;
+            let mouseX = 0, mouseY = 0;
+            
+            renderer.domElement.addEventListener('mousedown', (event) => {
+                isMouseDown = true;
+                mouseX = event.clientX;
+                mouseY = event.clientY;
+            });
+            
+            renderer.domElement.addEventListener('mouseup', () => {
+                isMouseDown = false;
+            });
+            
+            renderer.domElement.addEventListener('mousemove', (event) => {
+                if (!isMouseDown) return;
+                
+                const deltaX = event.clientX - mouseX;
+                const deltaY = event.clientY - mouseY;
+                
+                // Rotate camera around the circuit
+                const spherical = new THREE.Spherical();
+                spherical.setFromVector3(camera.position);
+                
+                spherical.theta -= deltaX * 0.01;
+                spherical.phi += deltaY * 0.01;
+                spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, spherical.phi));
+                
+                camera.position.setFromSpherical(spherical);
+                camera.lookAt(circuitGroup.position);
+                
+                mouseX = event.clientX;
+                mouseY = event.clientY;
+            });
+            
+            // Mouse wheel zoom
+            renderer.domElement.addEventListener('wheel', (event) => {
+                const scale = event.deltaY > 0 ? 1.1 : 0.9;
+                camera.position.multiplyScalar(scale);
+                camera.position.clampLength(5, 50);
+            });
+        }
+
+        function initializeCircuit() {
+            numQubits = parseInt(document.getElementById('num-qubits').value);
+            
+            // Update UI limits
+            document.getElementById('target-qubit').max = numQubits - 1;
+            document.getElementById('control-qubit').max = numQubits - 1;
+            document.getElementById('target-qubit-2').max = numQubits - 1;
+            
+            // Clear existing visualization
+            if (circuitGroup) {
+                scene.remove(circuitGroup);
+            }
+            
+            // Create new circuit group
+            circuitGroup = new THREE.Group();
+            scene.add(circuitGroup);
+            
+            // Initialize quantum circuit
+            circuit = new Q5M.Circuit(numQubits);
+            gateHistory = [];
+            gateObjects = [];
+            gateGroups = [];
+            
+            // Create qubit lines
+            createQubitLines();
+            
+            // Update displays
+            updateCircuitDisplay();
+            updateInfoPanel();
+            
+            // Reset camera to look at circuit
+            camera.lookAt(circuitGroup.position);
+        }
+
+        function createQubitLines() {
+            qubitLines = [];
+            const lineLength = 12;
+            const qubitSpacing = 2;
+            
+            for (let i = 0; i < numQubits; i++) {
+                const geometry = new THREE.CylinderGeometry(0.05, 0.05, lineLength);
+                const line = new THREE.Mesh(geometry, materials.qubitLine);
+                
+                line.rotation.z = Math.PI / 2;
+                line.position.y = (numQubits - 1 - i) * qubitSpacing - (numQubits - 1) * qubitSpacing / 2;
+                // Position wire to start at the left and extend right
+                line.position.x = lineLength / 2 - 6; // Start 6 units from left
+                line.userData = { originalLength: lineLength }; // Store original length
+                
+                circuitGroup.add(line);
+                qubitLines.push(line);
+            }
+        }
+        
+        function checkAndExtendWires(gatePosition) {
+            const gateSpacing = 1.5;
+            const currentWireLength = qubitLines[0]?.userData?.originalLength || 12;
+            
+            // Calculate actual gate X position
+            const gateXPosition = -4 + gatePosition * gateSpacing;
+            
+            // Calculate wire boundaries (left edge is at x = -6)
+            const wireLeftEdge = -6;
+            const wireRightEdge = wireLeftEdge + currentWireLength;
+            
+            // Check if gate position is within wire bounds (with small buffer)
+            const bufferZone = 2; // 2 units buffer before extending
+            
+            if (gateXPosition > (wireRightEdge - bufferZone)) {
+                // Need to extend - calculate new length to accommodate gate + extra buffer
+                const extraBuffer = 8; // 8 units extra space after the gate
+                const newLength = (gateXPosition - wireLeftEdge) + extraBuffer;
+                extendWires(newLength);
+            }
+        }
+        
+        function extendWires(newLength) {
+            const qubitSpacing = 2;
+            
+            // Remove old wire meshes from scene
+            qubitLines.forEach(line => {
+                circuitGroup.remove(line);
+            });
+            
+            // Create new longer wires extending to the right
+            qubitLines = [];
+            for (let i = 0; i < numQubits; i++) {
+                const geometry = new THREE.CylinderGeometry(0.05, 0.05, newLength);
+                const line = new THREE.Mesh(geometry, materials.qubitLine);
+                
+                line.rotation.z = Math.PI / 2;
+                line.position.y = (numQubits - 1 - i) * qubitSpacing - (numQubits - 1) * qubitSpacing / 2;
+                // Position wire to start at fixed left position and extend right
+                line.position.x = newLength / 2 - 6; // Always start 6 units from left
+                line.userData = { originalLength: newLength };
+                
+                circuitGroup.add(line);
+                qubitLines.push(line);
+            }
+        }
+
+        function addGate(gateType) {
+            const targetQubit = parseInt(document.getElementById('target-qubit').value);
+            
+            if (targetQubit >= numQubits) {
+                alert(`Target qubit must be less than ${numQubits}`);
+                return;
+            }
+            
+            // Add to quantum circuit
+            switch (gateType) {
+                case 'H': circuit.h(targetQubit); break;
+                case 'X': circuit.x(targetQubit); break;
+                case 'Y': circuit.y(targetQubit); break;
+                case 'Z': circuit.z(targetQubit); break;
+                case 'S': circuit.s(targetQubit); break;
+                case 'T': circuit.t(targetQubit); break;
+                case 'Sdg': circuit.sdg(targetQubit); break;
+                case 'Tdg': circuit.tdg(targetQubit); break;
+            }
+            
+            // Add to visualization
+            addSingleQubitGate(gateType, targetQubit);
+            
+            // Update displays
+            updateCircuitDisplay();
+            updateInfoPanel();
+        }
+
+        function addRotationGate(gateType) {
+            const targetQubit = parseInt(document.getElementById('target-qubit').value);
+            const angle = parseFloat(document.getElementById('rotation-angle').value);
+            
+            if (targetQubit >= numQubits) {
+                alert(`Target qubit must be less than ${numQubits}`);
+                return;
+            }
+            
+            // Add to quantum circuit
+            switch (gateType) {
+                case 'RX': circuit.rx(targetQubit, angle); break;
+                case 'RY': circuit.ry(targetQubit, angle); break;
+                case 'RZ': circuit.rz(targetQubit, angle); break;
+            }
+            
+            // Add to visualization
+            addSingleQubitGate(`${gateType}(${angle.toFixed(2)})`, targetQubit);
+            
+            // Update displays
+            updateCircuitDisplay();
+            updateInfoPanel();
+        }
+
+        function addPhaseGate() {
+            const targetQubit = parseInt(document.getElementById('target-qubit').value);
+            const angle = parseFloat(document.getElementById('rotation-angle').value);
+            
+            if (targetQubit >= numQubits) {
+                alert(`Target qubit must be less than ${numQubits}`);
+                return;
+            }
+            
+            circuit.phase(targetQubit, angle);
+            addSingleQubitGate(`P(${angle.toFixed(2)})`, targetQubit);
+            
+            updateCircuitDisplay();
+            updateInfoPanel();
+        }
+
+        function addTwoQubitGate(gateType) {
+            const controlQubit = parseInt(document.getElementById('control-qubit').value);
+            const targetQubit = parseInt(document.getElementById('target-qubit-2').value);
+            
+            if (controlQubit >= numQubits || targetQubit >= numQubits) {
+                alert(`Qubit indices must be less than ${numQubits}`);
+                return;
+            }
+            
+            if (controlQubit === targetQubit) {
+                alert('Control and target qubits must be different');
+                return;
+            }
+            
+            // Add to quantum circuit
+            switch (gateType) {
+                case 'CNOT': circuit.cnot(controlQubit, targetQubit); break;
+                case 'CZ': circuit.cz(controlQubit, targetQubit); break;
+                case 'CY': circuit.cy(controlQubit, targetQubit); break;
+                case 'SWAP': circuit.swap(controlQubit, targetQubit); break;
+            }
+            
+            // Add to visualization
+            addTwoQubitGateVisualization(gateType, controlQubit, targetQubit);
+            
+            // Update displays
+            updateCircuitDisplay();
+            updateInfoPanel();
+        }
+        
+        function addControlPhaseGate() {
+            const controlQubit = parseInt(document.getElementById('control-qubit').value);
+            const targetQubit = parseInt(document.getElementById('target-qubit-2').value);
+            const angle = parseFloat(document.getElementById('cp-rotation-angle').value);
+            
+            if (controlQubit >= numQubits || targetQubit >= numQubits) {
+                alert(`Qubit indices must be less than ${numQubits}`);
+                return;
+            }
+            
+            if (controlQubit === targetQubit) {
+                alert('Control and target qubits must be different');
+                return;
+            }
+            
+            // Add controlled phase gate
+            try {
+                circuit.cp(controlQubit, targetQubit, angle);
+            } catch (error) {
+                // Fallback to controlled Z if cp method doesn't exist
+                circuit.cz(controlQubit, targetQubit);
+                console.warn('CP gate not available, using CZ as fallback');
+            }
+            
+            // Add to visualization
+            addTwoQubitGateVisualization('CP', controlQubit, targetQubit, angle);
+            
+            // Update displays
+            updateCircuitDisplay();
+            updateInfoPanel();
+        }
+
+        function addSingleQubitGate(gateType, qubit) {
+            const gatePosition = gateGroups.length; // Use gateGroups.length instead of gateHistory.length
+            const qubitSpacing = 2;
+            const gateSpacing = 1.5;
+            
+            // Check if we need to extend wires
+            checkAndExtendWires(gatePosition);
+            
+            // Create gate geometry and material based on gate type
+            let geometry, material, gate;
+            const gateBase = gateType.split('(')[0]; // Remove parameters like "RX(1.57)"
+            
+            switch (gateBase) {
+                case 'H':
+                    // Hadamard: Octahedron (diamond shape), blue
+                    geometry = new THREE.OctahedronGeometry(0.4);
+                    material = new THREE.MeshLambertMaterial({ color: 0x2196F3 });
+                    gate = new THREE.Mesh(geometry, material);
+                    break;
+                case 'X':
+                    // Pauli-X: Cylinder along Z-axis, green
+                    geometry = new THREE.CylinderGeometry(0.3, 0.3, 0.6, 8);
+                    material = new THREE.MeshLambertMaterial({ color: 0x4CAF50 });
+                    gate = new THREE.Mesh(geometry, material);
+                    // Rotate to align with Z-axis (90 degrees around X-axis)
+                    gate.rotation.x = Math.PI / 2;
+                    break;
+                case 'Y':
+                    // Pauli-Y: Cylinder along Y-axis, green  
+                    geometry = new THREE.CylinderGeometry(0.3, 0.3, 0.6, 8);
+                    material = new THREE.MeshLambertMaterial({ color: 0x4CAF50 });
+                    gate = new THREE.Mesh(geometry, material);
+                    // Default orientation is already along Y-axis
+                    break;
+                case 'Z':
+                    // Pauli-Z: Cylinder along X-axis, green
+                    geometry = new THREE.CylinderGeometry(0.3, 0.3, 0.6, 8);
+                    material = new THREE.MeshLambertMaterial({ color: 0x4CAF50 });
+                    gate = new THREE.Mesh(geometry, material);
+                    // Rotate to align with X-axis (90 degrees around Z-axis)
+                    gate.rotation.z = Math.PI / 2;
+                    break;
+                case 'S':
+                    // S gate: Tetrahedron, orange
+                    geometry = new THREE.TetrahedronGeometry(0.4);
+                    material = new THREE.MeshLambertMaterial({ color: 0xFF9800 });
+                    gate = new THREE.Mesh(geometry, material);
+                    break;
+                case 'Sdg':
+                    // S dagger gate: Tetrahedron, dark orange
+                    geometry = new THREE.TetrahedronGeometry(0.4);
+                    material = new THREE.MeshLambertMaterial({ color: 0xE65100 });
+                    gate = new THREE.Mesh(geometry, material);
+                    break;
+                case 'T':
+                    // T gate: Icosahedron, pink
+                    geometry = new THREE.IcosahedronGeometry(0.4);
+                    material = new THREE.MeshLambertMaterial({ color: 0xE91E63 });
+                    gate = new THREE.Mesh(geometry, material);
+                    break;
+                case 'Tdg':
+                    // T dagger gate: Icosahedron, dark pink
+                    geometry = new THREE.IcosahedronGeometry(0.4);
+                    material = new THREE.MeshLambertMaterial({ color: 0xAD1457 });
+                    gate = new THREE.Mesh(geometry, material);
+                    break;
+                case 'RX':
+                case 'RY':
+                case 'RZ':
+                    // Rotation gates: Torus, cyan/yellow/lime
+                    geometry = new THREE.TorusGeometry(0.3, 0.15, 8, 16);
+                    const rotColors = { 'RX': 0x00BCD4, 'RY': 0xFFEB3B, 'RZ': 0xCDDC39 };
+                    material = new THREE.MeshLambertMaterial({ color: rotColors[gateBase] });
+                    gate = new THREE.Mesh(geometry, material);
+                    break;
+                case 'P':
+                    // Phase gate: Dodecahedron, teal
+                    geometry = new THREE.DodecahedronGeometry(0.4);
+                    material = new THREE.MeshLambertMaterial({ color: 0x009688 });
+                    gate = new THREE.Mesh(geometry, material);
+                    break;
+                default:
+                    // Default: Box, gray
+                    geometry = new THREE.BoxGeometry(0.6, 0.6, 0.6);
+                    material = new THREE.MeshLambertMaterial({ color: 0x757575 });
+                    gate = new THREE.Mesh(geometry, material);
+            }
+            
+            // Position the gate
+            gate.position.x = -4 + gatePosition * gateSpacing;
+            gate.position.y = (numQubits - 1 - qubit) * qubitSpacing - (numQubits - 1) * qubitSpacing / 2;
+            gate.position.z = 0;
+            
+            // Add gate label (simplified)
+            gate.userData = { type: gateType, qubit: qubit, step: gatePosition };
+            
+            circuitGroup.add(gate);
+            gateObjects.push(gate);
+            
+            // Store gate group for animation (single qubit gate has only one object)
+            gateGroups.push([gate]);
+            
+            gateHistory.push({ type: gateType, qubits: [qubit] });
+        }
+
+        function addTwoQubitGateVisualization(gateType, control, target, phase = null) {
+            const gatePosition = gateGroups.length; // Use gateGroups.length instead of gateHistory.length
+            const qubitSpacing = 2;
+            const gateSpacing = 1.5;
+            const xPos = -4 + gatePosition * gateSpacing;
+            
+            // Check if we need to extend wires
+            checkAndExtendWires(gatePosition);
+            
+            if (gateType === 'SWAP') {
+                // Create SWAP gate visualization with independent materials
+                const geometry = new THREE.CylinderGeometry(0.2, 0.2, Math.abs(control - target) * qubitSpacing);
+                const swapLineMaterial = new THREE.MeshLambertMaterial({ color: 0xf44336 }); // Red
+                const swapLine = new THREE.Mesh(geometry, swapLineMaterial);
+                
+                swapLine.position.x = xPos;
+                swapLine.position.y = (numQubits - 1 - (control + target) / 2) * qubitSpacing - (numQubits - 1) * qubitSpacing / 2;
+                swapLine.position.z = 0;
+                
+                circuitGroup.add(swapLine);
+                gateObjects.push(swapLine);
+                
+                // Add SWAP symbols with independent materials
+                const swapGeometry = new THREE.BoxGeometry(0.4, 0.4, 0.4);
+                const swap1Material = new THREE.MeshLambertMaterial({ color: 0xf44336 }); // Red
+                const swap2Material = new THREE.MeshLambertMaterial({ color: 0xf44336 }); // Red
+                const swap1 = new THREE.Mesh(swapGeometry, swap1Material);
+                const swap2 = new THREE.Mesh(swapGeometry, swap2Material);
+                
+                swap1.position.x = xPos;
+                swap1.position.y = (numQubits - 1 - control) * qubitSpacing - (numQubits - 1) * qubitSpacing / 2;
+                swap2.position.x = xPos;
+                swap2.position.y = (numQubits - 1 - target) * qubitSpacing - (numQubits - 1) * qubitSpacing / 2;
+                
+                circuitGroup.add(swap1);
+                circuitGroup.add(swap2);
+                gateObjects.push(swap1);
+                gateObjects.push(swap2);
+                
+                // Store gate group for animation (SWAP gate has three objects)
+                gateGroups.push([swapLine, swap1, swap2]);
+                gateHistory.push({ type: gateType, qubits: [control, target] });
+            } else {
+                // Create control-target gate visualization
+                const controlY = (numQubits - 1 - control) * qubitSpacing - (numQubits - 1) * qubitSpacing / 2;
+                const targetY = (numQubits - 1 - target) * qubitSpacing - (numQubits - 1) * qubitSpacing / 2;
+                
+                // Control point (small sphere) with independent material
+                const controlGeometry = new THREE.SphereGeometry(0.15);
+                const controlMaterial = new THREE.MeshLambertMaterial({ color: 0xf44336 }); // Red
+                const controlPoint = new THREE.Mesh(controlGeometry, controlMaterial);
+                controlPoint.position.set(xPos, controlY, 0);
+                circuitGroup.add(controlPoint);
+                gateObjects.push(controlPoint);
+                
+                // Target gate with independent materials
+                let targetGate;
+                if (gateType === 'CNOT') {
+                    // CNOT target: X gate cylinder along Z-axis
+                    const targetGeometry = new THREE.CylinderGeometry(0.3, 0.3, 0.6, 8);
+                    const cnotMaterial = new THREE.MeshLambertMaterial({ color: 0xf44336 }); // Red
+                    targetGate = new THREE.Mesh(targetGeometry, cnotMaterial);
+                    // Rotate to align with Z-axis (90 degrees around X-axis)
+                    targetGate.rotation.x = Math.PI / 2;
+                } else if (gateType === 'CY') {
+                    // CY target: Y gate cylinder along Y-axis
+                    const targetGeometry = new THREE.CylinderGeometry(0.3, 0.3, 0.6, 8);
+                    const cyMaterial = new THREE.MeshLambertMaterial({ color: 0xf44336 }); // Red
+                    targetGate = new THREE.Mesh(targetGeometry, cyMaterial);
+                    // Default orientation is already along Y-axis
+                } else if (gateType === 'CZ') {
+                    // CZ target: Z gate cylinder along X-axis
+                    const targetGeometry = new THREE.CylinderGeometry(0.3, 0.3, 0.6, 8);
+                    const czMaterial = new THREE.MeshLambertMaterial({ color: 0xf44336 }); // Red
+                    targetGate = new THREE.Mesh(targetGeometry, czMaterial);
+                    // Rotate to align with X-axis (90 degrees around Z-axis)
+                    targetGate.rotation.z = Math.PI / 2;
+                } else if (gateType === 'CP') {
+                    // CP target: Dodecahedron shape (same as Phase gate) with distinct color
+                    const targetGeometry = new THREE.DodecahedronGeometry(0.35);
+                    const cpMaterial = new THREE.MeshLambertMaterial({ color: 0xFF9800 }); // Orange
+                    targetGate = new THREE.Mesh(targetGeometry, cpMaterial);
+                } else {
+                    // Other controlled gates (default)
+                    const targetGeometry = new THREE.BoxGeometry(0.6, 0.6, 0.6);
+                    const defaultMaterial = new THREE.MeshLambertMaterial({ color: 0xf44336 }); // Red
+                    targetGate = new THREE.Mesh(targetGeometry, defaultMaterial);
+                }
+                
+                targetGate.position.set(xPos, targetY, 0);
+                circuitGroup.add(targetGate);
+                gateObjects.push(targetGate);
+                
+                // Control line with independent material
+                const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(xPos, controlY, 0),
+                    new THREE.Vector3(xPos, targetY, 0)
+                ]);
+                const lineMaterial = new THREE.LineBasicMaterial({ color: 0x757575 }); // Gray
+                const controlLine = new THREE.Line(lineGeometry, lineMaterial);
+                circuitGroup.add(controlLine);
+                gateObjects.push(controlLine);
+                
+                // Store gate group for animation (control-target gate has three objects)
+                gateGroups.push([controlPoint, targetGate, controlLine]);
+                gateHistory.push({ type: gateType, qubits: [control, target] });
+            }
+        }
+
+        function clearCircuit() {
+            // Remove all gate objects
+            gateObjects.forEach(obj => circuitGroup.remove(obj));
+            gateObjects = [];
+            gateGroups = [];
+            gateHistory = [];
+            
+            // Reset circuit
+            circuit = new Q5M.Circuit(numQubits);
+            
+            // Update displays
+            updateCircuitDisplay();
+            updateInfoPanel();
+        }
+
+        function createBellState() {
+            clearCircuit();
+            if (numQubits >= 2) {
+                circuit.h(0);
+                circuit.cnot(0, 1);
+                
+                addSingleQubitGate('H', 0);
+                addTwoQubitGateVisualization('CNOT', 0, 1);
+                
+                updateCircuitDisplay();
+                updateInfoPanel();
+            }
+        }
+
+        function createGHZState() {
+            clearCircuit();
+            if (numQubits >= 3) {
+                circuit.h(0);
+                for (let i = 1; i < numQubits; i++) {
+                    circuit.cnot(0, i);
+                }
+                
+                addSingleQubitGate('H', 0);
+                for (let i = 1; i < numQubits; i++) {
+                    addTwoQubitGateVisualization('CNOT', 0, i);
+                }
+                
+                updateCircuitDisplay();
+                updateInfoPanel();
+            }
+        }
+
+        function createQFTCircuit() {
+            clearCircuit();
+            
+            // Try to use Q5m's built-in QFT first
+            try {
+                // Check if Q5m has a built-in QFT method
+                if (typeof circuit.qft === 'function') {
+                    // Use built-in QFT
+                    circuit.qft();
+                    
+                    // For visualization, create a simplified representation
+                    addSingleQubitGate('QFT', 0);
+                    for (let i = 1; i < numQubits; i++) {
+                        addTwoQubitGateVisualization('CZ', 0, i);
+                    }
+                } else if (typeof circuit.QFT === 'function') {
+                    // Alternative method name
+                    circuit.QFT();
+                    
+                    // For visualization, create a simplified representation
+                    addSingleQubitGate('QFT', 0);
+                    for (let i = 1; i < numQubits; i++) {
+                        addTwoQubitGateVisualization('CZ', 0, i);
+                    }
+                } else {
+                    // Fallback: Implement QFT manually
+                    implementManualQFT();
+                }
+            } catch (error) {
+                console.warn('Built-in QFT not available, using manual implementation:', error);
+                implementManualQFT();
+            }
+            
+            updateCircuitDisplay();
+            updateInfoPanel();
+        }
+        
+        function implementManualQFT() {
+            // Manual QFT implementation as fallback
+            for (let i = 0; i < numQubits; i++) {
+                // Apply Hadamard gate to current qubit
+                circuit.h(i);
+                addSingleQubitGate('H', i);
+                
+                // Apply controlled phase rotations
+                for (let j = i + 1; j < numQubits; j++) {
+                    const phase = Math.PI / Math.pow(2, j - i);
+                    
+                    // Add controlled phase gate - using cz as approximation if cp not available
+                    try {
+                        circuit.cp(i, j, phase);
+                    } catch (error) {
+                        // Fallback to controlled Z if cp method doesn't exist
+                        circuit.cz(i, j);
+                    }
+                    
+                    // For visualization, use CP gates to represent controlled phase
+                    addTwoQubitGateVisualization('CP', i, j, phase);
+                }
+            }
+            
+            // QFT typically includes bit reversal at the end
+            // For visualization purposes, we'll add SWAP gates to show this concept
+            for (let i = 0; i < Math.floor(numQubits / 2); i++) {
+                const j = numQubits - 1 - i;
+                if (i !== j) {
+                    circuit.swap(i, j);
+                    addTwoQubitGateVisualization('SWAP', i, j);
+                }
+            }
+        }
+
+        function createRandomCircuit() {
+            clearCircuit();
+            const gates = ['H', 'X', 'Y', 'Z', 'S', 'T'];
+            const numGates = 5 + Math.floor(Math.random() * 5);
+            
+            for (let i = 0; i < numGates; i++) {
+                if (Math.random() < 0.7) {
+                    // Single qubit gate
+                    const gate = gates[Math.floor(Math.random() * gates.length)];
+                    const qubit = Math.floor(Math.random() * numQubits);
+                    
+                    switch (gate) {
+                        case 'H': circuit.h(qubit); break;
+                        case 'X': circuit.x(qubit); break;
+                        case 'Y': circuit.y(qubit); break;
+                        case 'Z': circuit.z(qubit); break;
+                        case 'S': circuit.s(qubit); break;
+                        case 'T': circuit.t(qubit); break;
+                    }
+                    
+                    addSingleQubitGate(gate, qubit);
+                } else if (numQubits >= 2) {
+                    // Two qubit gate
+                    const control = Math.floor(Math.random() * numQubits);
+                    let target = Math.floor(Math.random() * numQubits);
+                    while (target === control) {
+                        target = Math.floor(Math.random() * numQubits);
+                    }
+                    
+                    circuit.cnot(control, target);
+                    addTwoQubitGateVisualization('CNOT', control, target);
+                }
+            }
+            
+            updateCircuitDisplay();
+            updateInfoPanel();
+        }
+
+        function executeCircuit() {
+            if (gateHistory.length === 0) {
+                alert('No gates in circuit to execute');
+                return;
+            }
+            
+            try {
+                const result = circuit.execute();
+                
+                // Start animation
+                animateExecution();
+            } catch (error) {
+                console.error('Circuit execution failed:', error);
+                alert('Circuit execution failed: ' + error.message);
+            }
+        }
+
+        function animateExecution() {
+            isAnimating = true;
+            animationStep = 0;
+            
+            // Reset all gate colors
+            gateObjects.forEach(obj => {
+                if (obj.material && obj.material.color) {
+                    obj.material.color.setHex(obj.userData.originalColor || 0x42a5f5);
+                }
+            });
+            
+            animateNextStep();
+        }
+
+        function animateNextStep() {
+            if (animationStep < gateGroups.length && isAnimating) {
+                const gateGroup = gateGroups[animationStep];
+                
+                // Highlight all objects in the current gate group
+                gateGroup.forEach((gate, idx) => {
+                    if (gate.material) {
+                        // Handle both Mesh and Line objects
+                        if (gate.material.color) {
+                            // Store original color
+                            if (!gate.userData.originalColor) {
+                                gate.userData.originalColor = gate.material.color.getHex();
+                            }
+                            // Highlight current gate
+                            gate.material.color.setHex(0x00ff00);
+                        }
+                    }
+                });
+                
+                animationStep++;
+                setTimeout(() => {
+                    // Reset colors for the current gate group
+                    gateGroup.forEach(gate => {
+                        if (gate.material && gate.material.color) {
+                            gate.material.color.setHex(gate.userData.originalColor || 0x42a5f5);
+                        }
+                    });
+                    animateNextStep();
+                }, 500);
+            } else {
+                isAnimating = false;
+                animationStep = 0;
+            }
+        }
+
+        function stepThrough() {
+            if (gateGroups.length === 0) return;
+            
+            // Reset all colors first
+            gateObjects.forEach(obj => {
+                if (obj.material && obj.material.color) {
+                    obj.material.color.setHex(obj.userData.originalColor || 0x42a5f5);
+                }
+            });
+            
+            // Highlight current step group
+            if (animationStep < gateGroups.length) {
+                const gateGroup = gateGroups[animationStep];
+                
+                gateGroup.forEach(gate => {
+                    if (gate.material && gate.material.color) {
+                        if (!gate.userData.originalColor) {
+                            gate.userData.originalColor = gate.material.color.getHex();
+                        }
+                        gate.material.color.setHex(0xffff00);
+                    }
+                });
+                animationStep++;
+            } else {
+                animationStep = 0;
+            }
+            
+            document.getElementById('info-step').textContent = animationStep;
+        }
+
+        function resetAnimation() {
+            isAnimating = false;
+            animationStep = 0;
+            
+            // Reset camera position
+            camera.position.set(8, 6, 12);
+            camera.lookAt(circuitGroup.position);
+            
+            // Reset gate colors
+            gateObjects.forEach(obj => {
+                if (obj.material && obj.material.color && obj.userData.originalColor) {
+                    obj.material.color.setHex(obj.userData.originalColor);
+                }
+            });
+            
+            document.getElementById('info-step').textContent = '0';
+        }
+
+        function updateCircuitDisplay() {
+            const codeDisplay = document.getElementById('circuit-code');
+            let code = `const circuit = new Q5M.Circuit(${numQubits});<br><br>`;
+            
+            gateHistory.forEach(gate => {
+                let gateMethod = gate.type.toLowerCase();
+                
+                // Handle special cases for gate method names
+                if (gateMethod === 'cnot') {
+                    gateMethod = 'cnot';  // Already correct
+                } else if (gateMethod.startsWith('rx(') || gateMethod.startsWith('ry(') || gateMethod.startsWith('rz(')) {
+                    // For rotation gates with parameters, extract base method
+                    const baseGate = gateMethod.substring(0, 2);
+                    const paramMatch = gate.type.match(/\((.*)\)/);
+                    if (paramMatch) {
+                        if (gate.qubits.length === 1) {
+                            code += `circuit.${baseGate}(${gate.qubits[0]}, ${paramMatch[1]});<br>`;
+                            return;
+                        }
+                    }
+                } else if (gateMethod.startsWith('p(')) {
+                    // For phase gates with parameters
+                    const paramMatch = gate.type.match(/\((.*)\)/);
+                    if (paramMatch) {
+                        if (gate.qubits.length === 1) {
+                            code += `circuit.phase(${gate.qubits[0]}, ${paramMatch[1]});<br>`;
+                            return;
+                        }
+                    }
+                }
+                
+                if (gate.qubits.length === 1) {
+                    code += `circuit.${gateMethod}(${gate.qubits[0]});<br>`;
+                } else {
+                    code += `circuit.${gateMethod}(${gate.qubits[0]}, ${gate.qubits[1]});<br>`;
+                }
+            });
+            
+            if (gateHistory.length > 0) {
+                code += `<br>const result = circuit.execute();`;
+            }
+            
+            codeDisplay.innerHTML = code;
+            
+            // Update stats
+            document.getElementById('gate-count').textContent = gateHistory.length;
+            document.getElementById('circuit-depth').textContent = gateHistory.length;
+            document.getElementById('depth-display').textContent = gateHistory.length;
+        }
+
+        function updateInfoPanel() {
+            document.getElementById('info-qubits').textContent = numQubits;
+            document.getElementById('info-gates').textContent = gateHistory.length;
+            document.getElementById('info-step').textContent = animationStep;
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('canvas-container');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Gentle rotation animation for visual appeal (continues during gate animation)
+            if (circuitGroup) {
+                circuitGroup.rotation.y += 0.002;
+            }
+            
+            renderer.render(scene, camera);
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

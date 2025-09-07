@@ -1,0 +1,129 @@
+{
+  "name": "q5m",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A modern TypeScript library for quantum computing simulations",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./core": {
+      "types": "./dist/core-entry.d.ts",
+      "import": "./dist/q5m.core.js",
+      "require": "./dist/q5m.core.js"
+    },
+    "./umd": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/q5m.umd.js"
+    },
+    "./browser": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/q5m.min.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run clean && npm run build:types && npm run build:js",
+    "build:fast": "npm run build:js",
+    "build:js": "node build/esbuild.config.js",
+    "build:core": "npm run clean && npm run build:types && npm run build:js",
+    "build:analyze": "node build/esbuild.config.js analyze",
+    "build:analyze:core": "node build/esbuild.config.js analyze dist/q5m.core.js",
+    "build:types": "tsc --project tsconfig.build.json",
+    "clean": "rm -rf dist && mkdir -p dist",
+    "test": "jest --config jest.config.unit.cjs",
+    "test:all": "jest",
+    "test:integration": "jest --testPathPatterns=integration",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --config jest.config.unit.cjs --coverage",
+    "test:coverage:all": "jest --coverage",
+    "test:memory": "npm run build && node scripts/test-memory.mjs",
+    "test:memory:fast": "node scripts/test-memory.mjs",
+    "setup:e2e": "node scripts/setup-e2e.js",
+    "test:e2e": "npm run setup:e2e && cypress run --env framework=none",
+    "test:e2e:headless": "npm run setup:e2e && NODE_OPTIONS='--no-warnings' cypress run --env framework=none",
+    "test:e2e:vanilla": "npm run setup:e2e && cypress run --env framework=vanilla",
+    "test:e2e:react": "npm run setup:e2e && cypress run --env framework=react",
+    "test:e2e:vue": "npm run setup:e2e && cypress run --env framework=vue",
+    "test:e2e:angular": "npm run setup:e2e && cypress run --env framework=angular",
+    "test:e2e:nextjs": "npm run setup:e2e && cypress run --env framework=nextjs",
+    "test:e2e:nuxtjs": "npm run setup:e2e && cypress run --env framework=nuxtjs",
+    "test:e2e:frameworks": "npm run setup:e2e && cypress run --env framework=frameworks",
+    "test:e2e:all": "npm run setup:e2e && cypress run --env framework=all",
+    "lint": "eslint 'src/**/*.ts'",
+    "lint:fix": "eslint 'src/**/*.ts' --fix",
+    "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx,json,md}'",
+    "format:check": "prettier --check 'src/**/*.{ts,tsx,js,jsx,json,md}'",
+    "typecheck": "tsc --noEmit",
+    "check-all": "npm run format:check && npm run typecheck && npm run lint && npm run test && npm run test:e2e:all",
+    "fix-all": "npm run lint:fix && npm run format",
+    "docs": "typedoc",
+    "docs:watch": "typedoc --watch",
+    "docs:serve": "npx serve docs/api",
+    "docs:build": "npm run typecheck && npm run docs",
+    "docs:full": "npm run clean && npm run build:types && npm run docs && npm run docs:serve",
+    "profile": "npm run build && node scripts/performance-profile.js",
+    "profile:performance": "node scripts/performance-profile.js",
+    "benchmark": "npm run build && node scripts/benchmark.mjs",
+    "benchmark:fast": "npm run build && node scripts/benchmark.mjs",
+    "coverage:check": "jest --coverage --silent | grep -E 'All files|%'",
+    "size": "npm run build && ls -lah dist/*.js dist/*.mjs | grep -v map",
+    "analyze": "npm run build:analyze dist/index.mjs",
+    "examples": "npx tsx examples/run.ts",
+    "prepack": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/openql-org/q5mjs.git"
+  },
+  "keywords": [
+    "quantum",
+    "quantum-computing",
+    "quantum-simulation",
+    "qubit",
+    "quantum-gates",
+    "typescript",
+    "webassembly"
+  ],
+  "author": "OpenQL Project",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/openql-org/q5mjs/issues"
+  },
+  "homepage": "https://github.com/openql-org/q5mjs#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "cypress": "^15.0.0",
+    "esbuild": "^0.25.8",
+    "eslint": "^9.34.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-cypress": "^5.1.1",
+    "globals": "^16.3.0",
+    "jest": "^30.0.5",
+    "prettier": "^3.0.0",
+    "serve": "^14.2.5",
+    "ts-jest": "^29.0.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.4",
+    "typedoc": "^0.28.11",
+    "typedoc-plugin-markdown": "^4.8.1",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.41.0",
+    "vite": "^7.1.2"
+  }
+}

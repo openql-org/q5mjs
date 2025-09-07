@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q5M.js + Nuxt.js: Quantum Entanglement</title>
+<!-- SPDX-License-Identifier: MIT -->
+<!-- SPDX-FileCopyrightText: Copyright 2025 OpenQL Project -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="../../../../../dist/q5m.min.js"></script>
+    <script>
+        // Fallback to CDN if local file fails to load
+        if (typeof Q5M === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/q5m@latest/dist/q5m.min.js';
+            document.head.appendChild(script);
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #2d3561 0%, #c850c0 46%, #ffcc70 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        button.active {
+            background: linear-gradient(45deg, #FF8E53, #FE6B8B);
+        }
+        .state-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .probabilities {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 10px;
+        }
+        .probability-bar {
+            text-align: center;
+        }
+        .bar {
+            background: linear-gradient(to top, #FF6B6B, #FFB74D);
+            border-radius: 4px;
+            transition: height 0.5s ease;
+            margin: 5px 0;
+            position: relative;
+        }
+        .state-info {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .amplitude-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .amplitude {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 12px;
+        }
+        .complex-num {
+            color: #FFB74D;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="header">
+                <h1>🔗 Quantum Entanglement with Nuxt.js</h1>
+                <p>Explore Bell states and GHZ states using Q5M.js in Nuxt.js style</p>
+            </div>
+
+            <div class="card">
+                <h3>🎯 Create Entangled States</h3>
+                <div class="controls">
+                    <button @click="createBellState" :class="{active: currentState === 'bell'}">
+                        Bell State |Φ⁺⟩
+                    </button>
+                    <button @click="createBellStateMinus" :class="{active: currentState === 'bell-'}">
+                        Bell State |Φ⁻⟩
+                    </button>
+                    <button @click="createGHZState" :class="{active: currentState === 'ghz'}">
+                        GHZ State (3 qubits)
+                    </button>
+                    <button @click="createWState" :class="{active: currentState === 'w'}">
+                        W State (3 qubits)
+                    </button>
+                    <button @click="resetState" :class="{active: currentState === 'reset'}">
+                        Reset |000⟩
+                    </button>
+                </div>
+            </div>
+
+            <div class="state-display">
+                <div class="card">
+                    <h3>📊 Measurement Probabilities</h3>
+                    <div class="probabilities">
+                        <div v-for="(prob, index) in probabilities" :key="index" class="probability-bar">
+                            <div class="bar" :style="{height: (prob * 200) + 'px', minHeight: '5px'}"></div>
+                            <div>|{{ index.toString(2).padStart(numQubits, '0') }}⟩</div>
+                            <div>{{ (prob * 100).toFixed(1) }}%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🌊 Quantum Amplitudes</h3>
+                    <div class="amplitude-display">
+                        <div v-for="(amp, index) in amplitudes" :key="index" class="amplitude">
+                            <div>|{{ index.toString(2).padStart(numQubits, '0') }}⟩</div>
+                            <div class="complex-num">
+                                {{ formatComplex(amp) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>ℹ️ State Information</h3>
+                <div class="state-info">
+                    <div><strong>Current State:</strong> {{ stateDescription }}</div>
+                    <div><strong>Number of Qubits:</strong> {{ numQubits }}</div>
+                    <div><strong>Entanglement:</strong> {{ entanglementInfo }}</div>
+                    <div><strong>Schmidt Rank:</strong> {{ schmidtRank }}</div>
+                    <div><strong>Framework:</strong> Nuxt.js (Vue 3 Composition API)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                // Reactive state
+                const circuit = ref(null);
+                const quantumState = ref(null);
+                const currentState = ref('reset');
+                const numQubits = ref(3);
+                
+                // Initialize quantum circuit
+                const initCircuit = () => {
+                    if (typeof Q5M !== 'undefined') {
+                        circuit.value = new Q5M.Circuit(numQubits.value);
+                        executeCircuit();
+                    }
+                };
+
+                // Execute circuit and get quantum state
+                const executeCircuit = () => {
+                    try {
+                        const result = circuit.value.execute();
+                        quantumState.value = result.state;
+                    } catch (error) {
+                        console.error('Circuit execution error:', error);
+                    }
+                };
+
+                // Computed properties
+                const probabilities = computed(() => {
+                    if (!quantumState.value) return [];
+                    return quantumState.value.probabilities();
+                });
+
+                const amplitudes = computed(() => {
+                    if (!quantumState.value) return [];
+                    const amps = quantumState.value.amplitudes();
+                    return amps.map(amp => {
+                        if (!amp) return { re: 0, im: 0 };
+                        return amp;
+                    });
+                });
+
+                const stateDescription = computed(() => {
+                    switch (currentState.value) {
+                        case 'bell':
+                            return 'Bell State |Φ⁺⟩ = (|00⟩ + |11⟩)/√2 - Maximally entangled 2-qubit state';
+                        case 'bell-':
+                            return 'Bell State |Φ⁻⟩ = (|00⟩ - |11⟩)/√2 - Maximally entangled with phase';
+                        case 'ghz':
+                            return 'GHZ State = (|000⟩ + |111⟩)/√2 - 3-qubit entangled state';
+                        case 'w':
+                            return 'W State = (|001⟩ + |010⟩ + |100⟩)/√3 - Symmetric 3-qubit state';
+                        case 'reset':
+                            return 'Ground State |000⟩ - No entanglement';
+                        default:
+                            return 'Custom quantum state';
+                    }
+                });
+
+                const entanglementInfo = computed(() => {
+                    switch (currentState.value) {
+                        case 'bell':
+                        case 'bell-':
+                            return 'Maximally entangled (2 qubits)';
+                        case 'ghz':
+                            return 'Maximal 3-qubit entanglement';
+                        case 'w':
+                            return 'Partial 3-qubit entanglement';
+                        case 'reset':
+                            return 'No entanglement (separable state)';
+                        default:
+                            return 'Analysis required';
+                    }
+                });
+
+                const schmidtRank = computed(() => {
+                    switch (currentState.value) {
+                        case 'bell':
+                        case 'bell-':
+                        case 'ghz':
+                            return '2 (maximal entanglement)';
+                        case 'w':
+                            return '2 (partial entanglement)';
+                        case 'reset':
+                            return '1 (no entanglement)';
+                        default:
+                            return 'Variable';
+                    }
+                });
+
+                // State creation methods (Nuxt.js composable style)
+                const createBellState = () => {
+                    circuit.value = new Q5M.Circuit(2);
+                    numQubits.value = 2;
+                    
+                    // Create Bell state: H(0) CNOT(0,1)
+                    circuit.value.h(0).cnot(0, 1);
+                    
+                    currentState.value = 'bell';
+                    executeCircuit();
+                };
+
+                const createBellStateMinus = () => {
+                    circuit.value = new Q5M.Circuit(2);
+                    numQubits.value = 2;
+                    
+                    // Create Bell state with phase: X(0) H(0) CNOT(0,1)
+                    circuit.value.x(0).h(0).cnot(0, 1);
+                    
+                    currentState.value = 'bell-';
+                    executeCircuit();
+                };
+
+                const createGHZState = () => {
+                    circuit.value = new Q5M.Circuit(3);
+                    numQubits.value = 3;
+                    
+                    // Create GHZ state: H(0) CNOT(0,1) CNOT(0,2)
+                    circuit.value.h(0).cnot(0, 1).cnot(0, 2);
+                    
+                    currentState.value = 'ghz';
+                    executeCircuit();
+                };
+
+                const createWState = () => {
+                    circuit.value = new Q5M.Circuit(3);
+                    numQubits.value = 3;
+                    
+                    // Create W state approximation
+                    circuit.value
+                        .ry(0, 2 * Math.acos(Math.sqrt(2/3)))
+                        .cnot(0, 1)
+                        .x(0)
+                        .cnot(1, 2)
+                        .cnot(0, 1);
+                    
+                    currentState.value = 'w';
+                    executeCircuit();
+                };
+
+                const resetState = () => {
+                    circuit.value = new Q5M.Circuit(3);
+                    numQubits.value = 3;
+                    
+                    currentState.value = 'reset';
+                    executeCircuit();
+                };
+
+                // Utility functions
+                const formatComplex = (complex) => {
+                    if (!complex) return '0';
+                    
+                    const re = complex.re;
+                    const im = complex.im;
+                    
+                    if (Math.abs(im) < 0.001) {
+                        return re.toFixed(3);
+                    }
+                    
+                    if (Math.abs(re) < 0.001) {
+                        return `${im.toFixed(3)}i`;
+                    }
+                    
+                    const sign = im >= 0 ? '+' : '';
+                    return `${re.toFixed(3)}${sign}${im.toFixed(3)}i`;
+                };
+
+                // Initialize on mount (Nuxt.js style)
+                onMounted(() => {
+                    initCircuit();
+                });
+
+                return {
+                    circuit,
+                    quantumState,
+                    currentState,
+                    numQubits,
+                    probabilities,
+                    amplitudes,
+                    stateDescription,
+                    entanglementInfo,
+                    schmidtRank,
+                    createBellState,
+                    createBellStateMinus,
+                    createGHZState,
+                    createWState,
+                    resetState,
+                    formatComplex
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

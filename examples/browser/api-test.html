@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Q5M API Test</title>
+<!-- SPDX-License-Identifier: MIT -->
+<!-- SPDX-FileCopyrightText: Copyright 2025 OpenQL Project -->
+    <script src="../../dist/q5m.min.js"></script>
+</head>
+<body>
+    <h1>Q5M.js API Structure Test</h1>
+    <pre id="output"></pre>
+    
+    <script>
+        const output = document.getElementById('output');
+        let results = [];
+        
+        // Wait for script to load
+        window.addEventListener('load', () => {
+            // Test 1: Check if Q5M exists
+            results.push('Q5M exists: ' + (typeof Q5M !== 'undefined'));
+            
+            if (typeof Q5M !== 'undefined') {
+                // Test 2: List Q5M properties
+                results.push('\nQ5M properties: ' + Object.keys(Q5M).join(', '));
+                
+                // Test 3: Try to create a Circuit
+                try {
+                    const circuit = new Q5M.Circuit(1);
+                    results.push('\n✅ new Q5M.Circuit(1) works');
+                    
+                    // Test 4: Check circuit methods
+                    results.push('\nCircuit methods: ' + Object.getOwnPropertyNames(Object.getPrototypeOf(circuit)).slice(0, 10).join(', '));
+                    
+                    // Test 5: Apply gates
+                    circuit.h(0);
+                    results.push('\n✅ circuit.h(0) works');
+                    
+                    // Test 6: Execute
+                    const result = circuit.execute();
+                    results.push('\n✅ circuit.execute() works');
+                    results.push('\nExecute result properties: ' + Object.keys(result).join(', '));
+                    
+                    // Test 7: Get state
+                    if (result.state) {
+                        results.push('\n✅ result.state exists');
+                        results.push('\nState methods: ' + Object.getOwnPropertyNames(Object.getPrototypeOf(result.state)).slice(0, 10).join(', '));
+                        
+                        // Test 8: Get probabilities
+                        const probs = result.state.probabilities();
+                        results.push('\n✅ result.state.probabilities() works: [' + probs.map(p => p.toFixed(3)).join(', ') + ']');
+                        
+                        // Test 9: Get amplitudes
+                        const amps = result.state.amplitudes();
+                        results.push('\n✅ result.state.amplitudes() works (length: ' + amps.length + ')');
+                    }
+                } catch (e) {
+                    results.push('\n❌ Error: ' + e.message);
+                    results.push('\n' + e.stack);
+                }
+            }
+            
+            output.textContent = results.join('');
+        });
+    </script>
+</body>
+</html>
