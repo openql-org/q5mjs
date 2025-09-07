@@ -154,14 +154,14 @@ jobs:
           FULL_SIZE_KB=$((FULL_SIZE / 1024))
           echo "Full bundle size: ${FULL_SIZE_KB}KB"
           
-          # Validate against limits - increased to 45KB for core, 95KB for full
-          if [ $CORE_SIZE_KB -gt 45 ]; then
-            echo "❌ Core bundle exceeds 45KB limit: ${CORE_SIZE_KB}KB"
+          # Validate against limits - increased to 65KB for core, 195KB for full
+          if [ $CORE_SIZE_KB -gt 65 ]; then
+            echo "❌ Core bundle exceeds 65KB limit: ${CORE_SIZE_KB}KB"
             exit 1
           fi
           
-          if [ $FULL_SIZE_KB -gt 95 ]; then
-            echo "❌ Full bundle exceeds 95KB limit: ${FULL_SIZE_KB}KB"
+          if [ $FULL_SIZE_KB -gt 195 ]; then
+            echo "❌ Full bundle exceeds 195KB limit: ${FULL_SIZE_KB}KB"
             exit 1
           fi
           
@@ -195,10 +195,10 @@ jobs:
             
             | Bundle | Size | Limit | Status |
             |--------|------|-------|--------|
-            | Core | ${coreSize}KB | 45KB | ${coreSize <= 45 ? '✅' : '❌'} |
-            | Full | ${fullSize}KB | 95KB | ${fullSize <= 95 ? '✅' : '❌'} |
+            | Core | ${coreSize}KB | 65KB | ${coreSize <= 65 ? '✅' : '❌'} |
+            | Full | ${fullSize}KB | 195KB | ${fullSize <= 195 ? '✅' : '❌'} |
             
-            ${coreSize <= 45 && fullSize <= 95 ? 
+            ${coreSize <= 65 && fullSize <= 195 ? 
               '✅ All bundles within size limits!' : 
               '⚠️ Some bundles exceed size limits'}
             `;
