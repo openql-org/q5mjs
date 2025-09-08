@@ -1,6 +1,6 @@
 # q5m.js
 
-[![npm version](https://badge.fury.io/js/q5m.svg)](https://www.npmjs.com/package/q5m)
+[![npm version](https://badge.fury.io/js/q5m.svg)](https://www.npmjs.com/package/@q5m/q5m)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](https://www.typescriptlang.org/)
 
@@ -407,7 +407,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 - **[API Documentation](docs/api-overview.md)** - Complete API reference
 - **[Contributing Guidelines](CONTRIBUTING.md)** - Development workflow and standards
 - **[GitHub Repository](https://github.com/openql-org/q5mjs)** - Source code and issues
-- **[npm Package](https://www.npmjs.com/package/q5m)** - Package on npm registry
+- **[npm Package](https://www.npmjs.com/package/@q5m/q5m)** - Package on npm registry
 
 ## 🙏 Acknowledgments
 
