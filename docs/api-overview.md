@@ -9,8 +9,8 @@ q5m.js provides a comprehensive TypeScript API for quantum computing simulations
 ### Core Entry (`q5m/core`)
 Lightweight bundle with essential quantum computing primitives:
 ```typescript
-import { Circuit, QubitState, Q5mState } from 'q5m/core';
-import { complex, createUnitary } from 'q5m/core';
+import { Circuit, QubitState, Q5mState } from '@q5m/q5m/core';
+import { complex, createUnitary } from '@q5m/q5m/core';
 ```
 
 ### Full Entry (`q5m`)
@@ -22,13 +22,13 @@ import {
   groverSearch, 
   quantumFourierTransform,
   exportToQiskit 
-} from 'q5m';
+} from '@q5m/q5m';
 ```
 
 ### Algorithm-only Entry (`q5m/packages`)
 Algorithms and converters without core:
 ```typescript
-import { groverSearch, exportToQiskit } from 'q5m/packages';
+import { groverSearch, exportToQiskit } from '@q5m/q5m/packages';
 ```
 
 ## Core Classes
@@ -424,7 +424,7 @@ function complex(re: number, im: number = 0): Complex;
 
 **Example:**
 ```typescript
-import { complex, Complex } from 'q5m';
+import { complex, Complex } from '@q5m/q5m';
 
 const z1 = complex(3, 4);        // 3 + 4i
 const z2 = complex(1, -2);       // 1 - 2i
@@ -463,7 +463,7 @@ function tensorP(matrix1: Matrix, matrix2: Matrix): Matrix;
 
 **Example:**
 ```typescript
-import { createUnitary, isUnitary, matXvec } from 'q5m';
+import { createUnitary, isUnitary, matXvec } from '@q5m/q5m';
 
 // Create Pauli-X matrix
 const pauliX = createUnitary([
@@ -501,7 +501,7 @@ function groverSuccessProbability(numQubits: number, iterations: number): number
 
 **Example:**
 ```typescript
-import { groverSearchForItem, groverSearch } from 'q5m';
+import { groverSearchForItem, groverSearch } from '@q5m/q5m';
 
 // Search for specific item
 const result1 = groverSearchForItem(4, '1010');
@@ -532,7 +532,7 @@ function createQFTCircuit(numQubits: number): Circuit;
 
 **Example:**
 ```typescript
-import { quantumFourierTransform, qftEncode } from 'q5m';
+import { quantumFourierTransform, qftEncode } from '@q5m/q5m';
 
 // Apply QFT to existing circuit
 const circuit = new Circuit(3);
@@ -567,7 +567,7 @@ function quantumPhaseEstimation(
 
 **Example:**
 ```typescript
-import { estimateEigenstatePhase } from 'q5m';
+import { estimateEigenstatePhase } from '@q5m/q5m';
 
 // Z rotation matrix
 const angle = 0.3;
@@ -616,7 +616,7 @@ interface QiskitExportOptions {
 
 **Example:**
 ```typescript
-import { exportToQiskit } from 'q5m';
+import { exportToQiskit } from '@q5m/q5m';
 
 const circuit = new Circuit(2);
 circuit.h(0).cnot(0, 1).measure([0, 1]);
@@ -639,7 +639,7 @@ function exportToOpenQASM(circuit: Circuit, version?: '2.0' | '3.0'): string;
 
 **Example:**
 ```typescript
-import { exportToOpenQASM } from 'q5m';
+import { exportToOpenQASM } from '@q5m/q5m';
 
 const circuit = new Circuit(2);
 circuit.h(0).cnot(0, 1);
@@ -690,7 +690,7 @@ class StateRenderer {
 
 **Example:**
 ```typescript
-import { Circuit, CircuitRenderer } from 'q5m';
+import { Circuit, CircuitRenderer } from '@q5m/q5m';
 
 const circuit = new Circuit(3);
 circuit.h(0).cnot(0, 1).cnot(1, 2);
