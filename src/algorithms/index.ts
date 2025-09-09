@@ -2,18 +2,10 @@
 // SPDX-FileCopyrightText: Copyright 2025 OpenQL Project
 
 /**
- * @fileoverview Quantum algorithms module for q5m.js - dynamically loaded.
+ * @fileoverview Quantum algorithms module for q5m.js
  *
  * This module provides implementations of fundamental quantum algorithms
  * that form the building blocks of quantum computing applications.
- *
- * **Dynamic Loading:**
- * ```typescript
- * import { loadAlgorithms } from 'q5m';
- *
- * const algorithms = await loadAlgorithms();
- * const circuit = algorithms.groverSearchForItem(3, '101');
- * ```
  *
  * **Available Algorithms:**
  * - **Amplitude Amplification**: General framework for amplitude manipulation

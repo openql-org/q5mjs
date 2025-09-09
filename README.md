@@ -31,7 +31,7 @@ npm install q5m
 ### Basic Quantum Circuit
 
 ```typescript
-import { Circuit } from 'q5m';
+import { Circuit } from '@q5m/q5m';
 
 // Create a 2-qubit Bell state
 const circuit = new Circuit(2);
@@ -44,7 +44,7 @@ console.log('Bell state probabilities:', result.state.probabilities());
 ### Advanced Usage with Custom Initial State
 
 ```typescript
-import { Circuit, QubitState, complex } from 'q5m';
+import { Circuit, QubitState, complex } from '@q5m/q5m';
 
 // Create custom initial state
 const customState = new QubitState(2, [
@@ -76,7 +76,7 @@ q5m.js provides optimized entry points for different use cases:
 *Minimal bundle (~65KB) - Essential quantum computing primitives*
 
 ```typescript
-import { Circuit, QubitState } from 'q5m/core';
+import { Circuit, QubitState } from '@q5m/q5m/core';
 // Only core quantum circuit and state functionality
 ```
 
@@ -89,14 +89,14 @@ import {
   groverSearch, 
   quantumFourierTransform,
   exportToQiskit 
-} from 'q5m';
+} from '@q5m/q5m';
 ```
 
 ### 🌐 Browser/CDN
 *UMD build for direct browser usage*
 
 ```html
-<script src="https://unpkg.com/q5m/dist/q5m.min.js"></script>
+<script src="https://unpkg.com/@q5m/q5m/dist/q5m.min.js"></script>
 <script>
   const circuit = new Q5M.Circuit(3);
   circuit.h(0).cnot(0, 1).cnot(1, 2);
@@ -109,7 +109,7 @@ import {
 #### React Integration
 ```tsx
 import React, { useState } from 'react';
-import { Circuit, CircuitRenderer } from 'q5m';
+import { Circuit, CircuitRenderer } from '@q5m/q5m';
 
 function QuantumApp() {
   const [circuit] = useState(() => {
@@ -133,7 +133,7 @@ function QuantumApp() {
 Central abstraction for building and executing quantum computations:
 
 ```typescript
-import { Circuit } from 'q5m';
+import { Circuit } from '@q5m/q5m';
 
 // Create circuit with specified number of qubits
 const circuit = new Circuit(3);
@@ -155,7 +155,7 @@ console.log('Measurements:', result.measurements);
 Advanced state representation with automatic optimization:
 
 ```typescript
-import { QubitState, complex } from 'q5m';
+import { QubitState, complex } from '@q5m/q5m';
 
 // Automatic sparse/dense optimization
 const state = new QubitState(10); // 10-qubit state
@@ -174,7 +174,7 @@ console.log('Probability of |0000000000⟩:', prob);
 
 ### Grover's Search Algorithm
 ```typescript
-import { groverSearch, groverSearchForItem } from 'q5m';
+import { groverSearch, groverSearchForItem } from '@q5m/q5m';
 
 // Search for specific bit pattern
 const result = groverSearchForItem(4, '1010'); // 4 qubits, search for |1010⟩
@@ -187,7 +187,7 @@ const searchResult = groverSearch(4, oracle);
 
 ### Quantum Fourier Transform
 ```typescript
-import { quantumFourierTransform, qftEncode } from 'q5m';
+import { quantumFourierTransform, qftEncode } from '@q5m/q5m';
 
 // Apply QFT to encode classical data
 const data = [1, 2, 3, 4];
@@ -199,7 +199,7 @@ console.log('QFT encoded state:', result.amplitudes());
 
 ### Quantum Phase Estimation
 ```typescript
-import { quantumPhaseEstimation, estimateEigenstatePhase } from 'q5m';
+import { quantumPhaseEstimation, estimateEigenstatePhase } from '@q5m/q5m';
 
 // Estimate phase of a unitary operator
 const unitary = [
@@ -215,7 +215,7 @@ console.log('Estimated phase:', phase);
 
 ### Export to Other Quantum Frameworks
 ```typescript
-import { exportToQiskit, exportToOpenQASM, exportToCirq } from 'q5m';
+import { exportToQiskit, exportToOpenQASM, exportToCirq } from '@q5m/q5m';
 
 const circuit = new Circuit(2);
 circuit.h(0).cnot(0, 1);
@@ -234,7 +234,7 @@ console.log('Cirq:\n', cirqCode);
 
 ### Memory Optimization
 ```typescript
-import { Circuit, QubitState } from 'q5m';
+import { Circuit, QubitState } from '@q5m/q5m';
 
 // Automatic sparse optimization for large systems
 const largeCircuit = new Circuit(20); // 20 qubits
@@ -247,7 +247,7 @@ console.log('Memory usage:', state.memoryUsage(), 'bytes');
 
 ### Performance Monitoring
 ```typescript
-import { Circuit } from 'q5m';
+import { Circuit } from '@q5m/q5m';
 
 // Built-in performance tracking
 const startTime = performance.now();
@@ -269,7 +269,7 @@ console.log('Final state sparsity:', result.sparsity);
 
 ### Circuit Visualization
 ```typescript
-import { Circuit, CircuitRenderer } from 'q5m';
+import { Circuit, CircuitRenderer } from '@q5m/q5m';
 
 const circuit = new Circuit(3);
 circuit.h(0).cnot(0, 1).cnot(1, 2);
