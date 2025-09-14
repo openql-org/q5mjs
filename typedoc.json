@@ -78,6 +78,7 @@
     "Internal API": "./docs/developers/internal-api.md"
   },
   "customCss": "./docs/custom-docs.css",
+  "customFooterHtml": "<script>document.addEventListener('DOMContentLoaded', function() { const h1 = document.querySelector('.tsd-page-title h1'); if (h1 && !h1.querySelector('a')) { h1.style.cursor = 'pointer'; h1.addEventListener('click', function() { window.location.href = './'; }); } });</script>",
   "titleLink": "https://github.com/openql-org/q5mjs",
   "sourceLinkTemplate": "https://github.com/openql-org/q5mjs/blob/{gitRevision}/{path}#L{line}",
   "gitRevision": "main",
