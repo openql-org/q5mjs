@@ -4,13 +4,13 @@ An interactive demonstration of the Hadamard test quantum algorithm using Q5M.js
 
 ## Features
 
-- **🎯 Interactive Phase Control**: Adjust custom phases with real-time slider
-- **🔬 Multiple Quantum Gates**: Test Z, S, T, and custom phase gates  
-- **📊 Real-time Measurements**: Live probability visualization during 1000-measurement runs
-- **📐 Mathematical Analysis**: Complete theoretical framework and formulas
-- **⚡ SSR/SPA Hybrid**: Server-side rendering with client-side quantum computations
-- **📱 Responsive Design**: Optimized for all device sizes
-- **♿ Accessibility**: Full keyboard navigation and screen reader support
+- **Interactive Phase Control**: Adjust custom phases with real-time slider
+- **Multiple Quantum Gates**: Test Z, S, T, and custom phase gates
+- **Real-time Measurements**: Live probability visualization during 1000-measurement runs
+- **Mathematical Analysis**: Complete theoretical framework and formulas
+- **SSR/SPA Hybrid**: Server-side rendering with client-side quantum computations
+- **Responsive Design**: Optimized for all device sizes
+- **Accessibility**: Full keyboard navigation and screen reader support
 
 ## Quantum Algorithm
 
@@ -278,7 +278,7 @@ Live probability bars during measurement runs:
 
 ASCII-art quantum circuit diagram:
 ```
-|0⟩ ─[H]─●─[H]─📊
+|0⟩ ─[H]─●─[H]─[M]
          │      
 |1⟩ ─────[φ]────
 ```
@@ -395,4 +395,4 @@ This project is licensed under the MIT License - see the [LICENSE](../../../../.
 
 ---
 
-*Built with ❤️ for quantum computing education*
+*Built with love for quantum computing education*

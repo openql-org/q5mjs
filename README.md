@@ -6,27 +6,27 @@
 
 A complete type-safe TypeScript library for quantum computing simulations with comprehensive algorithm support, and seamless multi-framework integration.
 
-## ✨ Features
+## Features
 
-- 📝 **TypeScript First** - Complete type safety with strict mode, 90%+ test coverage
-- 🔬 **Advanced Quantum Simulation** - Complete quantum computing primitives with state-of-the-art optimization
-- 🔧 **Flexible APIs** - Multiple entry points and API styles for different use cases
-- ⚡ **Modern Tooling** - Built with Vite, esbuild, Jest, and Cypress for optimal DX
-- 🧪 **Well Tested** - 2000+ comprehensive tests across unit, integration, and E2E scenarios
-- 🌐 **Multi-Framework** - Native support for React, Vue, Angular, and vanilla JavaScript
-- 🎲 **Algorithm Library** - Built-in quantum algorithms with optimized implementations
-- 📊 **Rich Visualization** - Circuit diagrams, state visualization, and export capabilities
-- 🔌 **Extensible Architecture** - Plugin system for custom extensions and integrations
-- 🚀 **High Performance** - Hybrid sparse/dense quantum states with CSR format, up to 45% performance improvement
-- 🎯 **Memory Optimized** - Intelligent state representation switching, 28% memory reduction for large systems  
+- **TypeScript First** - Complete type safety with strict mode, 90%+ test coverage
+- **Advanced Quantum Simulation** - Complete quantum computing primitives with state-of-the-art optimization
+- **Flexible APIs** - Multiple entry points and API styles for different use cases
+- **Modern Tooling** - Built with Vite, esbuild, Jest, and Cypress for optimal DX
+- **Well Tested** - 2000+ comprehensive tests across unit, integration, and E2E scenarios
+- **Multi-Framework** - Native support for React, Vue, Angular, and vanilla JavaScript
+- **Algorithm Library** - Built-in quantum algorithms with optimized implementations
+- **Rich Visualization** - Circuit diagrams, state visualization, and export capabilities
+- **Extensible Architecture** - Plugin system for custom extensions and integrations
+- **High Performance** - Hybrid sparse/dense quantum states with CSR format, up to 45% performance improvement
+- **Memory Optimized** - Intelligent state representation switching, 28% memory reduction for large systems  
 
-## 📦 Installation
+## Installation
 
 ```bash
 npm install q5m
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Basic Quantum Circuit
 
@@ -68,11 +68,11 @@ if( result.hasMeasurements ) {
 }
 ```
 
-## 📚 Package Structure & Entry Points
+## Package Structure & Entry Points
 
 q5m.js provides optimized entry points for different use cases:
 
-### 🎯 Core Package (Lightweight)
+### Core Package (Lightweight)
 *Minimal bundle (~65KB) - Essential quantum computing primitives*
 
 ```typescript
@@ -80,7 +80,7 @@ import { Circuit, QubitState } from '@q5m/q5m/core';
 // Only core quantum circuit and state functionality
 ```
 
-### 📦 Standard Import (Full Features)
+### Standard Import (Full Features)
 *Complete library (~195KB) - All features including algorithms*
 
 ```typescript
@@ -92,7 +92,7 @@ import {
 } from '@q5m/q5m';
 ```
 
-### 🌐 Browser/CDN
+### Browser/CDN
 *UMD build for direct browser usage*
 
 ```html
@@ -104,7 +104,7 @@ import {
 </script>
 ```
 
-### 📱 Framework-Specific Usage
+### Framework-Specific Usage
 
 #### React Integration
 ```tsx
@@ -127,7 +127,7 @@ function QuantumApp() {
 }
 ```
 
-## 🔬 Core Concepts
+## Core Concepts
 
 ### Quantum Circuits
 Central abstraction for building and executing quantum computations:
@@ -170,7 +170,7 @@ const prob = state.probability(0b0000000000);
 console.log('Probability of |0000000000⟩:', prob);
 ```
 
-## 🎲 Built-in Quantum Algorithms
+## Built-in Quantum Algorithms
 
 ### Grover's Search Algorithm
 ```typescript
@@ -211,7 +211,7 @@ const phase = estimateEigenstatePhase(unitary, [complex(1, 0), complex(0, 0)], 4
 console.log('Estimated phase:', phase);
 ```
 
-## 🔄 Export & Integration
+## Export & Integration
 
 ### Export to Other Quantum Frameworks
 ```typescript
@@ -230,7 +230,7 @@ console.log('OpenQASM:\n', qasmCode);
 console.log('Cirq:\n', cirqCode);
 ```
 
-## 📊 Performance Features
+## Performance Features
 
 ### Memory Optimization
 ```typescript
@@ -265,7 +265,7 @@ console.log(`Execution time: ${endTime - startTime}ms`);
 console.log('Final state sparsity:', result.sparsity);
 ```
 
-## 🎨 Visualization
+## Visualization
 
 ### Circuit Visualization
 ```typescript
@@ -284,7 +284,7 @@ if (typeof window !== 'undefined') {
 }
 ```
 
-## 📖 API Reference
+## API Reference
 
 ### Core Classes
 - **`Circuit`** - Main quantum circuit builder and executor
@@ -308,7 +308,7 @@ if (typeof window !== 'undefined') {
 - **`exportToOpenQASM`** - Generate OpenQASM 2.0 code
 - **`exportToCirq`** - Generate Google Cirq code
 
-## 🔧 Configuration
+## Configuration
 
 ### TypeScript Configuration
 q5m.js is built with strict TypeScript for maximum type safety:
@@ -328,7 +328,7 @@ q5m.js is built with strict TypeScript for maximum type safety:
 - **Node.js 18+** - Server-side compatibility  
 - **Modern browsers** - Chrome 91+, Firefox 90+, Safari 14+
 
-## 🧪 Development & Testing
+## Development & Testing
 
 ### Running Tests
 ```bash
@@ -357,7 +357,7 @@ npm run profile
 npm run test:memory
 ```
 
-## 📈 Performance Characteristics
+## Performance Characteristics
 
 ### Benchmark Results
 - **Small circuits (2-5 qubits)**: ~0.1ms execution time
@@ -372,7 +372,7 @@ npm run test:memory
 - TypedArray usage for memory efficiency
 - SIMD-friendly algorithms where possible
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! This project follows strict code quality standards and comprehensive testing practices.
 
@@ -397,11 +397,11 @@ For complete contributing guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md) whi
 - Commit message format and pull request process
 - Documentation standards and API guidelines
 
-## 📄 License
+## License
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-## 📚 Documentation
+## Documentation
 
 - **[Getting Started](docs/getting-started.md)** - Quick start guide and tutorials
 - **[API Documentation](docs/api-overview.md)** - Complete API reference
@@ -409,7 +409,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 - **[GitHub Repository](https://github.com/openql-org/q5mjs)** - Source code and issues
 - **[npm Package](https://www.npmjs.com/package/@q5m/q5m)** - Package on npm registry
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 Built with inspiration from the quantum computing community and leveraging modern web technologies for optimal performance and developer experience.
 

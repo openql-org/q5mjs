@@ -4,12 +4,12 @@ An interactive demonstration of quantum entanglement using Q5M.js quantum comput
 
 ## Features
 
-- **🔗 Multiple Entangled States**: Bell states (|Φ⁺⟩, |Φ⁻⟩), GHZ states, and W states
-- **📊 Real-time Visualization**: Interactive probability distributions and quantum amplitudes  
-- **⚡ SSR/SPA Hybrid**: Server-side rendering with client-side quantum computations
-- **📱 Responsive Design**: Works on desktop, tablet, and mobile devices
-- **♿ Accessibility**: WCAG compliant with keyboard navigation support
-- **🎨 Modern UI**: Glass morphism design with smooth animations
+- **Multiple Entangled States**: Bell states (|Φ⁺⟩, |Φ⁻⟩), GHZ states, and W states
+- **Real-time Visualization**: Interactive probability distributions and quantum amplitudes  
+- **SSR/SPA Hybrid**: Server-side rendering with client-side quantum computations
+- **Responsive Design**: Works on desktop, tablet, and mobile devices
+- **Accessibility**: WCAG compliant with keyboard navigation support
+- **Modern UI**: Glass morphism design with smooth animations
 
 ## Quantum States Demonstrated
 
@@ -252,4 +252,4 @@ This project is licensed under the MIT License - see the [LICENSE](../../../../.
 
 ---
 
-*Built with ❤️ for the quantum computing community*
+*Built with care for the quantum computing community*
