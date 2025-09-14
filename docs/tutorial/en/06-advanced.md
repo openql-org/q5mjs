@@ -793,10 +793,10 @@ class QuantumDebugger {
     console.log(`State entropy: ${entropyMeasure.toFixed(3)} bits`);
     
     if (maxProb > 0.95) {
-      console.log('⚠️  State is nearly classical');
+      console.log('Warning: State is nearly classical');
     }
     if (entropyMeasure < 0.1) {
-      console.log('⚠️  Very low entropy - check for errors');
+      console.log('Warning: Very low entropy - check for errors');
     }
   }
   
@@ -808,7 +808,7 @@ class QuantumDebugger {
     const isValid = Math.abs(totalProb - 1.0) < 1e-10;
     
     if (!isValid) {
-      console.log(`⚠️  Probability not conserved: ${totalProb}`);
+      console.log(`Warning: Probability not conserved: ${totalProb}`);
     }
     
     return isValid;
@@ -907,4 +907,4 @@ The field of quantum computing is rapidly evolving, and with the foundation you'
 - **Communities**: Quantum Computing Stack Exchange, Reddit r/QuantumComputing
 - **Tools**: Qiskit, Cirq, PennyLane, Q# development kit
 
-Happy quantum computing! 🚀
+Happy quantum computing!
