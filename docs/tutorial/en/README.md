@@ -93,22 +93,22 @@ While this tutorial explains quantum concepts as we go, familiarity with these t
 
 ## Tutorial Features
 
-### 🎯 **Hands-on Learning**
+### **Hands-on Learning**
 Every concept is accompanied by working code examples you can run and modify.
 
-### 📊 **Progressive Difficulty**
+### **Progressive Difficulty**
 Concepts build naturally from simple qubits to complex quantum algorithms.
 
-### 🔬 **Practical Examples**
+### **Practical Examples**
 Real quantum computing problems and solutions, not just toy examples.
 
-### 🧪 **Interactive Exercises**
+### **Interactive Exercises**
 Practice problems with solutions to test your understanding.
 
-### 🚀 **Real-world Applications**
+### **Real-world Applications**
 Connect quantum algorithms to actual use cases in optimization, simulation, and machine learning.
 
-### 🔧 **Framework Integration**
+### **Framework Integration**
 Learn to export your quantum circuits to other platforms like Qiskit and Cirq.
 
 ## Code Examples and Exercises
@@ -186,4 +186,4 @@ Ready to dive into the fascinating world of quantum computing? Begin with [Chapt
 
 Remember: quantum computing is a field that rewards curiosity and experimentation. Don't hesitate to modify examples, try different parameters, and explore beyond the provided exercises. The quantum world is full of surprises, and the best way to understand it is through hands-on exploration.
 
-**Happy quantum computing!** 🚀⚛️
+**Happy quantum computing!**

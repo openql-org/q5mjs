@@ -4,33 +4,33 @@ An interactive demonstration of quantum interference phenomena using Q5M.js with
 
 ## Features
 
-- **🌊 Real-time Wave Animation**: Smooth Canvas-based interference pattern visualization
-- **🔬 Multiple Experiments**: Double-slit, Mach-Zehnder, Ramsey fringes, and custom superposition
-- **🎮 Interactive Controls**: Real-time phase and amplitude adjustment with immediate feedback
-- **📊 Live Quantum Analysis**: Dynamic probability distributions and amplitude calculations
-- **📐 Mathematical Framework**: Complete wave function representations and physics insights
-- **⚡ SSR/SPA Hybrid**: Server-side rendering with client-side quantum computations
-- **📱 Responsive Design**: Optimized for desktop, tablet, and mobile devices
-- **♿ Accessibility**: Full keyboard navigation and screen reader support
+- **Real-time Wave Animation**: Smooth Canvas-based interference pattern visualization
+- **Multiple Experiments**: Double-slit, Mach-Zehnder, Ramsey fringes, and custom superposition
+- **Interactive Controls**: Real-time phase and amplitude adjustment with immediate feedback
+- **Live Quantum Analysis**: Dynamic probability distributions and amplitude calculations
+- **Mathematical Framework**: Complete wave function representations and physics insights
+- **SSR/SPA Hybrid**: Server-side rendering with client-side quantum computations
+- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
+- **Accessibility**: Full keyboard navigation and screen reader support
 
 ## Quantum Experiments
 
-### 🔄 Double-Slit Experiment
+### Double-Slit Experiment
 The quintessential demonstration of wave-particle duality. A quantum particle travels through both slits simultaneously, creating an interference pattern that depends on the relative phase between paths.
 
 **Wave Function**: |ψ⟩ = α|path1⟩ + βe^(iφ)|path2⟩
 
-### 🔀 Mach-Zehnder Interferometer  
+### Mach-Zehnder Interferometer  
 Optical interferometer using beam splitters to demonstrate quantum superposition. The final measurement probability depends on the relative phase accumulated along different paths.
 
 **Wave Function**: |ψ⟩ = (1/√2)(|0⟩ + e^(iφ)|1⟩)
 
-### 📡 Ramsey Fringes
+### Ramsey Fringes
 Time-domain interference created by two separated oscillating fields. Fundamental to atomic clocks and precision measurements, showing oscillating population as a function of phase.
 
 **Wave Function**: |ψ⟩ = cos(θ/2)|0⟩ + sin(θ/2)e^(iφ)|1⟩
 
-### ⚙️ Custom Superposition
+### Custom Superposition
 Explore arbitrary quantum superpositions with adjustable amplitudes and phases. Observe how different combinations create constructive and destructive interference patterns.
 
 **Wave Function**: |ψ⟩ = α|0⟩ + βe^(iφ)|1⟩

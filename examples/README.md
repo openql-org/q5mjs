@@ -2,7 +2,7 @@
 
 This directory contains comprehensive examples demonstrating the capabilities of q5m.js, organized by learning level and use case.
 
-## 📚 Directory Structure
+## Directory Structure
 
 ### `tutorials/` - Step-by-step Learning
 Organized examples that correspond to the documentation tutorials:
@@ -43,7 +43,7 @@ Browser-based examples showcasing q5m.js integration with web frameworks:
 - **[react/01-circuit-builder/](browser/frameworks/react/01-circuit-builder/)** - Interactive circuit builder with React
 - **[vue/01-algorithm-visualizer/](browser/frameworks/vue/01-algorithm-visualizer/)** - Quantum algorithms with Vue.js
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Node.js Examples
 
@@ -129,7 +129,7 @@ npx tsx examples/run.ts cookbook
 npx tsx examples/run.ts showcase
 ```
 
-## 📖 Learning Path
+## Learning Path
 
 ### For Beginners
 1. Start with [hello-quantum.ts](tutorials/01-introduction/hello-quantum.ts)
@@ -149,7 +149,7 @@ npx tsx examples/run.ts showcase
 3. Create custom quantum algorithms
 4. Contribute new examples!
 
-## 💡 Example Categories
+## Example Categories
 
 ### Quantum Fundamentals
 - Superposition and interference
@@ -175,7 +175,7 @@ npx tsx examples/run.ts showcase
 - Custom gate construction
 - Export and integration workflows
 
-## 🔧 Requirements
+## Requirements
 
 ### Node.js Examples
 - Node.js 16+ or 18+
@@ -187,7 +187,7 @@ npx tsx examples/run.ts showcase
 - Local HTTP server (`serve`, `http-server`, or Python's built-in server)
 - Internet connection for CDN resources (Angular, React, Vue, D3.js, Chart.js, Three.js)
 
-## 📝 Adding New Examples
+## Adding New Examples
 
 When contributing new examples, follow these guidelines:
 
@@ -238,7 +238,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 - Include meaningful output and explanations
 - Test with different input parameters where applicable
 
-## 🌐 Integration
+## Integration
 
 These examples integrate with:
 - [q5m.js Documentation](../docs/)
@@ -246,7 +246,7 @@ These examples integrate with:
 - [API Reference](../docs/api-overview.md)
 - [Getting Started Guide](../docs/getting-started.md)
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions of new examples! Please:
 1. Follow the established patterns and structure
@@ -254,7 +254,7 @@ We welcome contributions of new examples! Please:
 3. Test your examples thoroughly
 4. Submit pull requests with clear descriptions
 
-## 📚 Related Resources
+## Related Resources
 
 - [q5m.js API Documentation](../docs/api/index.html)
 - [Quantum Computing Textbooks](../docs/README.md#resources)

@@ -2,7 +2,7 @@
 
 This directory contains comprehensive browser-based examples showcasing Q5M.js quantum computing library across different frameworks and integration scenarios.
 
-## 📁 Structure
+## Structure
 
 ### Frameworks
 Each framework implements the same three core examples:
@@ -30,7 +30,7 @@ Interactive notebook-style examples:
 - **RunKit** - Embeddable code examples
 - **CodePen** - Web development playground snippets
 
-## 🚀 Quick Start
+## Quick Start
 
 ### CDN Usage
 All examples use Q5M.js via CDN for simplicity:
@@ -52,7 +52,7 @@ python -m http.server 8000
 npx serve .
 ```
 
-## 📚 Example Details
+## Example Details
 
 ### 01-entanglement
 Demonstrates quantum entanglement principles:
@@ -75,7 +75,7 @@ Beautiful quantum interference demonstrations:
 - **Ramsey Fringes**: Time-domain interference
 - Animated and interactive visualizations
 
-## 🎯 Framework-Specific Features
+## Framework-Specific Features
 
 ### Vue.js Examples
 - Reactive data binding for quantum states
@@ -102,7 +102,7 @@ Beautiful quantum interference demonstrations:
 - Auto-generated routes
 - Built-in optimization
 
-## 🔧 Integration Examples
+## Integration Examples
 
 ### p5.js Integration
 Creative coding approach to quantum visualization:
@@ -128,7 +128,7 @@ Simple chart-based visualizations:
 - Algorithm performance comparisons
 - Probability distributions
 
-## 📖 Usage Tips
+## Usage Tips
 
 1. **Start Simple**: Begin with basic examples before exploring complex visualizations
 2. **Framework Choice**: Choose the framework you're most comfortable with
@@ -136,14 +136,14 @@ Simple chart-based visualizations:
 4. **Mobile**: Examples are responsive but complex 3D might perform poorly on mobile
 5. **Browser Support**: Modern browsers with ES6+ support recommended
 
-## 🔗 Related Resources
+## Related Resources
 
 - [Q5M.js Main Documentation](../../README.md)
 - [Core Examples](../README.md)
 - [Algorithm Tutorials](../tutorials/README.md)
 - [API Reference](../../docs/api/README.md)
 
-## 💡 Contributing
+## Contributing
 
 To add new examples:
 1. Follow the established directory structure
