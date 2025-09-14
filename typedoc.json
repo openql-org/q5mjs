@@ -69,6 +69,7 @@
     "Functions"
   ],
   "navigationLinks": {
+    "Home": "/q5mjs",
     "GitHub": "https://github.com/openql-org/q5mjs",
     "NPM": "https://www.npmjs.com/package/@q5m/q5m"
   },
