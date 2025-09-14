@@ -61,6 +61,15 @@
   padding: 0;
 }
 
+.tsd-breadcrumb li:not(:last-child)::after {
+  content: '›';
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  color: white;
+  opacity: 0.7;
+  font-weight: bold;
+}
+
 .tsd-breadcrumb a {
   color: white;
   text-decoration: none;
