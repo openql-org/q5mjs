@@ -1,4 +1,4 @@
-# Getting Started with q5m.js
+# - dynamically loaded. Getting Started with q5m.js
 
 ## Quick Installation
 
@@ -11,12 +11,12 @@ yarn add q5m
 
 ### Browser CDN
 ```html
-<script src="https://unpkg.com/q5m/dist/q5m.min.js"></script>
+<script src="https://unpkg.com/@q5m/q5m/dist/q5m.min.js"></script>
 ```
 
 ### ES Modules (Modern Browsers)
 ```javascript
-import { Circuit } from 'https://unpkg.com/q5m/dist/index.mjs'
+import { Circuit } from 'https://unpkg.com/@q5m/q5m/dist/index.mjs'
 ```
 
 ## Your First Quantum Circuit
@@ -25,7 +25,7 @@ Let's start with the most famous quantum example - creating a Bell state that de
 
 ### Basic Bell State
 ```typescript
-import { Circuit } from 'q5m';
+import { Circuit } from '@q5m/q5m';
 
 // Create a 2-qubit quantum circuit
 const circuit = new Circuit(2);
@@ -59,7 +59,7 @@ The Bell state creates a quantum superposition where measuring the qubits will g
 Circuits are the primary way to build quantum computations:
 
 ```typescript
-import { Circuit } from 'q5m';
+import { Circuit } from '@q5m/q5m';
 
 // Create circuit with specified number of qubits
 const circuit = new Circuit(3); // 3-qubit system
@@ -139,7 +139,7 @@ circuit.mp(Math.PI / 4, 1); // Measure with phase π/4
 
 #### Direct State Access
 ```typescript
-import { Circuit, QubitState, complex } from 'q5m';
+import { Circuit, QubitState, complex } from '@q5m/q5m';
 
 const circuit = new Circuit(2);
 circuit.h(0).cnot(0, 1);
@@ -164,7 +164,7 @@ console.log('Probability of |11⟩:', prob11);
 
 #### Custom Initial States
 ```typescript
-import { Circuit, QubitState, complex } from 'q5m';
+import { Circuit, QubitState, complex } from '@q5m/q5m';
 
 // Create custom 2-qubit initial state
 const customState = new QubitState(2, [
@@ -188,7 +188,7 @@ console.log('Result:', result.probabilities());
 Quantum algorithm for searching unsorted databases with quadratic speedup:
 
 ```typescript
-import { groverSearch, groverSearchForItem } from 'q5m';
+import { groverSearch, groverSearchForItem } from '@q5m/q5m';
 
 // Search for specific bit pattern
 const numQubits = 4;
@@ -215,7 +215,7 @@ console.log('Search results:', customResult.probabilities());
 Fundamental quantum algorithm for period finding and other applications:
 
 ```typescript
-import { quantumFourierTransform, qftEncode } from 'q5m';
+import { quantumFourierTransform, qftEncode } from '@q5m/q5m';
 
 // Apply QFT to encode classical data
 const data = [1, 0, 1, 0]; // Classical bit array
@@ -236,7 +236,7 @@ console.log('QFT result:', qftResult.execute().amplitudes());
 Estimate eigenvalues of unitary operators:
 
 ```typescript
-import { estimateEigenstatePhase, createUnitary } from 'q5m';
+import { estimateEigenstatePhase, createUnitary } from '@q5m/q5m';
 
 // Create a unitary matrix (rotation by some angle θ)
 const theta = 0.3;
@@ -260,7 +260,7 @@ console.log('Actual phase:', theta / (2 * Math.PI));
 q5m.js automatically optimizes quantum state representation based on sparsity:
 
 ```typescript
-import { Circuit } from 'q5m';
+import { Circuit } from '@q5m/q5m';
 
 // Large sparse circuit - most amplitudes remain zero
 const circuit = new Circuit(15);
@@ -273,7 +273,7 @@ console.log('Sparse representation:', !state.isDense);
 
 ### Performance Monitoring
 ```typescript
-import { Circuit } from 'q5m';
+import { Circuit } from '@q5m/q5m';
 
 // Monitor execution performance
 const startTime = performance.now();
@@ -296,7 +296,7 @@ Convert q5m.js circuits to other popular quantum computing frameworks:
 
 ### Qiskit (Python)
 ```typescript
-import { Circuit, exportToQiskit } from 'q5m';
+import { Circuit, exportToQiskit } from '@q5m/q5m';
 
 const circuit = new Circuit(2);
 circuit.h(0).cnot(0, 1).measure([0, 1]);
@@ -307,7 +307,7 @@ console.log('Qiskit code:\n', qiskitCode);
 
 ### OpenQASM
 ```typescript
-import { Circuit, exportToOpenQASM } from 'q5m';
+import { Circuit, exportToOpenQASM } from '@q5m/q5m';
 
 const circuit = new Circuit(2);
 circuit.h(0).cnot(0, 1);
@@ -318,7 +318,7 @@ console.log('OpenQASM:\n', qasmCode);
 
 ### Google Cirq
 ```typescript
-import { Circuit, exportToCirq } from 'q5m';
+import { Circuit, exportToCirq } from '@q5m/q5m';
 
 const circuit = new Circuit(3);
 circuit.h(0).cnot(0, 1).cnot(1, 2);
@@ -332,7 +332,7 @@ console.log('Cirq code:\n', cirqCode);
 ### React Application
 ```tsx
 import React, { useState, useEffect } from 'react';
-import { Circuit, groverSearchForItem } from 'q5m';
+import { Circuit, groverSearchForItem } from '@q5m/q5m';
 
 function QuantumSearchApp() {
   const [searchResult, setSearchResult] = useState<number[]>([]);
@@ -391,7 +391,7 @@ export default QuantumSearchApp;
 </template>
 
 <script>
-import { Circuit } from 'q5m';
+import { Circuit } from '@q5m/q5m';
 
 export default {
   data() {
