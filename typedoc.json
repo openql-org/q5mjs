@@ -73,9 +73,6 @@
     "NPM": "https://www.npmjs.com/package/@q5m/q5m"
   },
   "sidebarLinks": {
-    "Getting Started": "./docs/getting-started.md",
-    "Plugin System": "./docs/developers/plugin-system.md",
-    "Internal API": "./docs/developers/internal-api.md"
   },
   "customCss": "./docs/custom-docs.css",
   "customFooterHtml": "<script>document.addEventListener('DOMContentLoaded', function() { const h1 = document.querySelector('.tsd-page-title h1'); if (h1 && !h1.querySelector('a')) { h1.style.cursor = 'pointer'; h1.addEventListener('click', function() { window.location.href = './'; }); } });</script>",
