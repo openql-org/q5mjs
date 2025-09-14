@@ -1139,7 +1139,7 @@ Integrated development of **@q5m/ext-categorical** → **@q5m/ext-zx** ↔ **@q5
 
 ---
 
-## 📊 Overall Statistics & Summary
+## Overall Statistics & Summary
 
 ### Package Composition Statistics
 - **Total Extension Packages**: 41

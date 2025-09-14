@@ -1,0 +1,6 @@
+# GitHub Pages configuration
+title: q5m.js - Quantum Computing Library for JavaScript
+description: High-performance quantum computing simulation library for JavaScript/TypeScript
+theme: null
+baseurl: ""
+url: "https://openql-org.github.io/q5mjs"
