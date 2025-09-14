@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: Copyright 2025 OpenQL Project
 
 /**
- * @fileoverview Quantum algorithms module for q5m.js
+ * Quantum algorithms module for q5m.js
  *
  * This module provides implementations of fundamental quantum algorithms
  * that form the building blocks of quantum computing applications.

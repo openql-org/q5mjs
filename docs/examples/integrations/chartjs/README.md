@@ -9,25 +9,25 @@ A complete measurement analysis dashboard with multiple chart types and statisti
 
 **Key Features:**
 
-#### 🎯 **Measurement Campaign System**
+#### **Measurement Campaign System**
 - **Configurable Measurements**: Set shots per run (100-10,000) and number of runs (1-100)
 - **Multiple Measurement Bases**: Computational (Z), Hadamard (X), and Circular (Y) basis measurements
 - **Progress Tracking**: Real-time progress bars and status updates during measurement campaigns
 - **Automated Execution**: Asynchronous measurement processing with user-controlled stopping
 
-#### 📊 **Comprehensive Chart Suite**
+#### **Comprehensive Chart Suite**
 1. **Measurement Distribution**: Bar charts comparing observed frequencies vs. theoretical probabilities
 2. **Run-by-Run Results**: Line charts tracking probability evolution across measurement runs
 3. **Statistical Convergence**: Convergence analysis showing measurement accuracy improvement over time
 4. **Error Analysis**: Scatter plots visualizing measurement errors and statistical fluctuations
 
-#### 🔧 **Interactive Controls**
+#### **Interactive Controls**
 - **Quantum System Setup**: 1-4 qubit systems with configurable initial states
 - **Circuit Construction**: Complete gate library including single and two-qubit operations
 - **Real-time Analysis**: Auto-updating charts with toggle controls
 - **Data Management**: Export results and clear data functionality
 
-#### 📈 **Statistical Analysis**
+#### **Statistical Analysis**
 - **Fidelity Calculations**: Comparison between theoretical and observed probability distributions
 - **Confidence Intervals**: Visual representation of measurement uncertainty
 - **Standard Deviation Tracking**: Statistical spread analysis across measurement runs
