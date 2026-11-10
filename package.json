@@ -112,7 +112,7 @@
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "cypress": "^15.0.0",
-    "esbuild": "^0.25.8",
+    "esbuild": "^0.27.1",
     "eslint": "^9.34.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-cypress": "^5.1.1",
