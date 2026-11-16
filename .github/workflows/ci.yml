@@ -434,7 +434,7 @@ jobs:
           echo "- Full: $(stat -c%s dist/q5m.min.js | awk '{print int($1/1024)}')KB" >> release-assets/RELEASE_NOTES.md
 
       - name: Upload Release Assets
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: release-assets/*
           body_path: release-assets/RELEASE_NOTES.md
